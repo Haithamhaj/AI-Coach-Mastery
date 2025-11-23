@@ -20,10 +20,123 @@ st.set_page_config(
 )
 
 # Sidebar Language Selector
-st.sidebar.image("logo.jpg", width=200) # Updated to use width per warning
-# st.sidebar.title("AI Coach Mastery 🧠") # Removed title as logo has it
+st.sidebar.image("logo.jpg", width=200)
 language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"])
 t = translations[language]
+
+# --- AUTHENTICATION SYSTEM ---
+import auth_handler
+import firebase_config
+
+# Initialize Firebase (for Firestore only)
+if 'firebase_initialized' not in st.session_state:
+    if firebase_config.initialize_firebase():
+        st.session_state.firebase_initialized = True
+    else:
+        st.session_state.firebase_initialized = False
+
+# Check if user is authenticated
+if not auth_handler.is_authenticated():
+    st.title("🔐 Login / تسجيل الدخول")
+    
+    tab1, tab2, tab3 = st.tabs([
+        "Login / دخول", 
+        "Sign Up / تسجيل جديد",
+        "Forgot Password / نسيت كلمة المرور"
+    ])
+    
+    with tab1:
+        st.write("### Email & Password")
+        with st.form("login_form"):
+            email = st.text_input("Email / البريد الإلكتروني", key="login_email")
+            password = st.text_input("Password / كلمة المرور", type="password", key="login_password")
+            remember_me = st.checkbox("Remember me / تذكرني")
+            submit_login = st.form_submit_button("🔓 Login / دخول", use_container_width=True, type="primary")
+            
+            if submit_login:
+                if not email or not password:
+                    st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
+                else:
+                    with st.spinner("Verifying..." if language == "English" else "جاري التحقق..."):
+                        result = auth_handler.sign_in_with_email(email, password)
+                        
+                        if result.get("success"):
+                            auth_handler.save_session(result)
+                            st.success(f"Welcome back! / مرحباً بعودتك!")
+                            st.rerun()
+                        else:
+                            error_msg = result.get("error", "Unknown error")
+                            if "INVALID_PASSWORD" in error_msg or "INVALID_LOGIN_CREDENTIALS" in error_msg:
+                                st.error("Invalid email or password" if language == "English" else "البريد الإلكتروني أو كلمة المرور غير صحيحة")
+                            elif "USER_NOT_FOUND" in error_msg:
+                                st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
+                            else:
+                                st.error(f"Error: {error_msg}")
+    
+    with tab2:
+        st.write("### Create New Account")
+        with st.form("signup_form"):
+            new_email = st.text_input("Email / البريد الإلكتروني", key="signup_email")
+            new_password = st.text_input("Password / كلمة المرور", type="password", key="signup_password")
+            confirm_password = st.text_input("Confirm Password / تأكيد كلمة المرور", type="password")
+            submit_signup = st.form_submit_button("📝 Sign Up / تسجيل", use_container_width=True, type="primary")
+            
+            if submit_signup:
+                if not new_email or not new_password or not confirm_password:
+                    st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
+                elif new_password != confirm_password:
+                    st.error("Passwords do not match" if language == "English" else "كلمات المرور غير متطابقة")
+                elif len(new_password) < 6:
+                    st.error("Password must be at least 6 characters" if language == "English" else "يجب أن تكون كلمة المرور 6 أحرف على الأقل")
+                else:
+                    with st.spinner("Creating account..." if language == "English" else "جاري إنشاء الحساب..."):
+                        result = auth_handler.sign_up_with_email(new_email, new_password)
+                        
+                        if result.get("success"):
+                            # Also create user profile in Firestore
+                            firebase_config.create_user(new_email, new_password, new_email.split('@')[0])
+                            st.success("Account created successfully! Please login." if language == "English" else "تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.")
+                        else:
+                            error_msg = result.get("error", "Unknown error")
+                            if "EMAIL_EXISTS" in error_msg:
+                                st.error("Email already exists" if language == "English" else "البريد الإلكتروني مستخدم بالفعل")
+                            elif "WEAK_PASSWORD" in error_msg:
+                                st.error("Password is too weak" if language == "English" else "كلمة المرور ضعيفة جداً")
+                            else:
+                                st.error(f"Error: {error_msg}")
+    
+    with tab3:
+        st.write("### Reset Your Password")
+        with st.form("reset_form"):
+            reset_email = st.text_input("Email / البريد الإلكتروني", key="reset_email")
+            submit_reset = st.form_submit_button("📧 Send Reset Link / إرسال رابط إعادة التعيين", use_container_width=True)
+            
+            if submit_reset:
+                if not reset_email:
+                    st.error("Please enter your email" if language == "English" else "الرجاء إدخال بريدك الإلكتروني")
+                else:
+                    with st.spinner("Sending email..." if language == "English" else "جاري الإرسال..."):
+                        result = auth_handler.send_password_reset_email(reset_email)
+                        
+                        if result.get("success"):
+                            st.success("Password reset email sent! Check your inbox." if language == "English" else "تم إرسال رابط إعادة التعيين! تحقق من بريدك.")
+                        else:
+                            error_msg = result.get("error", "Unknown error")
+                            if "EMAIL_NOT_FOUND" in error_msg:
+                                st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
+                            else:
+                                st.error(f"Error: {error_msg}")
+    
+    # Stop execution if not logged in
+    st.stop()
+
+# Logout Button in Sidebar
+st.sidebar.markdown("---")
+st.sidebar.write(f"👤 **{st.session_state.user_email}**")
+if st.sidebar.button("🚪 Logout / خروج"):
+    auth_handler.clear_session()
+    st.rerun()
+st.sidebar.markdown("---")
 
 # Custom CSS for Branding
 st.markdown("""
@@ -109,7 +222,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     st.sidebar.error("⚠️ API Key not found in .env file")
 
-mode = st.sidebar.radio(t["select_mode"], [t["mode_training"], t["mode_exam"]])
+mode = st.sidebar.radio(t["select_mode"], [t["mode_training"], t["mode_exam"], t["mode_profile"]])
 
 # Helper: Radar Chart
 def plot_radar_chart(analysis_result):
@@ -377,7 +490,7 @@ if mode == t["mode_training"]:
 # --- TRAINING GYM (ADVANCED SIMULATOR) ---
 elif mode == t["mode_exam"]:
     st.header(t["exam_header"])
-    st.write("🎯 Advanced Training Gym / صالة التدريب المتقدمة" if language == "English" else "🎯 صالة التدريب المتقدمة")
+    st.write("🎯 Advanced Coaching Lab / صالة التدريب المتقدمة" if language == "English" else "🎯 صالة التدريب المتقدمة")
     
     # Initialize Training Session States
     if 'training_mode' not in st.session_state:
@@ -574,6 +687,19 @@ elif mode == t["mode_exam"]:
                             language=language
                         )
                         st.session_state.rephrase_result = result
+                        
+                        # Save to Firebase
+                        if auth_handler.is_authenticated():
+                            import datetime
+                            session_data = {
+                                'user_id': st.session_state.user_id,
+                                'session_type': 'Re-Phrase Challenge',
+                                'score': result.get('score', 0),
+                                'duration': "N/A",
+                                'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                'report_json': result
+                            }
+                            firebase_config.save_session(st.session_state.user_id, session_data)
             
             # Display results
             if st.session_state.get('rephrase_result') and 'error' not in st.session_state.rephrase_result:
@@ -695,6 +821,18 @@ elif mode == t["mode_exam"]:
                             elapsed_minutes,
                             language=language
                         )
+                        
+                        # Save to Firebase
+                        if auth_handler.is_authenticated():
+                            session_data = {
+                                'user_id': st.session_state.user_id,
+                                'session_type': 'Full Session',
+                                'score': st.session_state.final_session_report.get('overall_score', 0),
+                                'duration': f"{elapsed_minutes} min",
+                                'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                'report_json': st.session_state.final_session_report
+                            }
+                            firebase_config.save_session(st.session_state.user_id, session_data)
                     
                     st.rerun()
             
@@ -1224,6 +1362,56 @@ elif mode == t["mode_exam"]:
                         del st.session_state.transcribed_text
                     st.rerun()
 
+
+# --- MY PROFILE ---
+elif mode == t["mode_profile"]:
+    st.header(t["mode_profile"])
+    
+    user_email = st.session_state.user_email
+    user_id = st.session_state.user_id
+    st.write(f"### 👤 {user_email}")
+    st.write(f"📧 {user_email}")
+    
+    # Fetch History
+    with st.spinner("Loading history..."):
+        history = firebase_config.get_user_history(user_id)
+    
+    if not history:
+        st.info("No training history found yet. Start a session to see your progress!")
+    else:
+        # 1. Progress Chart
+        st.subheader("📈 Progress Tracking / تتبع التطور")
+        
+        # Prepare data for chart
+        chart_data = []
+        for session in history:
+            if 'score' in session:
+                chart_data.append({
+                    'Date': session.get('created_at'),
+                    'Score': session.get('score'),
+                    'Type': session.get('session_type', 'Unknown')
+                })
+        
+        if chart_data:
+            df_chart = pd.DataFrame(chart_data)
+            fig = px.line(df_chart, x='Date', y='Score', color='Type', markers=True, title="Performance Over Time")
+            fig.update_layout(yaxis_range=[0, 10])
+            st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # 2. History Table
+        st.subheader("📜 Session History / سجل الجلسات")
+        
+        for session in history:
+            with st.expander(f"{session.get('date', 'Unknown Date')} - {session.get('session_type', 'Session')} (Score: {session.get('score', 'N/A')})"):
+                st.write(f"**Duration:** {session.get('duration', 'N/A')}")
+                st.write(f"**Score:** {session.get('score', 'N/A')}/10")
+                
+                # Show report summary if available
+                if 'report_json' in session:
+                    report = session['report_json']
+                    st.json(report)
 
 # Footer
 st.markdown("---")
