@@ -1,0 +1,13 @@
+streamlit
+google-generativeai
+python-dotenv
+plotly
+pandas
+PyPDF2
+python-docx
+striprtf
+fpdf
+arabic-reshaper
+python-bidi
+kaleido
+reportlab

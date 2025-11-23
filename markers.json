@@ -1,0 +1,203 @@
+{
+  "version": "2021",
+  "competencies": [
+    {
+      "id": "C1",
+      "name": "Demonstrates Ethical Practice",
+      "type": "GATEKEEPER",
+      "description": "Demonstrates coaching that is aligned with the ICF Code of Ethics.",
+      "markers": []
+    },
+    {
+      "id": "C3",
+      "name": "Establishes and Maintains Agreements",
+      "markers": [
+        {
+          "id": "3.1",
+          "text": "Coach partners with the client to identify or reconfirm what the client wants to accomplish in this session."
+        },
+        {
+          "id": "3.2",
+          "text": "Coach partners with the client to define or reconfirm measure(s) of success for what the client wants to accomplish in this session."
+        },
+        {
+          "id": "3.3",
+          "text": "Coach inquires about or explores what is important or meaningful to the client about what they want to accomplish in this session."
+        },
+        {
+          "id": "3.4",
+          "text": "Coach partners with the client to define what the client believes they need to address to achieve what they want to accomplish in this session."
+        }
+      ]
+    },
+    {
+      "id": "C4",
+      "name": "Cultivates Trust and Safety",
+      "markers": [
+        {
+          "id": "4.1",
+          "text": "Coach acknowledges and respects the client’s unique talents, insights and work in the coaching process."
+        },
+        {
+          "id": "4.2",
+          "text": "Coach shows support, empathy or concern for the client."
+        },
+        {
+          "id": "4.3",
+          "text": "Coach acknowledges and supports the client’s expression of feelings, perceptions, concerns, beliefs or suggestions."
+        },
+        {
+          "id": "4.4",
+          "text": "Coach partners with the client by inviting the client to respond in any way to the coach’s contributions and accepts the client’s response."
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "name": "Maintains Presence",
+      "markers": [
+        {
+          "id": "5.1",
+          "text": "Coach acts in response to the whole person of the client (the who)."
+        },
+        {
+          "id": "5.2",
+          "text": "Coach acts in response to what the client wants to accomplish throughout this session (the what)."
+        },
+        {
+          "id": "5.3",
+          "text": "Coach partners with the client by supporting the client to choose what happens in this session."
+        },
+        {
+          "id": "5.4",
+          "text": "Coach demonstrates curiosity to learn more about the client."
+        },
+        {
+          "id": "5.5",
+          "text": "Coach allows for silence, pause or reflection."
+        }
+      ]
+    },
+    {
+      "id": "C6",
+      "name": "Listens Actively",
+      "markers": [
+        {
+          "id": "6.1",
+          "text": "Coach’s questions and observations are customized by using what the coach has learned about who the client is or the client’s situation."
+        },
+        {
+          "id": "6.2",
+          "text": "Coach inquires about or explores the words the client uses."
+        },
+        {
+          "id": "6.3",
+          "text": "Coach inquires about or explores the client’s emotions."
+        },
+        {
+          "id": "6.4",
+          "text": "Coach explores the client’s energy shifts, nonverbal cues or other behaviors."
+        },
+        {
+          "id": "6.5",
+          "text": "Coach inquires about or explores how the client currently perceives themself or their world."
+        },
+        {
+          "id": "6.6",
+          "text": "Coach allows the client to complete speaking without interrupting unless there is a stated coaching purpose to do so."
+        },
+        {
+          "id": "6.7",
+          "text": "Coach succinctly reflects or summarizes what the client communicated to ensure the client's clarity and understanding."
+        }
+      ]
+    },
+    {
+      "id": "C7",
+      "name": "Evokes Awareness",
+      "markers": [
+        {
+          "id": "7.1",
+          "text": "Coach asks questions about the client, such as their current way of thinking, feeling, values, needs, wants, beliefs or behavior."
+        },
+        {
+          "id": "7.2",
+          "text": "Coach asks questions to help the client explore beyond the client’s current thinking or feeling to new or expanded ways of thinking or feeling about themself (the who)."
+        },
+        {
+          "id": "7.3",
+          "text": "Coach asks questions to help the client explore beyond the client’s current thinking or feeling to new or expanded ways of thinking or feeling about their situation (the what)."
+        },
+        {
+          "id": "7.4",
+          "text": "Coach asks questions to help the client explore beyond current thinking, feeling or behaving toward the outcome the client desires."
+        },
+        {
+          "id": "7.5",
+          "text": "Coach shares – with no attachment – observations, intuitions, comments, thoughts or feelings, and invites the client’s exploration through verbal or tonal invitation."
+        },
+        {
+          "id": "7.6",
+          "text": "Coach asks clear, direct, primarily open-ended questions, one at a time, at a pace that allows for thinking, feeling or reflection by the client."
+        },
+        {
+          "id": "7.7",
+          "text": "Coach uses language that is generally clear and concise."
+        },
+        {
+          "id": "7.8",
+          "text": "Coach allows the client to do most of the talking."
+        }
+      ]
+    },
+    {
+      "id": "C8",
+      "name": "Facilitates Client Growth",
+      "markers": [
+        {
+          "id": "8.1",
+          "text": "Coach invites or allows the client to explore progress toward what the client wanted to accomplish in this session."
+        },
+        {
+          "id": "8.2",
+          "text": "Coach invites the client to state or explore the client's learning in this session about themself (the who)."
+        },
+        {
+          "id": "8.3",
+          "text": "Coach invites the client to state or explore the client's learning in this session about their situation (the what)."
+        },
+        {
+          "id": "8.4",
+          "text": "Coach invites the client to consider how they will use new learning from this coaching session."
+        },
+        {
+          "id": "8.5",
+          "text": "Coach partners with the client to design post-session thinking, reflection or action."
+        },
+        {
+          "id": "8.6",
+          "text": "Coach partners with the client to consider how to move forward, including resources, support or potential barriers."
+        },
+        {
+          "id": "8.7",
+          "text": "Coach partners with the client to design the best methods of accountability for themself."
+        },
+        {
+          "id": "8.8",
+          "text": "Coach celebrates the client’s progress and learning."
+        },
+        {
+          "id": "8.9",
+          "text": "Coach partners with the client on how they want to complete this session."
+        }
+      ]
+    }
+  ],
+  "cross_cutting_competencies": {
+    "C2": {
+      "name": "Embodies a Coaching Mindset",
+      "description": "Embodying a coaching mindset that is open, curious, flexible and client-centered.",
+      "mapped_markers": ["4.1", "4.3", "4.4", "5.1", "5.2", "5.3", "5.4", "6.1", "6.5", "7.1", "7.5"]
+    }
+  }
+}
