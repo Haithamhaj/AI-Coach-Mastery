@@ -448,9 +448,155 @@ elif mode == t["mode_exam"]:
                     with st.spinner("Generating..." if language == "English" else "جاري التوليد..."):
                         st.session_state.current_challenge = trainer.generate_bad_question(language=language)
                         st.session_state.current_draft_response = ""
+        
+        with col2:
+            if st.button("🔄 Reset / إعادة تعيين", use_container_width=True):
+                st.session_state.current_challenge = None
+                if 'rephrase_textarea_value' in st.session_state:
+                    del st.session_state.rephrase_textarea_value
+                if 'transcribed_text' in st.session_state:
+                    del st.session_state.transcribed_text
+                st.session_state.rephrase_result = None
+                st.session_state.last_audio_hash = None
+                st.session_state.audio_input_key += 1  # Force audio input to reset
+        
+        if st.session_state.current_challenge:
+            if 'error' in st.session_state.current_challenge:
+                st.error(f"⚠️ {st.session_state.current_challenge.get('error', 'Failed to generate challenge.')}")
+            else:
+                challenge = st.session_state.current_challenge
+                
+                # Display the bad question
+                st.error(f"**❌ Bad Question:**\n\n{challenge.get('bad_question', '')}")
+                
+                with st.expander("💡 Why is this bad? / لماذا هذا سيء؟", expanded=False):
+                    st.write(challenge.get('what_makes_it_bad', ''))
+                    st.caption(f"**Violates Marker:** {challenge.get('marker_violated', '')}")
+                
+                st.markdown("---")
+                
+                # Voice-to-Text Recording Section
+                st.write("### 🎤 Voice Input (Optional) / الإدخال الصوتي (اختياري)")
+                
+                audio_input = st.audio_input(
+                    "Record your answer / سجل إجابتك",
+                    key=f"rephrase_audio_{st.session_state.audio_input_key}"
+                )
+                
+                # Initialize transcribed_text in session state
+                if 'transcribed_text' not in st.session_state:
+                    st.session_state.transcribed_text = ""
+                
+                if audio_input:
+                    audio_hash = hash(audio_input.getvalue())
+                    if audio_hash != st.session_state.last_audio_hash:
+                        st.session_state.last_audio_hash = audio_hash
+                        try:
+                            with st.spinner("Transcribing..." if language == "English" else "جاري النسخ..."):
+                                from training_engine import TrainingEngine
+                                trainer = TrainingEngine(api_key, markers_data)
+                                transcript = trainer.transcribe_audio(audio_input, language=language)
+                                
+                                # Check if transcription failed
+                                if "error" in transcript.lower() or "خطأ" in transcript:
+                                    st.error(transcript)
+                                    st.session_state.transcribed_text = ""
+                                else:
+                                    st.session_state.transcribed_text = transcript
+                                    st.success("✅ Transcribed! Edit below if needed." if language == "English" else "✅ تم النسخ! عدل بالأسفل إذا لزم الأمر.")
+                        except Exception as e:
+                            st.error(f"Transcription failed: {str(e)}" if language == "English" else f"فشل النسخ: {str(e)}")
+                            st.session_state.transcribed_text = ""
+            
+            # Show transcribed text in editable area if available
+            if st.session_state.get('transcribed_text', ''):
+                st.write("**📝 Transcribed Text (Edit if needed) / النص المنسوخ (عدل إذا لزم الأمر):**")
+                edited_transcript = st.text_area(
+                    "Transcribed text / النص المنسوخ",
+                    value=st.session_state.transcribed_text,
+                    height=100,
+                    key="transcript_editor_rephrase",
+                    label_visibility="collapsed"
+                )
+                
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    if st.button("✅ Use this text / استخدم هذا النص", use_container_width=True, type="primary", key="use_text_rephrase_btn"):
+                        # Delete the key if exists, then store the text for next rerun
+                        if 'rephrase_textarea_value' in st.session_state:
+                            del st.session_state.rephrase_textarea_value
+                        st.session_state['_pending_rephrase_text'] = edited_transcript
                         st.rerun()
-    
-    
+                with col2:
+                    if st.button("🗑️ Clear / مسح", use_container_width=True, key="clear_rephrase_transcript_btn"):
+                        if 'transcribed_text' in st.session_state:
+                            del st.session_state.transcribed_text
+                        if 'last_audio_hash' in st.session_state:
+                            del st.session_state.last_audio_hash
+                        st.rerun()
+            
+            st.markdown("---")
+            
+            # Initialize rephrase_textarea_value if not exists
+            if 'rephrase_textarea_value' not in st.session_state:
+                # Check if there's pending text from "Use this text" button
+                if '_pending_rephrase_text' in st.session_state:
+                    st.session_state.rephrase_textarea_value = st.session_state._pending_rephrase_text
+                    del st.session_state._pending_rephrase_text
+                else:
+                    st.session_state.rephrase_textarea_value = ""
+            
+            # Editable text area (separate from voice)
+            st.write("### ⌨️ Your Rewrite / إعادة صياغتك")
+            user_rewrite = st.text_area(
+                "Type your rewrite OR use transcribed text above / اكتب إعادة الصياغة أو استخدم النص المنسوخ أعلاه",
+                height=120,
+                key="rephrase_textarea_value",
+                placeholder="Write your improved version here... / اكتب النسخة المحسّنة هنا..."
+            )
+            
+            if st.button("📝 Submit for Grading / إرسال للتقييم", type="primary"):
+                # Use the value from session_state
+                user_rewrite_text = st.session_state.get('rephrase_textarea_value', '')
+                
+                if not user_rewrite_text.strip():
+                    st.warning("Please write your rewrite first" if language == "English" else "الرجاء كتابة إعادة الصياغة أولاً")
+                elif not api_key:
+                    st.error("Please enter API Key" if language == "English" else "الرجاء إدخال API Key")
+                else:
+                    from training_engine import TrainingEngine
+                    trainer = TrainingEngine(api_key, markers_data)
+                    with st.spinner("Grading..." if language == "English" else "جاري التقييم..."):
+                        result = trainer.evaluate_rephrase(
+                            challenge.get('bad_question', ''),
+                            user_rewrite_text,
+                            challenge.get('marker_violated', ''),
+                            language=language
+                        )
+                        st.session_state.rephrase_result = result
+            
+            # Display results
+            if st.session_state.get('rephrase_result') and 'error' not in st.session_state.rephrase_result:
+                result = st.session_state.rephrase_result
+                score = result.get('score', 0)
+                
+                st.markdown("---")
+                st.subheader("📊 Your Results / نتائجك")
+                
+                # Score with color coding
+                if score >= 7:
+                    st.success(f"### 🌟 Score: {score}/10")
+                elif score >= 4:
+                    st.warning(f"### ⚠️ Score: {score}/10")
+                else:
+                    st.error(f"### ❌ Score: {score}/10")
+                
+                # Feedback
+                st.info(f"**Feedback:**\n\n{result.get('feedback', '')}")
+                
+                # Master version
+                with st.expander("✨ Master Coach Version / نسخة المدرب الخبير", expanded=True):
+                    st.success(result.get('master_version', ''))
     
     # MODE C: FULL COACHING SESSION
     elif mode_c_label in selected_mode:
@@ -791,140 +937,7 @@ elif mode == t["mode_exam"]:
                     st.session_state.hidden_analyses = []
                     st.rerun()
         
-        with col2:
-            if st.button("🔄 Reset / إعادة تعيين", use_container_width=True):
-                st.session_state.current_challenge = None
-                if 'rephrase_textarea_value' in st.session_state:
-                    del st.session_state.rephrase_textarea_value
-                if 'transcribed_text' in st.session_state:
-                    del st.session_state.transcribed_text
-                st.session_state.rephrase_result = None
-                st.session_state.last_audio_hash = None
-                st.session_state.audio_input_key += 1  # Force audio input to reset
-        
-            
-            # Display generated challenge or error if present
-            if st.session_state.current_challenge:
-                if 'error' in st.session_state.current_challenge:
-                    st.error(f"⚠️ {st.session_state.current_challenge.get('error', 'Failed to generate challenge.')}")
-                else:
-                    challenge = st.session_state.current_challenge
-                    st.error(f"**❌ Bad Question:**\n\n{challenge.get('bad_question', '')}")
-                    with st.expander("💡 Why is this bad? / لماذا هذا سيء؟", expanded=False):
-                        st.write(challenge.get('what_makes_it_bad', ''))
-                        st.caption(f"**Violates Marker:** {challenge.get('marker_violated', '')}")
-                    st.markdown("---")
-            if audio_input:
-                audio_hash = hash(audio_input.getvalue())
-                if audio_hash != st.session_state.last_audio_hash:
-                    st.session_state.last_audio_hash = audio_hash
-                    try:
-                        with st.spinner("Transcribing..." if language == "English" else "جاري النسخ..."):
-                            from training_engine import TrainingEngine
-                            trainer = TrainingEngine(api_key, markers_data)
-                            transcript = trainer.transcribe_audio(audio_input, language=language)
-                            
-                            # Check if transcription failed
-                            if "error" in transcript.lower() or "خطأ" in transcript:
-                                st.error(transcript)
-                                st.session_state.transcribed_text = ""
-                            else:
-                                st.session_state.transcribed_text = transcript
-                                st.success("✅ Transcribed! Edit below if needed." if language == "English" else "✅ تم النسخ! عدل بالأسفل إذا لزم الأمر.")
-                    except Exception as e:
-                        st.error(f"Transcription failed: {str(e)}" if language == "English" else f"فشل النسخ: {str(e)}")
-                        st.session_state.transcribed_text = ""
-            
-            # Show transcribed text in editable area if available
-            if st.session_state.get('transcribed_text', ''):
-                st.write("**📝 Transcribed Text (Edit if needed) / النص المنسوخ (عدل إذا لزم الأمر):**")
-                edited_transcript = st.text_area(
-                    "Transcribed text / النص المنسوخ",
-                    value=st.session_state.transcribed_text,
-                    height=100,
-                    key="transcript_editor_rephrase",
-                    label_visibility="collapsed"
-                )
-                
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    if st.button("✅ Use this text / استخدم هذا النص", use_container_width=True, type="primary", key="use_text_rephrase_btn"):
-                        # Delete the key if exists, then store the text for next rerun
-                        if 'rephrase_textarea_value' in st.session_state:
-                            del st.session_state.rephrase_textarea_value
-                        st.session_state['_pending_rephrase_text'] = edited_transcript
-                        st.rerun()
-                with col2:
-                    if st.button("🗑️ Clear / مسح", use_container_width=True, key="clear_rephrase_transcript_btn"):
-                        if 'transcribed_text' in st.session_state:
-                            del st.session_state.transcribed_text
-                        if 'last_audio_hash' in st.session_state:
-                            del st.session_state.last_audio_hash
-                        st.rerun()
-            
-            st.markdown("---")
-            
-            # Initialize rephrase_textarea_value if not exists
-            if 'rephrase_textarea_value' not in st.session_state:
-                # Check if there's pending text from "Use this text" button
-                if '_pending_rephrase_text' in st.session_state:
-                    st.session_state.rephrase_textarea_value = st.session_state._pending_rephrase_text
-                    del st.session_state._pending_rephrase_text
-                else:
-                    st.session_state.rephrase_textarea_value = ""
-            
-            # Editable text area (separate from voice)
-            st.write("### ⌨️ Your Rewrite / إعادة صياغتك")
-            user_rewrite = st.text_area(
-                "Type your rewrite OR use transcribed text above / اكتب إعادة الصياغة أو استخدم النص المنسوخ أعلاه",
-                height=120,
-                key="rephrase_textarea_value",
-                placeholder="Write your improved version here... / اكتب النسخة المحسّنة هنا..."
-            )
-            
-            if st.button("📝 Submit for Grading / إرسال للتقييم", type="primary"):
-                # Use the value from session_state
-                user_rewrite_text = st.session_state.get('rephrase_textarea_value', '')
-                
-                if not user_rewrite_text.strip():
-                    st.warning("Please write your rewrite first" if language == "English" else "الرجاء كتابة إعادة الصياغة أولاً")
-                elif not api_key:
-                    st.error("Please enter API Key" if language == "English" else "الرجاء إدخال API Key")
-                else:
-                    from training_engine import TrainingEngine
-                    trainer = TrainingEngine(api_key, markers_data)
-                    with st.spinner("Grading..." if language == "English" else "جاري التقييم..."):
-                        result = trainer.evaluate_rephrase(
-                            challenge.get('bad_question', ''),
-                            user_rewrite_text,
-                            challenge.get('marker_violated', ''),
-                            language=language
-                        )
-                        st.session_state.rephrase_result = result
-            
-            # Display results
-            if st.session_state.get('rephrase_result') and 'error' not in st.session_state.rephrase_result:
-                result = st.session_state.rephrase_result
-                score = result.get('score', 0)
-                
-                st.markdown("---")
-                st.subheader("📊 Your Results / نتائجك")
-                
-                # Score with color coding
-                if score >= 7:
-                    st.success(f"### 🌟 Score: {score}/10")
-                elif score >= 4:
-                    st.warning(f"### ⚠️ Score: {score}/10")
-                else:
-                    st.error(f"### ❌ Score: {score}/10")
-                
-                # Feedback
-                st.info(f"**Feedback:**\n\n{result.get('feedback', '')}")
-                
-                # Master version
-                with st.expander("✨ Master Coach Version / نسخة المدرب الخبير", expanded=True):
-                    st.success(result.get('master_version', ''))
-    
+
     # MODE B: DIFFICULT CLIENT SIMULATOR
     elif mode_b_label in selected_mode:
         st.subheader("🎭 Difficult Client Simulator")

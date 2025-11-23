@@ -52,20 +52,13 @@ Output JSON:
 """
         
         try:
-            try:
-                response = self.model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
-                text = response.text.strip()
-                if text.startswith("```json"):
-                    text = text[7:]
-                if text.endswith("```"):
-                    text = text[:-3]
-                # Attempt to parse JSON
-                return json.loads(text)
-            except json.JSONDecodeError as je:
-                # Return a clear error indicating JSON parsing failed
-                return {"error": f"JSON decode error: {str(je)}", "raw_response": text}
-            except Exception as e:
-                return {"error": str(e)}
+            response = self.model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            return json.loads(text)
         except Exception as e:
             return {"error": str(e)}
     
