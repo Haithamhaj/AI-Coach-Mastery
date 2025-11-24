@@ -177,23 +177,13 @@ def is_authenticated():
     """
     return st.session_state.get('user_authenticated', False)
 
-def save_to_cookie(user_data, remember_me=False):
+def save_to_cookie(user_data, remember_me=False, cookies=None):
     """
     Save user session to browser cookie if remember_me is True.
     """
-    if remember_me:
+    if remember_me and cookies:
         try:
             import json
-            import base64
-            from streamlit_cookies_manager import EncryptedCookieManager
-            
-            cookies = EncryptedCookieManager(
-                prefix="ai_coach_mastery_",
-                password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
-            )
-            
-            if not cookies.ready():
-                return
             
             # Store minimal session data
             session_data = {
@@ -207,22 +197,16 @@ def save_to_cookie(user_data, remember_me=False):
         except Exception as e:
             print(f"Failed to save cookie: {e}")
 
-def load_from_cookie():
+def load_from_cookie(cookies=None):
     """
     Load user session from browser cookie if exists.
     Returns user data or None.
     """
     try:
-        import json
-        from streamlit_cookies_manager import EncryptedCookieManager
-        
-        cookies = EncryptedCookieManager(
-            prefix="ai_coach_mastery_",
-            password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
-        )
-        
-        if not cookies.ready():
+        if not cookies or not cookies.ready():
             return None
+            
+        import json
         
         session_json = cookies.get("user_session")
         if session_json:
@@ -245,24 +229,17 @@ def load_from_cookie():
         print(f"Failed to load cookie: {e}")
         return None
 
-def clear_cookie():
+def clear_cookie(cookies=None):
     """
     Clear user session cookie.
     """
-    try:
-        from streamlit_cookies_manager import EncryptedCookieManager
-        
-        cookies = EncryptedCookieManager(
-            prefix="ai_coach_mastery_",
-            password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
-        )
-        
-        if cookies.ready():
+    if cookies and cookies.ready():
+        try:
             if "user_session" in cookies:
                 del cookies["user_session"]
                 cookies.save()
-    except Exception as e:
-        print(f"Failed to clear cookie: {e}")
+        except Exception as e:
+            print(f"Failed to clear cookie: {e}")
 
 
 def get_google_sign_in_button_html():

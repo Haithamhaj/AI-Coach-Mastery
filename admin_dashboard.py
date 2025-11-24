@@ -130,7 +130,7 @@ def show_admin_dashboard():
                 'Calls': data['calls']
             })
         
-       df_timeline = pd.DataFrame(timeline_data)
+        df_timeline = pd.DataFrame(timeline_data)
         
         # Line chart for tokens over time
         fig_line = go.Figure()

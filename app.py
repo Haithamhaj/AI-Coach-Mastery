@@ -51,9 +51,43 @@ st.sidebar.image("logo.jpg", width=200)
 language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"])
 t = translations[language]
 
+# DEBUG: Show current user status
+if 'user_email' in st.session_state:
+    st.sidebar.markdown("---")
+    st.sidebar.caption("🔧 Debug Info")
+    st.sidebar.caption(f"User: {st.session_state.user_email}")
+    
+    from admin_middleware import get_admin_middleware
+    admin_mw = get_admin_middleware()
+    is_admin_check = admin_mw.is_admin(st.session_state.user_email)
+    st.sidebar.caption(f"Is Admin: {is_admin_check}")
+    
+    if is_admin_check:
+        st.sidebar.success("Admin Access Active")
+    else:
+        st.sidebar.warning("No Admin Access")
+        
+
+
 # --- AUTHENTICATION SYSTEM ---
 import auth_handler
 import firebase_config
+
+# Initialize Cookie Manager
+try:
+    from streamlit_cookies_manager import EncryptedCookieManager
+    
+    cookies = EncryptedCookieManager(
+        prefix="ai_coach_mastery_",
+        password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
+    )
+    
+    if not cookies.ready():
+        # Wait for cookies to be ready
+        st.spinner("Loading session...")
+        st.stop()
+except Exception:
+    st.stop()
 
 # Initialize Firebase (for Firestore only)
 if 'firebase_initialized' not in st.session_state:
@@ -64,7 +98,7 @@ if 'firebase_initialized' not in st.session_state:
 
 # Try to auto-login from cookie if not authenticated
 if not auth_handler.is_authenticated():
-    saved_session = auth_handler.load_from_cookie()
+    saved_session = auth_handler.load_from_cookie(cookies=cookies)
     if saved_session:
         auth_handler.save_session(saved_session)
         st.rerun()
@@ -98,7 +132,11 @@ if not auth_handler.is_authenticated():
                             auth_handler.save_session(result)
                             # Save to cookie if remember_me is checked
                             if remember_me:
-                                auth_handler.save_to_cookie(result, remember_me=True)
+                                with st.spinner("Saving login info..."):
+                                    auth_handler.save_to_cookie(result, remember_me=True, cookies=cookies)
+                                    import time
+                                    time.sleep(2)  # Give time for cookie to save
+                            
                             st.success(f"Welcome back! / مرحباً بعودتك!")
                             st.rerun()
                         else:
@@ -278,14 +316,20 @@ if not auth_handler.is_authenticated():
                         
                         if result.get("success"):
                             # Also create user profile in Firestore
-                            firebase_config.create_user(new_email, new_password, new_email.split('@')[0])
-                            st.success("Account created successfully! Please login." if language == "English" else "تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.")
+                            create_result = firebase_config.create_user(new_email, new_password, new_email.split('@')[0])
+                            
+                            if "error" in create_result:
+                                st.error(f"Account created but profile failed: {create_result['error']}" if language == "English" else f"تم إنشاء الحساب ولكن فشل الملف الشخصي: {create_result['error']}")
+                            else:
+                                st.success("Account created successfully! Please login." if language == "English" else "تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.")
                         else:
                             error_msg = result.get("error", "Unknown error")
                             if "EMAIL_EXISTS" in error_msg:
                                 st.error("Email already exists" if language == "English" else "البريد الإلكتروني مستخدم بالفعل")
                             elif "WEAK_PASSWORD" in error_msg:
                                 st.error("Password is too weak" if language == "English" else "كلمة المرور ضعيفة جداً")
+                            elif "OPERATION_NOT_ALLOWED" in error_msg:
+                                st.error("Email/Password sign-in is disabled in Firebase Console" if language == "English" else "تسجيل الدخول بالبريد/كلمة المرور معطل في Firebase")
                             else:
                                 st.error(f"Error: {error_msg}")
     
@@ -407,17 +451,17 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     st.sidebar.error("⚠️ API Key not found in .env file")
 
-    # Check if user is admin
-    from admin_middleware import get_admin_middleware
-    admin = get_admin_middleware()
-    is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
-    
-    # Build mode options
-    mode_options = [t["mode_training"], t["mode_exam"], t["mode_profile"]]
-    if is_admin_user:
-        mode_options.append("📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن")
-    
-    mode = st.sidebar.radio(t["select_mode"], mode_options)
+# Check if user is admin
+from admin_middleware import get_admin_middleware
+admin = get_admin_middleware()
+is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
+
+# Build mode options
+mode_options = [t["mode_training"], t["mode_exam"], t["mode_profile"]]
+if is_admin_user:
+    mode_options.append("📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن")
+
+mode = st.sidebar.radio(t["select_mode"], mode_options)
 
 # Helper: Radar Chart
 def plot_radar_chart(analysis_result):

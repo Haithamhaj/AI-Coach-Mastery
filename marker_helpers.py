@@ -24,20 +24,20 @@ Record yourself asking 3 different clients what they want from the session.""",
 سجل نفسك وأنت تسأل 3 عملاء مختلفين عما يريدون من الجلسة."""
         },
         "3.2": {
-            "en": """**How to Demonstrate Marker 3.2:**
+            "en": '''**How to Demonstrate Marker 3.2:**
 - Ask: "How will you know this session was successful?"
 - Explore measurable outcomes: "What would be different if you achieve this?"
 - Check clarity: "On a scale of 1-10, how clear are you on what success looks like?"
 
 **Practice Phrase:**  
-"By the end of our session, what specifically would you like to have accomplished?"""",
-            "ar": """**كيف تُظهر Marker 3.2:**
+"By the end of our session, what specifically would you like to have accomplished?"''',
+            "ar": '''**كيف تُظهر Marker 3.2:**
 - اسأل: "كيف ستعرف أن هذه الجلسة كانت ناجحة؟"
 - استكشف النتائج القابلة للقياس: "ماذا سيكون مختلفاً إذا حققت هذا؟"
 - تحقق من الوضوح: "على مقياس من 1-10، ما مدى وضوحك حول شكل النجاح؟"
 
 **عبارة للممارسة:**  
-"بنهاية جلستنا، ما الذي تود تحقيقه بشكل محدد؟"""",
+"بنهاية جلستنا، ما الذي تود تحقيقه بشكل محدد؟"'''
         },
         "4.1": {
             "en": """**How to Demonstrate Marker 4.1:**
@@ -123,20 +123,20 @@ Always ASK if they want next steps rather than ASSIGN them.""",
     
     # Default recommendation
     default = {
-        "en": f"""**To improve Marker {marker_id}:**
+        "en": f'''**To improve Marker {marker_id}:**
 1. Review the ICF PCC Markers document for exact behavior
 2. Practice the specific language for this marker
 3. Record sessions and identify where you could demonstrate it
 4. Focus on ONE marker per practice session
 
-**Key Question:** "How can I partner MORE with my client here?"""",
-        "ar": f"""**لتحسين Marker {marker_id}:**
+**Key Question:** "How can I partner MORE with my client here?"''',
+        "ar": f'''**لتحسين Marker {marker_id}:**
 1. راجع وثيقة ICF PCC Markers للسلوك الدقيق
 2. مارس اللغة المحددة لهذا الماركر
 3. سجل الجلسات وحدد أين كان بإمكانك إظهاره
 4. ركز على ماركر واحد لكل جلسة تدريب
 
-**السؤال الأساسي:** "كيف يمكنني الشراكة أكثر مع عميلي؟""""
+**السؤال الأساسي:** "كيف يمكنني الشراكة أكثر مع عميلي؟"'''
     }
     
     marker_rec = recommendations.get(marker_id, default)

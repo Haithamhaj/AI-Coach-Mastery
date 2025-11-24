@@ -19,12 +19,23 @@ class AdminMiddleware:
             bool: True if user is admin, False otherwise
         """
         try:
+            # 1. Try direct lookup (if ID is email)
             user_ref = self.db.collection('users').document(user_email)
             user_doc = user_ref.get()
             
             if user_doc.exists:
                 user_data = user_doc.to_dict()
-                return user_data.get('role') == 'admin'
+                if user_data.get('role') == 'admin':
+                    return True
+            
+            # 2. Fallback: Query by email field (if ID is random UID)
+            users_ref = self.db.collection('users')
+            query = users_ref.where('email', '==', user_email).limit(1).stream()
+            
+            for doc in query:
+                user_data = doc.to_dict()
+                if user_data.get('role') == 'admin':
+                    return True
             
             return False
         except Exception as e:

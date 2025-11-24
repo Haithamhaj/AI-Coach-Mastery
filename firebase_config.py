@@ -75,8 +75,8 @@ def create_user(email, password, username):
         # Hash password
         password_hash = hashlib.sha256(password.encode()).hexdigest()
         
-        # Create user document
-        new_user_ref = db.collection('users').document()
+        # Create user document with email as ID
+        new_user_ref = db.collection('users').document(email)
         user_data = {
             'username': username,
             'email': email,

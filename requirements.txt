@@ -11,3 +11,4 @@ arabic-reshaper
 python-bidi
 kaleido
 reportlab
+streamlit-cookies-manager
