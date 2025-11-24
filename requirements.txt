@@ -14,3 +14,6 @@ python-bidi
 streamlit-lottie
 streamlit-cookies-manager
 firebase-admin
+PyPDF2
+python-docx
+striprtf
