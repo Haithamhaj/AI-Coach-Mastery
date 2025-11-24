@@ -176,3 +176,148 @@ def is_authenticated():
     Check if user is authenticated.
     """
     return st.session_state.get('user_authenticated', False)
+
+def save_to_cookie(user_data, remember_me=False):
+    """
+    Save user session to browser cookie if remember_me is True.
+    """
+    if remember_me:
+        try:
+            import json
+            import base64
+            from streamlit_cookies_manager import EncryptedCookieManager
+            
+            cookies = EncryptedCookieManager(
+                prefix="ai_coach_mastery_",
+                password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
+            )
+            
+            if not cookies.ready():
+                return
+            
+            # Store minimal session data
+            session_data = {
+                "email": user_data.get("email"),
+                "user_id": user_data.get("localId"),
+                "refresh_token": user_data.get("refreshToken")
+            }
+            
+            cookies["user_session"] = json.dumps(session_data)
+            cookies.save()
+        except Exception as e:
+            print(f"Failed to save cookie: {e}")
+
+def load_from_cookie():
+    """
+    Load user session from browser cookie if exists.
+    Returns user data or None.
+    """
+    try:
+        import json
+        from streamlit_cookies_manager import EncryptedCookieManager
+        
+        cookies = EncryptedCookieManager(
+            prefix="ai_coach_mastery_",
+            password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
+        )
+        
+        if not cookies.ready():
+            return None
+        
+        session_json = cookies.get("user_session")
+        if session_json:
+            session_data = json.loads(session_json)
+            
+            # Try to refresh the token
+            refresh_token = session_data.get("refresh_token")
+            if refresh_token:
+                result = refresh_id_token(refresh_token)
+                if result.get("success"):
+                    # Return refreshed session
+                    return {
+                        "email": session_data.get("email"),
+                        "localId": session_data.get("user_id"),
+                        "idToken": result.get("idToken"),
+                        "refreshToken": result.get("refreshToken")
+                    }
+        return None
+    except Exception as e:
+        print(f"Failed to load cookie: {e}")
+        return None
+
+def clear_cookie():
+    """
+    Clear user session cookie.
+    """
+    try:
+        from streamlit_cookies_manager import EncryptedCookieManager
+        
+        cookies = EncryptedCookieManager(
+            prefix="ai_coach_mastery_",
+            password=os.getenv("COOKIE_PASSWORD", "default_secret_key_change_me")
+        )
+        
+        if cookies.ready():
+            if "user_session" in cookies:
+                del cookies["user_session"]
+                cookies.save()
+    except Exception as e:
+        print(f"Failed to clear cookie: {e}")
+
+
+def get_google_sign_in_button_html():
+    """
+    Generate HTML for Google Sign-In button using Firebase UI.
+    """
+    firebase_config_js = f"""
+    {{
+        apiKey: "{FIREBASE_API_KEY}",
+        authDomain: "{FIREBASE_PROJECT_ID}.firebaseapp.com",
+        projectId: "{FIREBASE_PROJECT_ID}"
+    }}
+    """
+    
+    html = f"""
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui-auth.css" />
+    
+    <div id="firebaseui-auth-container"></div>
+    
+    <script>
+        const firebaseConfig = {firebase_config_js};
+        firebase.initializeApp(firebaseConfig);
+        
+        const ui = new firebaseui.auth.AuthUI(firebase.auth());
+        
+        ui.start('#firebaseui-auth-container', {{
+            signInOptions: [
+                {{
+                    provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                    customParameters: {{
+                        prompt: 'select_account'
+                    }}
+                }}
+            ],
+            callbacks: {{
+                signInSuccessWithAuthResult: function(authResult) {{
+                    const user = authResult.user;
+                    window.parent.postMessage({{
+                        type: 'FIREBASE_AUTH_SUCCESS',
+                        email: user.email,
+                        uid: user.uid,
+                        idToken: user.accessToken
+                    }}, '*');
+                    return false;
+                }},
+                signInFailure: function(error) {{
+                    console.error('Sign in failed:', error);
+                    return Promise.resolve();
+                }}
+            }}
+        }});
+    </script>
+    """
+    return html
+

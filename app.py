@@ -13,7 +13,7 @@ load_dotenv()
 
 # Page Configuration
 st.set_page_config(
-    page_title="AI Coach Mastery",
+    page_title="AI Coach Mastery - PCC Level Training",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -34,6 +34,13 @@ if 'firebase_initialized' not in st.session_state:
         st.session_state.firebase_initialized = True
     else:
         st.session_state.firebase_initialized = False
+
+# Try to auto-login from cookie if not authenticated
+if not auth_handler.is_authenticated():
+    saved_session = auth_handler.load_from_cookie()
+    if saved_session:
+        auth_handler.save_session(saved_session)
+        st.rerun()
 
 # Check if user is authenticated
 if not auth_handler.is_authenticated():
@@ -62,6 +69,9 @@ if not auth_handler.is_authenticated():
                         
                         if result.get("success"):
                             auth_handler.save_session(result)
+                            # Save to cookie if remember_me is checked
+                            if remember_me:
+                                auth_handler.save_to_cookie(result, remember_me=True)
                             st.success(f"Welcome back! / مرحباً بعودتك!")
                             st.rerun()
                         else:
@@ -72,6 +82,159 @@ if not auth_handler.is_authenticated():
                                 st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
                             else:
                                 st.error(f"Error: {error_msg}")
+        
+        # Divider
+        st.markdown("---")
+        st.write("### Or sign in with:")
+        
+        # Google Sign-In using Firebase JS SDK
+        import streamlit.components.v1 as components
+        
+        # Check if Google auth callback happened
+        if 'google_auth_token' in st.session_state and st.session_state.google_auth_token:
+            # Process the Google login
+            google_session = {
+                "success": True,
+                "email": st.session_state.google_auth_email,
+                "localId": st.session_state.google_auth_uid,
+                "idToken": st.session_state.google_auth_token,
+                "refreshToken": "google_refresh_token"
+            }
+            auth_handler.save_session(google_session)
+            
+            # Also create user profile in Firestore if doesn't exist
+            firebase_config.create_user(
+                st.session_state.google_auth_email,
+                "google_oauth_user",
+                st.session_state.google_auth_email.split('@')[0]
+            )
+            
+            # Clear the temporary state
+            del st.session_state.google_auth_token
+            del st.session_state.google_auth_email
+            del st.session_state.google_auth_uid
+            
+            st.rerun()
+        
+        # Firebase configuration from environment
+        firebase_api_key = os.getenv("FIREBASE_API_KEY")
+        firebase_project_id = os.getenv("FIREBASE_PROJECT_ID")
+        
+        # Google Sign-In Button with Firebase JS SDK
+        google_signin_html = f"""
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+        
+        <style>
+            .google-btn {{
+                background-color: white;
+                border: 1px solid #dadce0;
+                border-radius: 4px;
+                color: #3c4043;
+                cursor: pointer;
+                font-family: 'Roboto', arial, sans-serif;
+                font-size: 14px;
+                height: 40px;
+                letter-spacing: 0.25px;
+                padding: 0 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background-color 0.3s, box-shadow 0.3s;
+                width: 100%;
+                max-width: 400px;
+                margin: 10px auto;
+            }}
+            .google-btn:hover {{
+                background-color: #f8f9fa;
+                box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            }}
+            .google-btn:active {{
+                background-color: #f1f3f4;
+            }}
+            .google-icon {{
+                height: 18px;
+                width: 18px;
+                margin-right: 8px;
+            }}
+            #status {{
+                text-align: center;
+                margin-top: 10px;
+                color: #5f6368;
+                font-size: 12px;
+            }}
+        </style>
+        
+        <button id="googleSignInBtn" class="google-btn">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span>Sign in with Google</span>
+        </button>
+        
+        <div id="status"></div>
+        
+        <script>
+            const firebaseConfig = {{
+                apiKey: "{firebase_api_key}",
+                authDomain: "{firebase_project_id}.firebaseapp.com",
+                projectId: "{firebase_project_id}"
+            }};
+            
+            // Initialize Firebase
+            if (!firebase.apps.length) {{
+                firebase.initializeApp(firebaseConfig);
+            }}
+            
+            const auth = firebase.auth();
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({{
+                prompt: 'select_account'
+            }});
+            
+            document.getElementById('googleSignInBtn').addEventListener('click', async () => {{
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = 'Opening Google Sign-In...';
+                
+                try {{
+                    const result = await auth.signInWithPopup(provider);
+                    const user = result.user;
+                    const token = await user.getIdToken();
+                    
+                    statusDiv.textContent = 'Success! Redirecting...';
+                    
+                    // Send data back to Streamlit via query parameters
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('google_token', token);
+                    currentUrl.searchParams.set('google_email', user.email);
+                    currentUrl.searchParams.set('google_uid', user.uid);
+                    
+                    window.parent.location.href = currentUrl.toString();
+                    
+                }} catch (error) {{
+                    console.error('Error during sign in:', error);
+                    statusDiv.textContent = 'Sign-in failed: ' + error.message;
+                }}
+            }});
+        </script>
+        """
+        
+        components.html(google_signin_html, height=100)
+        
+        # Check for Google auth callback in URL parameters
+        query_params = st.query_params
+        if 'google_token' in query_params:
+            st.session_state.google_auth_token = query_params['google_token']
+            st.session_state.google_auth_email = query_params['google_email']
+            st.session_state.google_auth_uid = query_params['google_uid']
+            
+            # Clear query parameters
+            st.query_params.clear()
+            st.rerun()
+    
     
     with tab2:
         st.write("### Create New Account")
@@ -135,6 +298,7 @@ st.sidebar.markdown("---")
 st.sidebar.write(f"👤 **{st.session_state.user_email}**")
 if st.sidebar.button("🚪 Logout / خروج"):
     auth_handler.clear_session()
+    auth_handler.clear_cookie()  # Clear saved cookie
     st.rerun()
 st.sidebar.markdown("---")
 
@@ -355,15 +519,19 @@ if mode == t["mode_training"]:
                     else:
                         st.success(t["analysis_complete"])
                         
-                        # --- MCC EXECUTIVE DASHBOARD ---
-                        st.markdown("## 🎯 MCC Session Audit / تدقيق جلسة MCC")
+                        # --- PCC PERFORMANCE AUDIT ---
+                        st.markdown("## 🎯 PCC Performance Audit / تدقيق أداء PCC")
                         
                         # 1. Top Metrics Row (4 Columns)
                         col1, col2, col3, col4 = st.columns(4)
                         
                         with col1:
-                            overall_score = analysis_result.get('overall_score', 6.0)
-                            st.metric("📊 Overall Score / النتيجة", f"{overall_score:.1f}/10")
+                            markers_observed = analysis_result.get('markers_observed', 0)
+                            compliance_pct = analysis_result.get('compliance_percentage', 0)
+                            pcc_result = analysis_result.get('overall_pcc_result', 'Fail')
+                            result_icon = "✅" if pcc_result == "Pass" else "❌"
+                            st.metric("📊 Marker Compliance / الالتزام بالعلامات", f"{markers_observed}/37 ({compliance_pct:.0f}%)")
+                            st.caption(f"{result_icon} {pcc_result}")
                         
                         with col2:
                             talk_ratio = analysis_result.get('talk_ratio', 'N/A')
@@ -378,93 +546,81 @@ if mode == t["mode_training"]:
                             ethics_icon = "✅" if ethics != "FAIL" else "❌"
                             st.metric("⚖️ Ethics / الأخلاقيات", f"{ethics_icon} {ethics}")
                         
+                        # Validation Warning (if markers are missing)
+                        validation = analysis_result.get('validation_warning', {})
+                        if validation.get('status') == 'INCOMPLETE':
+                            st.warning(f"⚠️ **Validation Warning:** {validation.get('message', 'Some markers missing')}")
+                            st.caption("The AI did not evaluate all 37 markers. Results may be incomplete.")
+                        elif validation.get('status') == 'COMPLETE':
+                            st.success("✅ All 37 markers evaluated")
+                        
                         st.markdown("---")
 
-                        # 2. Visual Centerpiece - Radar Chart
+                        # 2. 8 Competencies Overview (PCC Hierarchy)
+                        st.subheader("📋 8 Core Competencies / الكفاءات الثمانية الأساسية")
+                        
                         competencies_dict = analysis_result.get('competencies', {})
                         
                         if competencies_dict:
-                            # Prepare radar chart data
-                            radar_data = []
-                            for comp_id, comp_data in competencies_dict.items():
-                                radar_data.append({
-                                    'Competency': comp_id,
-                                    'Score': comp_data.get('score', 0),
-                                    'Name': comp_data.get('name', comp_id)
-                                })
+                            # Define competency order
+                            comp_order = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']
                             
-                            df_radar = pd.DataFrame(radar_data)
-                            
-                            fig_radar = px.line_polar(
-                                df_radar, 
-                                r='Score', 
-                                theta='Competency', 
-                                line_close=True,
-                                title="Competency Balance / توازن الجدارات",
-                                range_r=[0, 10],
-                                hover_data=['Name']
-                            )
-                            fig_radar.update_traces(fill='toself', fillcolor='rgba(63, 81, 181, 0.3)')
-                            fig_radar.update_layout(
-                                polar=dict(
-                                    radialaxis=dict(
-                                        visible=True,
-                                        range=[0, 10],
-                                        tickmode='linear',
-                                        tick0=0,
-                                        dtick=2
-                                    )
-                                ),
-                                showlegend=False,
-                                height=500
-                            )
-                            
-                            st.plotly_chart(fig_radar, use_container_width=True)
-                            
-                            # Save radar chart for PDF
-                            try:
-                                fig_radar.write_image("radar_chart.png")
-                            except Exception as e:
-                                st.warning(f"Could not save chart for PDF: {e}")
+                            for comp_id in comp_order:
+                                if comp_id not in competencies_dict:
+                                    continue
+                                    
+                                comp_data = competencies_dict[comp_id]
+                                comp_name = comp_data.get('name', comp_id)
+                                
+                                # Count markers for this competency
+                                markers_list = comp_data.get('markers', [])
+                                if markers_list:
+                                    observed = sum(1 for m in markers_list if m.get('status') == 'Observed')
+                                    total = len(markers_list)
+                                    comp_status = f"{observed}/{total} Markers"
+                                    status_icon = "✅" if observed >= (total * 0.7) else "⚠️" if observed >= (total * 0.5) else "❌"
+                                else:
+                                    # For C1 and C2 (no individual markers)
+                                    comp_status = comp_data.get('status', 'N/A')
+                                    status_icon = "✅" if comp_status == "Pass" else "❌"
+                                
+                                with st.expander(f"{status_icon} **{comp_id}: {comp_name}** - {comp_status}", expanded=False):
+                                    # Show feedback for C1 and C2
+                                    if comp_id in ['C1', 'C2']:
+                                        feedback = comp_data.get('feedback', 'No feedback available')
+                                        st.info(feedback)
+                                        
+                                        if comp_id == 'C2':
+                                            st.caption("**Note:** C2 is assessed through cross-cutting markers: 4.1, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4, 6.1, 6.5, 7.1, 7.5")
+                                    
+                                    # Show markers for C3-C8
+                                    if markers_list:
+                                        for marker in markers_list:
+                                            marker_id = marker.get('id', '')
+                                            behavior = marker.get('behavior', marker.get('text', ''))
+                                            status = marker.get('status', 'Not Observed')
+                                            evidence = marker.get('evidence', 'No evidence found')
+                                            feedback = marker.get('feedback', marker.get('auditor_note', ''))
+                                            
+                                            if status == 'Observed':
+                                                st.success(f"**✅ Marker {marker_id}**: {behavior}")
+                                                st.write(f"**Evidence:** {evidence}")
+                                                if feedback:
+                                                    st.caption(f"**Assessment:** {feedback}")
+                                            else:
+                                                st.error(f"**❌ Marker {marker_id}**: {behavior}")
+                                                st.write(f"**Evidence:** {evidence}")
+                                                if feedback:
+                                                    st.caption(f"**Assessment:** {feedback}")
+                                            
+                                            st.markdown("---")
                         
                         st.markdown("---")
 
-                        # 3. Detailed Analysis (Enhanced Accordions with Color Coding)
-                        st.subheader("📚 Detailed Competency Analysis / التحليل التفصيلي")
-                        
-                        if competencies_dict:
-                            for comp_id, comp_data in competencies_dict.items():
-                                comp_name = comp_data.get('name', comp_id)
-                                comp_score = comp_data.get('score', 0)
-                                
-                                with st.expander(f"{comp_id}: {comp_name} - {comp_score:.1f}/10", expanded=False):
-                                    # Progress bar
-                                    st.progress(comp_score / 10)
-                                    
-                                    # Markers
-                                    for marker in comp_data.get('markers', []):
-                                        marker_id = marker.get('id', '')
-                                        status = marker.get('status', 'Fail')
-                                        evidence = marker.get('evidence', 'N/A')
-                                        auditor_note = marker.get('auditor_note', '')
-                                        
-                                        if status == 'Pass':
-                                            # Green success box
-                                            st.success(f"**✅ Marker {marker_id}**: Pass")
-                                            st.write(f"**Evidence:** {evidence}")
-                                            st.caption(f"**Auditor Note:** {auditor_note}")
-                                        else:
-                                            # Red failure box
-                                            st.error(f"**❌ Marker {marker_id}**: Fail")
-                                            st.write(f"**Missing Evidence**")
-                                            st.caption(f"**Auditor Critique:** {auditor_note}")
-                                        
-                                        st.markdown("---")
-                        
-                        # 4. PDF Generation using ReportLab
+                        # 3. PDF Generation using ReportLab
                         from pdf_renderer import generate_mcc_pdf
                         
-                        if st.button("📄 Download MCC Audit Report / تحميل تقرير التدقيق"):
+                        if st.button("📄 Download PCC Audit Report / تحميل تقرير التدقيق"):
                             try:
                                 # Add ethics_status to result for PDF
                                 analysis_result['ethics_status'] = st.session_state.ethics_result.get('status', 'PASS') if st.session_state.ethics_result else 'PASS'
@@ -699,7 +855,10 @@ elif mode == t["mode_exam"]:
                                 'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
                                 'report_json': result
                             }
-                            firebase_config.save_session(st.session_state.user_id, session_data)
+                            if firebase_config.save_session(st.session_state.user_id, session_data):
+                                st.success("✅ Session saved to your profile!" if language == "English" else "✅ تم حفظ الجلسة في ملفك الشخصي!")
+                        else:
+                            st.warning("⚠️ Login to save your progress" if language == "English" else "⚠️ سجل دخول لحفظ تقدمك")
             
             # Display results
             if st.session_state.get('rephrase_result') and 'error' not in st.session_state.rephrase_result:
@@ -1122,10 +1281,28 @@ elif mode == t["mode_exam"]:
                 st.session_state.client_topic = "career"
             st.session_state.client_topic = [k for k, v in topic_options.items() if v == selected_topic_label][0]
         
-        col3, col4 = st.columns([2, 1])
+        col3, col4, col5 = st.columns([2, 1, 1])
         
         with col4:
-            if st.button("🔄 Reset Conversation / إعادة تعيين المحادثة", use_container_width=True):
+            if st.button("🔄 Reset / إعادة تعيين", use_container_width=True):
+                # Save session before reset if there's conversation history
+                if auth_handler.is_authenticated() and len(st.session_state.conversation_history) > 0:
+                    import datetime
+                    session_data = {
+                        'user_id': st.session_state.user_id,
+                        'session_type': 'Difficult Client Simulator',
+                        'score': len(st.session_state.conversation_history),  # Number of exchanges
+                        'duration': "N/A",
+                        'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                        'report_json': {
+                            'persona': st.session_state.client_persona,
+                            'topic': st.session_state.client_topic,
+                            'exchanges': len(st.session_state.conversation_history),
+                            'conversation': st.session_state.conversation_history
+                        }
+                    }
+                    firebase_config.save_session(st.session_state.user_id, session_data)
+                
                 st.session_state.conversation_history = []
                 if 'coach_textarea_value' in st.session_state:
                     del st.session_state.coach_textarea_value

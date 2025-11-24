@@ -65,65 +65,130 @@ class AnalysisEngine:
         lang_instruction = "Translate the 'reasoning' and 'evidence' (if possible/relevant) into Arabic. Keep Marker IDs (e.g., 3.1) as is." if language == "العربية" else "Output in English."
 
     def analyze_markers(self, content, is_audio=False, language="English"):
+        """
+        Stage 2: PCC Marker Detection and Compliance Assessment
+        """
+        if not self.api_key:
+            return {"error": "API Key missing"}
+
         markers_context = json.dumps(self.markers_data, ensure_ascii=False)
-        lang_instruction = "Provide ALL text output in Arabic including evidence, reasoning, and auditor notes." if language == "العربية" else "Provide ALL text output in English."
+        lang_instruction = "Provide ALL text output in Arabic including evidence, reasoning, and feedback." if language == "العربية" else "Provide ALL text output in English."
         
         prompt = f"""
-You are an EXPERT ICF ASSESSOR conducting a MASTER CERTIFIED COACH (MCC) level audit.
+You are an EXPERT ICF PCC ASSESSOR conducting a PROFESSIONAL CERTIFIED COACH (PCC) level audit.
+Your evaluation Bible is the "ICF PCC Markers 2021" document.
+
+CRITICAL: This is PCC Level (Level 2), NOT MCC (Level 3).
+- Focus on OBSERVABLE BEHAVIORS (Markers), not artistry or mastery
+- Evaluate based on PRESENCE or ABSENCE of specific marker behaviors
+- Use clear, evidence-based assessment
 
 PERSONA & TONE:
-- Professional, clinical, and precise
-- Avoid cheerleading language (e.g., "Good job!", "Well done!")
-- Use professional coaching terminology: "Ontological shift", "Partnering", "Evoking Awareness", "Co-creating", "Client's Agenda"
-- Be a RUTHLESS auditor - identify gaps with surgical precision
+- Professional, objective, and evidence-based
+- Avoid subjective language like "masterful" or "transformational"
+- Use PCC terminology: "Observable behavior", "Marker demonstrated", "Evidence of partnering"
+- Be precise and clinical in your assessment
 
-SCORING PHILOSOPHY:
-- Baseline: 6/10 (Competent)
-- 10/10 is PERFECTION (rare)
-- Award points ONLY for explicit, verifiable evidence
-- Deduct points for violations or missed opportunities
-- Each competency score reflects marker coverage (Pass = contribute, Fail = reduce score)
+PCC SCORING PHILOSOPHY:
+- Count MARKERS, not subjective quality
+- Each marker is either "Observed" or "Not Observed"
+- Compliance % = (Markers Observed / Total Markers) × 100
+- PCC Pass Threshold: Typically 70-80% marker compliance
+- Focus on WHAT WAS DONE, not how beautifully it was done
 
 {lang_instruction}
 
-MARKERS REFERENCE:
+MARKERS REFERENCE (8 Competencies → 37 Markers):
 {markers_context}
 
 REQUIRED JSON OUTPUT STRUCTURE:
 {{
     "talk_ratio": "Client: XX% / Coach: YY%",
     "silence_count": <integer>,
-    "overall_score": <float 1-10>,
+    "markers_observed": <integer count of markers with status "Observed">,
+    "total_markers": 37,
+    "compliance_percentage": <float 0-100>,
+    "overall_pcc_result": "Pass" or "Fail",
     "competencies": {{
         "C1": {{
             "name": "Demonstrates Ethical Practice",
-            "score": <float 1-10>,
+            "status": "Pass" or "Fail",
+            "feedback": "Brief assessment of ethical practice"
+        }},
+        "C2": {{
+            "name": "Embodies a Coaching Mindset",
+            "status": "Pass" or "Fail",
+            "feedback": "Assessment based on cross-cutting markers",
+            "mapped_markers": ["4.1", "4.3", "4.4", "5.1", "5.2", "5.3", "5.4", "6.1", "6.5", "7.1", "7.5"]
+        }},
+        "C3": {{
+            "name": "Establishes and Maintains Agreements",
             "markers": [
                 {{
-                    "id": "1.1",
-                    "status": "Pass" or "Fail",
-                    "evidence": "Direct quote with [timestamp] if available",
-                    "auditor_note": "Clinical critique: What was observed or what was missing"
+                    "id": "3.1",
+                    "behavior": "Partners with client to identify or reconfirm topic",
+                    "status": "Observed" or "Not Observed",
+                    "evidence": "Direct quote from session with [timestamp] if available",
+                    "feedback": "Specific observation about this marker"
+                }},
+                {{
+                    "id": "3.2",
+                    "behavior": "Partners with client to define measures of success",
+                    "status": "Observed" or "Not Observed",
+                    "evidence": "Direct quote or 'No evidence found'",
+                    "feedback": "Specific observation"
                 }}
+                // Continue for all markers in C3 (3.1-3.4)
             ]
         }},
-        "C2": {{ ... }},
-        ... (all 8 competencies C1-C8)
+        "C4": {{
+            "name": "Cultivates Trust and Safety",
+            "markers": [
+                // All markers 4.1-4.4
+            ]
+        }},
+        "C5": {{
+            "name": "Maintains Presence",
+            "markers": [
+                // All markers 5.1-5.5
+            ]
+        }},
+        "C6": {{
+            "name": "Listens Actively",
+            "markers": [
+                // All markers 6.1-6.7
+            ]
+        }},
+        "C7": {{
+            "name": "Evokes Awareness",
+            "markers": [
+                // All markers 7.1-7.8
+            ]
+        }},
+        "C8": {{
+            "name": "Facilitates Client Growth",
+            "markers": [
+                // All markers 8.1-8.9
+            ]
+        }}
     }}
 }}
 
 ANALYSIS INSTRUCTIONS:
 1. Estimate talk_ratio based on dialogue distribution
 2. Count silence moments (pauses > 3 seconds)
-3. For each marker:
-   - Status = "Pass" if evidence clearly demonstrates the behavior
-   - Status = "Fail" if not observed or insufficient
-   - Evidence = Exact quote with context
-   - Auditor Note = Professional critique explaining your decision
-4. Calculate competency scores based on marker pass/fail ratio and quality
-5. Calculate overall_score as weighted average of all competencies
+3. For EACH of the 37 markers:
+   - Status = "Observed" if you find clear evidence of the behavior
+   - Status = "Not Observed" if behavior is absent or insufficient
+   - Evidence = Exact quote with context (or "No evidence found")
+   - Feedback = Brief note explaining your assessment
+4. Count total markers observed
+5. Calculate compliance_percentage = (markers_observed / 37) × 100
+6. Determine overall_pcc_result:
+   - "Pass" if compliance_percentage >= 75%
+   - "Fail" if compliance_percentage < 75%
 
-Be strict but fair. This is MCC-level assessment.
+REMEMBER: This is PCC Level. Focus on observable behaviors, not coaching artistry.
 """
         
         try:
@@ -141,11 +206,58 @@ Be strict but fair. This is MCC-level assessment.
             
             result = json.loads(text)
             
-            # Ensure overall_score exists
-            if 'overall_score' not in result:
-                # Calculate from competencies
-                comp_scores = [comp.get('score', 6) for comp in result.get('competencies', {}).values()]
-                result['overall_score'] = sum(comp_scores) / len(comp_scores) if comp_scores else 6.0
+            # VALIDATION: Ensure all 37 markers are present
+            expected_markers = {
+                'C3': 4,  # 3.1-3.4
+                'C4': 4,  # 4.1-4.4
+                'C5': 5,  # 5.1-5.5
+                'C6': 7,  # 6.1-6.7
+                'C7': 8,  # 7.1-7.8
+                'C8': 9   # 8.1-8.9
+            }
+            
+            total_expected = sum(expected_markers.values())  # 37 markers
+            missing_markers = []
+            
+            for comp_id, expected_count in expected_markers.items():
+                comp_data = result.get('competencies', {}).get(comp_id, {})
+                markers_list = comp_data.get('markers', [])
+                actual_count = len(markers_list)
+                
+                if actual_count < expected_count:
+                    missing_count = expected_count - actual_count
+                    missing_markers.append(f"{comp_id}: {missing_count} markers missing")
+            
+            # Add validation warning to result if markers are missing
+            if missing_markers:
+                result['validation_warning'] = {
+                    'status': 'INCOMPLETE',
+                    'message': f'Analysis incomplete: {", ".join(missing_markers)}',
+                    'missing_markers': missing_markers
+                }
+            else:
+                result['validation_warning'] = {
+                    'status': 'COMPLETE',
+                    'message': 'All 37 markers evaluated'
+                }
+            
+            # Ensure required fields exist
+            if 'markers_observed' not in result:
+                # Count from competencies
+                count = 0
+                for comp_id, comp_data in result.get('competencies', {}).items():
+                    if 'markers' in comp_data:
+                        count += sum(1 for m in comp_data['markers'] if m.get('status') == 'Observed')
+                result['markers_observed'] = count
+            
+            if 'compliance_percentage' not in result:
+                result['compliance_percentage'] = (result.get('markers_observed', 0) / 37) * 100
+            
+            if 'overall_pcc_result' not in result:
+                result['overall_pcc_result'] = "Pass" if result.get('compliance_percentage', 0) >= 75 else "Fail"
+            
+            # Add overall_score for backward compatibility (convert from compliance %)
+            result['overall_score'] = (result.get('compliance_percentage', 0) / 10)
             
             return result
         except Exception as e:

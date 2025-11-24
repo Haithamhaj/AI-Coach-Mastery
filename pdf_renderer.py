@@ -1,5 +1,5 @@
 """
-Professional PDF Report Generator for MCC-Level Coaching Analysis
+Professional PDF Report Generator for PCC-Level Coaching Analysis
 Uses ReportLab for corporate-quality PDF generation with Arabic support
 """
 
@@ -287,7 +287,7 @@ class PDFRenderer:
     
     def create_report(self, analysis_result, radar_chart_path=None):
         """
-        Generate a professional MCC-level coaching analysis report
+        Generate a professional PCC-level coaching analysis report
         
         Args:
             analysis_result: Dictionary containing analysis data
@@ -323,7 +323,7 @@ class PDFRenderer:
         elements = []
         
         # Title
-        title_text = "MCC Session Audit Report" if self.language == "English" else "تقرير تدقيق جلسة MCC"
+        title_text = "PCC Performance Audit Report" if self.language == "English" else "تقرير تدقيق أداء PCC"
         title = Paragraph(self._process_arabic_text(title_text), self.styles['CustomTitle'])
         elements.append(title)
         elements.append(Spacer(1, 0.3*inch))
@@ -481,7 +481,7 @@ class PDFRenderer:
         elements.append(Spacer(1, 0.3*inch))
         
         # Introduction
-        intro_text = "Based on the MCC-level audit, the following competencies require focused development:" if self.language == "English" else "بناءً على تدقيق مستوى MCC، تحتاج الجدارات التالية إلى تطوير مركز:"
+        intro_text = "Based on the PCC-level audit, the following markers require focused development:" if self.language == "English" else "بناءً على تدقيق مستوى PCC، تحتاج العلامات التالية إلى تطوير مركز:"
         intro_style = ParagraphStyle(
             'IntroStyle',
             parent=self.styles['CustomBody'],
@@ -510,7 +510,7 @@ class PDFRenderer:
         
         if not recommendations:
             # No recommendations needed
-            no_rec_text = "Excellent work! All competencies demonstrated at MCC level." if self.language == "English" else "عمل ممتاز! جميع الجدارات ظهرت بمستوى MCC."
+            no_rec_text = "Excellent work! All markers demonstrated at PCC level." if self.language == "English" else "عمل ممتاز! جميع العلامات ظهرت بمستوى PCC."
             no_rec = Paragraph(self._process_arabic_text(no_rec_text), self.styles['CustomBody'])
             elements.append(no_rec)
         else:
@@ -576,7 +576,7 @@ class PDFRenderer:
 
 def generate_mcc_pdf(analysis_result, language="English", radar_chart_path=None):
     """
-    Convenience function to generate MCC-level PDF report
+    Convenience function to generate PCC-level PDF report
     
     Args:
         analysis_result: Analysis data dictionary
