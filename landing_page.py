@@ -17,7 +17,7 @@ def get_image_base64(image_path):
 # Cache the HTML preparation to improve speed
 # RENAMED to v2 to force cache invalidation
 @st.cache_data
-def get_landing_html_v2(language):
+def get_landing_html_v3(language):
     """Prepare the HTML content with embedded images and JS"""
     try:
         # Read the original HTML file
@@ -48,6 +48,7 @@ def get_landing_html_v2(language):
         direction = "rtl" if is_arabic else "ltr"
         align = "right" if is_arabic else "left"
         
+        # Enhanced CSS for RTL
         force_css = f"""
         <style>
             html, body, #html-root {{
@@ -55,16 +56,28 @@ def get_landing_html_v2(language):
                 text-align: {align} !important;
             }}
             /* Force grid and flex containers to respect direction */
-            .grid, .flex, .wave-text {{
+            .grid, .flex, .wave-text, .space-y-8, .space-y-2 {{
                 direction: {direction} !important;
             }}
+            
             /* Explicitly handle text alignment for content */
-            h1, h2, h3, h4, p, .text-slate-300 {{
+            h1, h2, h3, h4, p, .text-slate-300, .text-slate-400 {{
                 text-align: {align} !important;
             }}
+            
             /* Fix navbar alignment */
             nav {{
                 direction: {direction} !important;
+            }}
+            
+            /* Specific fix for the Hero Grid to swap columns visually if needed */
+            /* In RTL, the first column (Text) should be on Right, Second (Image) on Left */
+            /* Tailwind's grid-cols-2 usually handles this with dir=rtl automatically */
+            /* But we enforce it just in case */
+            
+            /* Ensure icons in buttons flip correctly if needed */
+            .group svg {{
+                transform: { "scaleX(-1)" if is_arabic else "none" };
             }}
         </style>
         """
@@ -90,19 +103,43 @@ def get_landing_html_v2(language):
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
                     
-                    if (lang === 'ar') {
-                        htmlRoot.setAttribute('lang', 'ar');
-                        htmlRoot.setAttribute('dir', 'rtl');
-                        document.body.style.direction = 'rtl';
-                        document.body.style.textAlign = 'right';
-                    } else {
-                        htmlRoot.setAttribute('lang', 'en');
-                        htmlRoot.setAttribute('dir', 'ltr');
-                        document.body.style.direction = 'ltr';
-                        document.body.style.textAlign = 'left';
+                    const isAr = lang === 'ar';
+                    const dir = isAr ? 'rtl' : 'ltr';
+                    const align = isAr ? 'right' : 'left';
+                    
+                    htmlRoot.setAttribute('lang', lang);
+                    htmlRoot.setAttribute('dir', dir);
+                    document.body.style.direction = dir;
+                    document.body.style.textAlign = align;
+                    
+                    // Force all grids and flex containers
+                    document.querySelectorAll('.grid, .flex').forEach(el => {
+                        el.style.direction = dir;
+                    });
+                    
+                    // Force text alignment
+                    document.querySelectorAll('h1, h2, h3, h4, p').forEach(el => {
+                        el.style.textAlign = align;
+                    });
+                    
+                    // Fix Icons mirroring in RTL
+                    if (isAr) {
+                        document.querySelectorAll('svg.feather, svg.lucide').forEach(svg => {
+                            svg.style.transform = 'scaleX(-1)';
+                        });
                     }
                 }
+                
+                // Initial set
                 setLanguage(targetLang);
+                
+                // Aggressive enforcement (every 500ms for 5 seconds) to fight race conditions
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    setLanguage(targetLang);
+                    attempts++;
+                    if (attempts > 10) clearInterval(interval);
+                }, 500);
                 
                 // 2. Handle Buttons
                 const buttons = document.querySelectorAll('a[href="#login"], button, .cta-button');
@@ -188,7 +225,7 @@ def show_landing_page(language="English"):
     """, unsafe_allow_html=True)
 
     # Get cached HTML
-    html_content = get_landing_html_v2(language)
+    html_content = get_landing_html_v3(language)
 
     if html_content:
         import streamlit.components.v1 as components
