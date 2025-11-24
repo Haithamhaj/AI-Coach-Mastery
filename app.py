@@ -42,7 +42,178 @@ if not auth_handler.is_authenticated():
         auth_handler.save_session(saved_session)
         st.rerun()
 
-# Check if user is authenticated
+# Check if user wants to see login page
+if 'show_login' not in st.session_state:
+    st.session_state.show_login = False
+
+# Landing Page for non-authenticated users
+if not st.session_state.show_login:
+    # Custom CSS for Landing Page
+    st.markdown("""
+    <style>
+    .landing-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .hero-box {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        padding: 80px 40px;
+        border-radius: 20px;
+        text-align: center;
+        margin-bottom: 60px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin-bottom: 25px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .hero-subtitle {
+        font-size: 1.4rem;
+        color: #E8F4F8;
+        margin-bottom: 40px;
+        line-height: 1.6;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+    }
+    .feature-box {
+        background: #1a2332;
+        padding: 40px 25px;
+        border-radius: 15px;
+        text-align: center;
+        border: 2px solid #2a3f5f;
+        transition: all 0.3s ease;
+    }
+    .feature-box:hover {
+        border-color: #4a7ba7;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(74, 123, 167, 0.3);
+    }
+    .feature-emoji {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+    }
+    .feature-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 15px;
+    }
+    .feature-desc {
+        color: #B8C5D6;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+    .footer-section {
+        text-align: center;
+        margin-top: 80px;
+        padding: 30px;
+        color: #7a8a9e;
+        border-top: 1px solid #2a3f5f;
+        font-size: 1rem;
+    }
+    @media (max-width: 768px) {
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+        .hero-title {
+            font-size: 2rem;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="landing-container">', unsafe_allow_html=True)
+    
+    # Hero Section
+    if language == "English":
+        st.markdown("""
+        <div class="hero-box">
+            <h1 class="hero-title">Master the ICF PCC Markers with AI precision</h1>
+            <p class="hero-subtitle">Your unbiased personal assessor. Instantly assess your coaching sessions against the 8 ICF Core Competencies and 37 PCC markers.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="hero-box" dir="rtl">
+            <h1 class="hero-title">أتقن معايير الـ PCC في الكوتشينج بدقة الذكاء الاصطناعي</h1>
+            <p class="hero-subtitle">مقيِّمك الشخصي المحايد. حلِّل جلساتك فورًا واكتشف الفجوات قبل امتحان الـ PCC.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # CTA Button
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🚀 Start Free Assessment / ابدأ التقييم المجاني", use_container_width=True, type="primary", key="cta_button"):
+            st.session_state.show_login = True
+            st.rerun()
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    # Features Section
+    if language == "English":
+        st.markdown("""
+        <div class="feature-grid">
+            <div class="feature-box">
+                <span class="feature-emoji">🎯</span>
+                <h3 class="feature-title">Precision</h3>
+                <p class="feature-desc">Objective scoring against the 37 official ICF PCC markers.</p>
+            </div>
+            <div class="feature-box">
+                <span class="feature-emoji">⚡</span>
+                <h3 class="feature-title">Speed</h3>
+                <p class="feature-desc">Get a structured PDF feedback report in seconds after every session.</p>
+            </div>
+            <div class="feature-box">
+                <span class="feature-emoji">🛡️</span>
+                <h3 class="feature-title">Privacy</h3>
+                <p class="feature-desc">Your audio and transcripts are encrypted. No one else listens to your sessions.</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="feature-grid">
+            <div class="feature-box" dir="rtl">
+                <span class="feature-emoji">🎯</span>
+                <h3 class="feature-title">دقة</h3>
+                <p class="feature-desc">تقييم موضوعي يعتمد على ٣٧ Marker رسمية معتمدة.</p>
+            </div>
+            <div class="feature-box" dir="rtl">
+                <span class="feature-emoji">⚡</span>
+                <h3 class="feature-title">سرعة</h3>
+                <p class="feature-desc">احصل على تقرير PDF منظم بالتغذية الراجعة خلال ثوانٍ.</p>
+            </div>
+            <div class="feature-box" dir="rtl">
+                <span class="feature-emoji">🛡️</span>
+                <h3 class="feature-title">خصوصية</h3>
+                <p class="feature-desc">تسجيلاتك ونصوص الجلسات مشفَّرة، ولا يستمع إليها أحد غيرك.</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Footer
+    st.markdown("""
+    <div class="footer-section">
+        © 2025 AI Coach Mastery. Powered by Imperfect Success.
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.stop()
+
+# Login Page
 if not auth_handler.is_authenticated():
     st.title("🔐 Login / تسجيل الدخول")
     
