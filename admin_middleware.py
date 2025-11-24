@@ -2,11 +2,18 @@
 Admin Middleware - Handle admin authentication and authorization
 """
 import streamlit as st
-from firebase_admin import firestore
 
 class AdminMiddleware:
     def __init__(self):
-        self.db = firestore.client()
+        self._db = None
+    
+    @property
+    def db(self):
+        """Lazy load Firestore client"""
+        if self._db is None:
+            from firebase_admin import firestore
+            self._db = firestore.client()
+        return self._db
     
     def is_admin(self, user_email):
         """
@@ -99,6 +106,7 @@ class AdminMiddleware:
     def log_admin_action(self, admin_email, action, details=None):
         """Log admin actions for audit trail"""
         try:
+            from firebase_admin import firestore
             log_entry = {
                 'admin_email': admin_email,
                 'action': action,
