@@ -1,0 +1,15 @@
+[server]
+port = 8080
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+serverAddress = "0.0.0.0"
+
+[theme]
+base = "dark"
+primaryColor = "#06b6d4"
+backgroundColor = "#020617"
+secondaryBackgroundColor = "#0f172a"
+textColor = "#ffffff"

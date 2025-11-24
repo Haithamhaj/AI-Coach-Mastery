@@ -5,6 +5,7 @@ import tempfile
 import plotly.express as px
 import pandas as pd
 from translations import translations
+from marker_helpers import get_marker_recommendation, get_marker_explanation
 
 from dotenv import load_dotenv
 
@@ -18,6 +19,32 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Load Custom CSS and Fonts
+def load_custom_css():
+    # Load Google Fonts
+    st.markdown("""
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    """, unsafe_allow_html=True)
+    
+    # Load Custom CSS
+    try:
+        with open('static/styles.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass  # CSS file not found, continue without custom styles
+    
+    # Load Streamlit Components CSS
+    try:
+        with open('static/streamlit_components.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass  # CSS file not found, continue without custom styles
+
+# Apply custom CSS
+load_custom_css()
 
 # Sidebar Language Selector
 st.sidebar.image("logo.jpg", width=200)
@@ -41,177 +68,6 @@ if not auth_handler.is_authenticated():
     if saved_session:
         auth_handler.save_session(saved_session)
         st.rerun()
-
-# Check if user wants to see login page
-if 'show_login' not in st.session_state:
-    st.session_state.show_login = False
-
-# Landing Page for non-authenticated users
-if not st.session_state.show_login:
-    # Custom CSS for Landing Page
-    st.markdown("""
-    <style>
-    .landing-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    .hero-box {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 80px 40px;
-        border-radius: 20px;
-        text-align: center;
-        margin-bottom: 60px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
-    .hero-title {
-        font-size: 3rem;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    .hero-subtitle {
-        font-size: 1.4rem;
-        color: #E8F4F8;
-        margin-bottom: 40px;
-        line-height: 1.6;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-        margin-top: 40px;
-    }
-    .feature-box {
-        background: #1a2332;
-        padding: 40px 25px;
-        border-radius: 15px;
-        text-align: center;
-        border: 2px solid #2a3f5f;
-        transition: all 0.3s ease;
-    }
-    .feature-box:hover {
-        border-color: #4a7ba7;
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(74, 123, 167, 0.3);
-    }
-    .feature-emoji {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        display: block;
-    }
-    .feature-title {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #FFFFFF;
-        margin-bottom: 15px;
-    }
-    .feature-desc {
-        color: #B8C5D6;
-        font-size: 1.1rem;
-        line-height: 1.7;
-    }
-    .footer-section {
-        text-align: center;
-        margin-top: 80px;
-        padding: 30px;
-        color: #7a8a9e;
-        border-top: 1px solid #2a3f5f;
-        font-size: 1rem;
-    }
-    @media (max-width: 768px) {
-        .feature-grid {
-            grid-template-columns: 1fr;
-        }
-        .hero-title {
-            font-size: 2rem;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<div class="landing-container">', unsafe_allow_html=True)
-    
-    # Hero Section
-    if language == "English":
-        st.markdown("""
-        <div class="hero-box">
-            <h1 class="hero-title">Master the ICF PCC Markers with AI precision</h1>
-            <p class="hero-subtitle">Your unbiased personal assessor. Instantly assess your coaching sessions against the 8 ICF Core Competencies and 37 PCC markers.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class="hero-box" dir="rtl">
-            <h1 class="hero-title">أتقن معايير الـ PCC في الكوتشينج بدقة الذكاء الاصطناعي</h1>
-            <p class="hero-subtitle">مقيِّمك الشخصي المحايد. حلِّل جلساتك فورًا واكتشف الفجوات قبل امتحان الـ PCC.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # CTA Button
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("🚀 Start Free Assessment / ابدأ التقييم المجاني", use_container_width=True, type="primary", key="cta_button"):
-            st.session_state.show_login = True
-            st.rerun()
-    
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    
-    # Features Section
-    if language == "English":
-        st.markdown("""
-        <div class="feature-grid">
-            <div class="feature-box">
-                <span class="feature-emoji">🎯</span>
-                <h3 class="feature-title">Precision</h3>
-                <p class="feature-desc">Objective scoring against the 37 official ICF PCC markers.</p>
-            </div>
-            <div class="feature-box">
-                <span class="feature-emoji">⚡</span>
-                <h3 class="feature-title">Speed</h3>
-                <p class="feature-desc">Get a structured PDF feedback report in seconds after every session.</p>
-            </div>
-            <div class="feature-box">
-                <span class="feature-emoji">🛡️</span>
-                <h3 class="feature-title">Privacy</h3>
-                <p class="feature-desc">Your audio and transcripts are encrypted. No one else listens to your sessions.</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class="feature-grid">
-            <div class="feature-box" dir="rtl">
-                <span class="feature-emoji">🎯</span>
-                <h3 class="feature-title">دقة</h3>
-                <p class="feature-desc">تقييم موضوعي يعتمد على ٣٧ Marker رسمية معتمدة.</p>
-            </div>
-            <div class="feature-box" dir="rtl">
-                <span class="feature-emoji">⚡</span>
-                <h3 class="feature-title">سرعة</h3>
-                <p class="feature-desc">احصل على تقرير PDF منظم بالتغذية الراجعة خلال ثوانٍ.</p>
-            </div>
-            <div class="feature-box" dir="rtl">
-                <span class="feature-emoji">🛡️</span>
-                <h3 class="feature-title">خصوصية</h3>
-                <p class="feature-desc">تسجيلاتك ونصوص الجلسات مشفَّرة، ولا يستمع إليها أحد غيرك.</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Footer
-    st.markdown("""
-    <div class="footer-section">
-        © 2025 AI Coach Mastery. Powered by Imperfect Success.
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.stop()
 
 # Login Page
 if not auth_handler.is_authenticated():
@@ -298,52 +154,46 @@ if not auth_handler.is_authenticated():
         
         <style>
             .google-btn {{
-                background-color: white;
-                border: 1px solid #dadce0;
-                border-radius: 4px;
-                color: #3c4043;
+                background: rgba(15, 23, 42, 0.7);
+                backdrop-filter: blur(12px);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                color: #ffffff;
                 cursor: pointer;
-                font-family: 'Roboto', arial, sans-serif;
+                font-family: 'Inter', 'Roboto', arial, sans-serif;
                 font-size: 14px;
-                height: 40px;
+                font-weight: 600;
+                height: 48px;
                 letter-spacing: 0.25px;
-                padding: 0 12px;
+                padding: 0 20px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: background-color 0.3s, box-shadow 0.3s;
+                gap: 10px;
                 width: 100%;
-                max-width: 400px;
-                margin: 10px auto;
+                max-width: 300px;
+                margin: 0 auto;
+                transition: all 0.3s ease;
             }}
             .google-btn:hover {{
-                background-color: #f8f9fa;
-                box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+                border-color: rgba(6, 182, 212, 0.5);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2);
             }}
             .google-btn:active {{
-                background-color: #f1f3f4;
-            }}
-            .google-icon {{
-                height: 18px;
-                width: 18px;
-                margin-right: 8px;
-            }}
-            #status {{
-                text-align: center;
-                margin-top: 10px;
-                color: #5f6368;
-                font-size: 12px;
+                transform: translateY(0);
             }}
         </style>
         
         <button id="googleSignInBtn" class="google-btn">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
             </svg>
-            <span>Sign in with Google</span>
+            Sign in with Google
         </button>
         
         <div id="status"></div>
@@ -557,7 +407,17 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     st.sidebar.error("⚠️ API Key not found in .env file")
 
-mode = st.sidebar.radio(t["select_mode"], [t["mode_training"], t["mode_exam"], t["mode_profile"]])
+    # Check if user is admin
+    from admin_middleware import get_admin_middleware
+    admin = get_admin_middleware()
+    is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
+    
+    # Build mode options
+    mode_options = [t["mode_training"], t["mode_exam"], t["mode_profile"]]
+    if is_admin_user:
+        mode_options.append("📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن")
+    
+    mode = st.sidebar.radio(t["select_mode"], mode_options)
 
 # Helper: Radar Chart
 def plot_radar_chart(analysis_result):
@@ -572,7 +432,27 @@ def plot_radar_chart(analysis_result):
     fig = px.line_polar(df, r='Score', theta='Competency', line_close=True, 
                         title="Competency Balance" if language=="English" else "توازن الجدارات",
                         range_r=[0, 100])
-    fig.update_traces(fill='toself')
+    fig.update_traces(fill='toself', fillcolor='rgba(6, 182, 212, 0.2)', 
+                     line=dict(color='#06b6d4', width=3))
+    fig.update_layout(
+        polar=dict(
+            bgcolor='rgba(15, 23, 42, 0.5)',
+            radialaxis=dict(
+                gridcolor='rgba(255, 255, 255, 0.1)',
+                linecolor='rgba(255, 255, 255, 0.1)',
+                tickfont=dict(color='#94a3b8')
+            ),
+            angularaxis=dict(
+                gridcolor='rgba(255, 255, 255, 0.1)',
+                linecolor='rgba(255, 255, 255, 0.1)',
+                tickfont=dict(color='#ffffff')
+            )
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#ffffff', family='Tajawal, Inter, sans-serif'),
+        title_font=dict(size=20, color='#06b6d4')
+    )
     return fig
 
 # Main Content
@@ -773,16 +653,40 @@ if mode == t["mode_training"]:
                                             evidence = marker.get('evidence', 'No evidence found')
                                             feedback = marker.get('feedback', marker.get('auditor_note', ''))
                                             
-                                            if status == 'Observed':
-                                                st.success(f"**✅ Marker {marker_id}**: {behavior}")
-                                                st.write(f"**Evidence:** {evidence}")
-                                                if feedback:
-                                                    st.caption(f"**Assessment:** {feedback}")
-                                            else:
-                                                st.error(f"**❌ Marker {marker_id}**: {behavior}")
-                                                st.write(f"**Evidence:** {evidence}")
-                                                if feedback:
-                                                    st.caption(f"**Assessment:** {feedback}")
+                                            # Create columns for better layout
+                                            col1, col2 = st.columns([3, 1])
+                                            
+                                            with col1:
+                                                if status == 'Observed':
+                                                    st.success(f"**✅ Marker {marker_id}**: {behavior}")
+                                                else:
+                                                    st.error(f"**❌ Marker {marker_id}**: {behavior}")
+                                            
+                                            with col2:
+                                                # Badge for competency category
+                                                st.markdown(f"<div style='text-align: right; padding: 5px;'><span style='background: rgba(6, 182, 212, 0.1); color: #06b6d4; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; border: 1px solid rgba(6, 182, 212, 0.3);'>{comp_id}</span></div>", unsafe_allow_html=True)
+                                            
+                                            # Evidence section
+                                            if evidence and evidence != 'No evidence found':
+                                                st.markdown("**📝 Evidence:**")
+                                                st.info(evidence)
+                                            
+                                            # Assessor feedback
+                                            if feedback:
+                                                st.markdown("**🎯 Assessor Notes:**")
+                                                st.caption(feedback)
+                                            
+                                            # If marker NOT observed, show practical recommendations
+                                            if status != 'Observed':
+                                                with st.expander("💡 How to Improve This Marker", expanded=False):
+                                                    # Get recommendations based on marker ID
+                                                    recommendation = get_marker_recommendation(marker_id, language)
+                                                    st.markdown(recommendation)
+                                            
+                                            # Show marker explanation
+                                            with st.expander(f"ℹ️ What is Marker {marker_id}?", expanded=False):
+                                                marker_explanation = get_marker_explanation(marker_id, comp_id, language)
+                                                st.markdown(marker_explanation)
                                             
                                             st.markdown("---")
                         
@@ -1760,6 +1664,11 @@ elif mode == t["mode_profile"]:
                 if 'report_json' in session:
                     report = session['report_json']
                     st.json(report)
+
+# Admin Dashboard Mode
+elif ("Admin Dashboard" in mode or "لوحة تحكم" in mode):
+    from admin_dashboard import show_admin_dashboard
+    show_admin_dashboard()
 
 # Footer
 st.markdown("---")

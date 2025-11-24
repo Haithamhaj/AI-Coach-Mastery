@@ -109,11 +109,13 @@ class PDFRenderer:
         elements.append(title)
         elements.append(Spacer(1, 0.3*inch))
         
-        # Metrics
+        # Metrics Table with proper alignment
+        is_arabic = self.language == "العربية"
+        
         header_style = ParagraphStyle(
             'TableHeader',
             parent=self.styles['CustomBody'],
-            fontSize=11,
+            fontSize=12,
             textColor=colors.whitesmoke,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
@@ -122,88 +124,157 @@ class PDFRenderer:
         data_style = ParagraphStyle(
             'TableData',
             parent=self.styles['CustomBody'],
-            fontSize=13,
+            fontSize=14,
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
         )
         
-        metrics_data = [
-            [
-                Paragraph(self._process_arabic_text("Overall Score" if self.language == "English" else "النتيجة الإجمالية"), header_style),
-                Paragraph(self._process_arabic_text("Duration" if self.language == "English" else "المدة"), header_style),
-                Paragraph(self._process_arabic_text("Exchanges" if self.language == "English" else "التبادلات"), header_style),
-                Paragraph(self._process_arabic_text("Talk Ratio" if self.language == "English" else "نسبة الحديث"), header_style)
-            ],
-            [
-                Paragraph(f"{report.get('overall_score', 0)}/10", data_style),
-                Paragraph(report.get('session_duration', 'N/A'), data_style),
-                Paragraph(str(report.get('total_exchanges', 0)), data_style),
-                Paragraph(report.get('talk_ratio', 'N/A'), data_style)
+        # Create table data with proper headers
+        if is_arabic:
+            metrics_data = [
+                [
+                    Paragraph("نسبة الحديث", header_style),
+                    Paragraph("التبادلات", header_style),
+                    Paragraph("المدة", header_style),
+                    Paragraph("النتيجة", header_style)
+                ],
+                [
+                    Paragraph(report.get('talk_ratio', 'N/A'), data_style),
+                    Paragraph(str(report.get('total_exchanges', 0)), data_style),
+                    Paragraph(report.get('session_duration', 'N/A'), data_style),
+                    Paragraph(f"{report.get('overall_score', 0)}/10", data_style)
+                ]
             ]
-        ]
+        else:
+            metrics_data = [
+                [
+                    Paragraph("Overall Score", header_style),
+                    Paragraph("Duration", header_style),
+                    Paragraph("Exchanges", header_style),
+                    Paragraph("Talk Ratio", header_style)
+                ],
+                [
+                    Paragraph(f"{report.get('overall_score', 0)}/10", data_style),
+                    Paragraph(report.get('session_duration', 'N/A'), data_style),
+                    Paragraph(str(report.get('total_exchanges', 0)), data_style),
+                    Paragraph(report.get('talk_ratio', 'N/A'), data_style)
+                ]
+            ]
         
         metrics_table = Table(metrics_data, colWidths=[1.5*inch]*4)
         metrics_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#283593')),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f5f5f5')),
-            ('TOPPADDING', (0, 1), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
+            ('TOPPADDING', (0, 1), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 12),
             ('GRID', (0, 0), (-1, -1), 1, colors.grey)
         ]))
         
         elements.append(metrics_table)
         elements.append(Spacer(1, 0.4*inch))
         
-        # Session Flow
+        # Session Flow with better formatting
         header_text = "Session Flow Quality" if self.language == "English" else "جودة تدفق الجلسة"
         header = Paragraph(self._process_arabic_text(header_text), self.styles['CustomHeader'])
         elements.append(header)
         elements.append(Spacer(1, 0.2*inch))
         
         flow = report.get('session_flow', {})
-        flow_data = [
-            [
-                Paragraph(self._process_arabic_text("Phase" if self.language == "English" else "المرحلة"), header_style),
-                Paragraph(self._process_arabic_text("Assessment" if self.language == "English" else "التقييم"), header_style)
-            ]
-        ]
         
-        for phase_name, phase_label in [
-            ('opening', 'Opening / الافتتاح'),
-            ('exploration', 'Exploration / الاستكشاف'),
-            ('deepening', 'Deepening / التعمق'),
-            ('closing', 'Closing / الإغلاق')
-        ]:
-            phase_assessment = flow.get(phase_name, 'N/A')
-            flow_data.append([
-                Paragraph(self._process_arabic_text(phase_label), self.styles['CustomBody']),
-                Paragraph(self._process_arabic_text(phase_assessment), self.styles['CustomBody'])
-            ])
+        # Flow table header style
+        flow_header_style = ParagraphStyle(
+            'FlowHeader',
+            parent=self.styles['CustomBody'],
+            fontSize=11,
+            textColor=colors.whitesmoke,
+            alignment=TA_RIGHT if is_arabic else TA_LEFT,
+            fontName=self.arabic_font if is_arabic else 'Helvetica-Bold'
+        )
+        
+        flow_data_style = ParagraphStyle(
+            'FlowData',
+            parent=self.styles['CustomBody'],
+            fontSize=11,
+            alignment=TA_RIGHT if is_arabic else TA_LEFT,
+            fontName=self.arabic_font if is_arabic else 'Helvetica'
+        )
+        
+        if is_arabic:
+            flow_data = [
+                [
+                    Paragraph("التقييم", flow_header_style),
+                    Paragraph("المرحلة", flow_header_style)
+                ]
+            ]
+            
+            for phase_name, phase_label in [
+                ('opening', 'الافتتاح'),
+                ('exploration', 'الاستكشاف'),
+                ('deepening', 'التعمق'),
+                ('closing', 'الاغلاق')
+            ]:
+                phase_assessment = flow.get(phase_name, 'غير متوفر')
+                flow_data.append([
+                    Paragraph(self._process_arabic_text(phase_assessment), flow_data_style),
+                    Paragraph(self._process_arabic_text(phase_label), flow_data_style)
+                ])
+        else:
+            flow_data = [
+                [
+                    Paragraph("Phase", flow_header_style),
+                    Paragraph("Assessment", flow_header_style)
+                ]
+            ]
+            
+            for phase_name, phase_label in [
+                ('opening', 'Opening'),
+                ('exploration', 'Exploration'),
+                ('deepening', 'Deepening'),
+                ('closing', 'Closing')
+            ]:
+                phase_assessment = flow.get(phase_name, 'N/A')
+                flow_data.append([
+                    Paragraph(phase_label, flow_data_style),
+                    Paragraph(phase_assessment, flow_data_style)
+                ])
         
         flow_table = Table(flow_data, colWidths=[2*inch, 4.4*inch])
         flow_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#37474f')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT' if is_arabic else 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
         ]))
         
         elements.append(flow_table)
         elements.append(Spacer(1, 0.4*inch))
         
-        # Talk Ratio Assessment
+        # Talk Ratio Assessment with better formatting
         header_text = "Talk Ratio Assessment" if self.language == "English" else "تقييم نسبة الحديث"
         header = Paragraph(self._process_arabic_text(header_text), self.styles['CustomHeader'])
         elements.append(header)
-        talk_ratio_assessment = report.get('talk_ratio_assessment', 'N/A')
-        talk_para = Paragraph(self._process_arabic_text(talk_ratio_assessment), self.styles['CustomBody'])
+        elements.append(Spacer(1, 0.1*inch))
+        
+        talk_ratio_assessment = report.get('talk_ratio_assessment', 'N/A' if not is_arabic else 'غير متوفر')
+        
+        assessment_style = ParagraphStyle(
+            'AssessmentStyle',
+            parent=self.styles['CustomBody'],
+            fontSize=11,
+            alignment=TA_RIGHT if is_arabic else TA_LEFT,
+            fontName=self.arabic_font if is_arabic else 'Helvetica',
+            leading=16
+        )
+        
+        talk_para = Paragraph(self._process_arabic_text(talk_ratio_assessment), assessment_style)
         elements.append(talk_para)
         
         return elements
@@ -211,6 +282,19 @@ class PDFRenderer:
     def _create_session_details(self, report):
         """Create detailed analysis pages"""
         elements = []
+        is_arabic = self.language == "العربية"
+        
+        # Define paragraph style for sections
+        section_style = ParagraphStyle(
+            'SectionStyle',
+            parent=self.styles['CustomBody'],
+            fontSize=11,
+            alignment=TA_RIGHT if is_arabic else TA_LEFT,
+            fontName=self.arabic_font if is_arabic else 'Helvetica',
+            leading=16,
+            spaceBefore=6,
+            spaceAfter=6
+        )
         
         # Strengths
         header_text = "Strengths" if self.language == "English" else "نقاط القوة"
@@ -220,12 +304,13 @@ class PDFRenderer:
         
         strengths = report.get('strengths', [])
         for i, strength in enumerate(strengths, 1):
+            strength_text = f"{i}. {strength}" if not is_arabic else f"{strength} .{i}"
             strength_para = Paragraph(
-                self._process_arabic_text(f"{i}. {strength}"), 
-                self.styles['CustomBody']
+                self._process_arabic_text(strength_text), 
+                section_style
             )
             elements.append(strength_para)
-            elements.append(Spacer(1, 0.1*inch))
+            elements.append(Spacer(1, 0.08*inch))
         
         elements.append(Spacer(1, 0.3*inch))
         
@@ -237,12 +322,13 @@ class PDFRenderer:
         
         improvements = report.get('areas_for_improvement', [])
         for i, improvement in enumerate(improvements, 1):
+            improvement_text = f"{i}. {improvement}" if not is_arabic else f"{improvement} .{i}"
             improvement_para = Paragraph(
-                self._process_arabic_text(f"{i}. {improvement}"),
-                self.styles['CustomBody']
+                self._process_arabic_text(improvement_text),
+                section_style
             )
             elements.append(improvement_para)
-            elements.append(Spacer(1, 0.1*inch))
+            elements.append(Spacer(1, 0.08*inch))
         
         elements.append(Spacer(1, 0.3*inch))
         
@@ -258,10 +344,14 @@ class PDFRenderer:
             what_happened = moment.get('what_happened', '')
             significance = moment.get('significance', '')
             
-            moment_text = f"<b>{timestamp}</b>: {what_happened}<br/><i>Significance:</i> {significance}"
+            if is_arabic:
+                moment_text = f"<b>{timestamp}</b><br/>{what_happened}<br/><i>{significance}</i>"
+            else:
+                moment_text = f"<b>{timestamp}</b>: {what_happened}<br/><i>Significance:</i> {significance}"
+            
             moment_para = Paragraph(
                 self._process_arabic_text(moment_text),
-                self.styles['CustomBody']
+                section_style
             )
             elements.append(moment_para)
             elements.append(Spacer(1, 0.15*inch))
@@ -276,12 +366,13 @@ class PDFRenderer:
         
         recommendations = report.get('recommendations', [])
         for i, rec in enumerate(recommendations, 1):
+            rec_text = f"{i}. {rec}" if not is_arabic else f"{rec} .{i}"
             rec_para = Paragraph(
-                self._process_arabic_text(f"{i}. {rec}"),
-                self.styles['CustomBody']
+                self._process_arabic_text(rec_text),
+                section_style
             )
             elements.append(rec_para)
-            elements.append(Spacer(1, 0.1*inch))
+            elements.append(Spacer(1, 0.08*inch))
         
         return elements
     

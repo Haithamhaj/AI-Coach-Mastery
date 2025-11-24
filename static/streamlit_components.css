@@ -1,0 +1,283 @@
+/* Additional Streamlit Component Styling */
+
+/* === FILE UPLOADER === */
+.stFileUploader {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 2px dashed rgba(6, 182, 212, 0.3);
+    border-radius: 16px;
+    padding: 32px;
+    transition: all 0.3s ease;
+}
+
+.stFileUploader:hover {
+    border-color: rgba(6, 182, 212, 0.6);
+    background: rgba(15, 23, 42, 0.9);
+}
+
+/* === TABS === */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 8px;
+    border-radius: 12px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: transparent;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 12px 24px;
+    border: none;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color: white;
+}
+
+/* === METRICS === */
+.stMetric {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.stMetric:hover {
+    border-color: rgba(6, 182, 212, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2);
+}
+
+.stMetric label {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stMetric [data-testid="stMetricValue"] {
+    color: #06b6d4;
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+/* === EXPANDER === */
+.stExpander {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.stExpander:hover {
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* === DATA EDITOR / DATAFRAME === */
+.stDataFrame {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stDataFrame table {
+    color: #ffffff;
+}
+
+.stDataFrame thead {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+    font-weight: 700;
+}
+
+.stDataFrame tbody tr:hover {
+    background: rgba(6, 182, 212, 0.05);
+}
+
+/* === SPINNER === */
+.stSpinner>div {
+    border-color: #06b6d4 transparent transparent transparent;
+}
+
+/* === PROGRESS BAR === */
+.stProgress>div>div {
+    background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+}
+
+/* === AUDIO PLAYER === */
+.stAudio {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+/* === TEXT AREA === */
+.stTextArea textarea {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: 'Tajawal', 'Inter', monospace;
+    padding: 16px;
+}
+
+.stTextArea textarea:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+/* === COLUMNS === */
+.element-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* === SUCCESS/ERROR/WARNING/INFO MESSAGES === */
+.stSuccess {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+    color: #22c55e;
+}
+
+.stError {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    color: #ef4444;
+}
+
+.stWarning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 12px;
+    color: #f59e0b;
+}
+
+.stInfo {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    color: #06b6d4;
+}
+
+/* === PLOTLY CHARTS === */
+.js-plotly-plot {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+/* === SIDEBAR IMPROVEMENTS === */
+.css-1d391kg {
+    background: #0f172a;
+}
+
+.stSidebar .stButton>button {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.stSidebar .stRadio>div {
+    background: rgba(15, 23, 42, 0.5);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.stSidebar .stRadio label {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.stSidebar .stRadio [data-checked="true"] {
+    color: #06b6d4;
+}
+
+/* === FORM === */
+.stForm {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+/* === CHECKBOX === */
+.stCheckbox {
+    color: #94a3b8;
+}
+
+.stCheckbox [data-checked="true"] {
+    color: #06b6d4;
+}
+
+/* === SLIDER === */
+.stSlider [data-baseweb="slider"] {
+    background: rgba(6, 182, 212, 0.2);
+}
+
+.stSlider [role="slider"] {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+}
+
+/* === DOWNLOAD BUTTON === */
+.stDownloadButton>button {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.stDownloadButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3);
+}
+
+/* === CUSTOM SCROLLBAR === */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(6, 182, 212, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(6, 182, 212, 0.7);
+}
+
+/* === RESPONSIVE IMPROVEMENTS === */
+@media (max-width: 768px) {
+    .stMetric {
+        padding: 16px;
+    }
+
+    .stForm {
+        padding: 16px;
+    }
+
+    .js-plotly-plot {
+        padding: 12px;
+    }
+}
