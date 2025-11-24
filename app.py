@@ -9,34 +9,38 @@ from marker_helpers import get_marker_recommendation, get_marker_explanation
 
 from dotenv import load_dotenv
 
-# --- FIREBASE KEY SETUP (Cloud Deployment Fix) ---
-# Create firebase_key.json from secrets if it doesn't exist
-if not os.path.exists("firebase_key.json"):
-    # Check if we're in cloud environment with secrets
-    if "firebase_service_account" in st.secrets:
-        print("☁️ Creating firebase_key.json from secrets...")
-        key_dict = dict(st.secrets["firebase_service_account"])
-        
-        # Fix private_key formatting issues
-        if "private_key" in key_dict:
-            key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
-            
-        with open("firebase_key.json", "w") as f:
-            json.dump(key_dict, f)
-        print("✅ firebase_key.json created successfully!")
-    else:
-        print("⚠️ Warning: firebase_key.json not found and no secrets available.")
-
 # Load Environment Variables
 load_dotenv()
 
-# Page Configuration
+# Page Configuration (MUST BE FIRST)
 st.set_page_config(
     page_title="AI Coach Mastery - PCC Level Training",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# --- FIREBASE KEY SETUP (Cloud Deployment Fix) ---
+# Create firebase_key.json from secrets if it doesn't exist
+if not os.path.exists("firebase_key.json"):
+    try:
+        # Check if we're in cloud environment with secrets
+        if hasattr(st, 'secrets') and "firebase_service_account" in st.secrets:
+            print("☁️ Creating firebase_key.json from secrets...")
+            key_dict = dict(st.secrets["firebase_service_account"])
+            
+            # Fix private_key formatting issues
+            if "private_key" in key_dict:
+                key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
+                
+            with open("firebase_key.json", "w") as f:
+                json.dump(key_dict, f)
+            print("✅ firebase_key.json created successfully!")
+        else:
+            print("⚠️ Running locally - firebase_key.json not found.")
+    except Exception as e:
+        print(f"⚠️ Error creating firebase_key.json: {e}")
+        # Don't crash, continue anyway
 
 # Load Custom CSS and Fonts
 def load_custom_css():
