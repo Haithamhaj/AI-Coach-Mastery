@@ -61,18 +61,31 @@ def get_landing_html(language):
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
                     
-                    // Standard Logic: Arabic = RTL, English = LTR
+                    // STRICT STANDARD LOGIC
+                    // Arabic = RTL (Right to Left)
+                    // English = LTR (Left to Right)
+                    
                     if (lang === 'ar') {
                         htmlRoot.setAttribute('lang', 'ar');
                         htmlRoot.setAttribute('dir', 'rtl');
                         document.body.style.direction = 'rtl';
                         document.body.style.textAlign = 'right';
+                        
+                        // Ensure container alignment
+                        const containers = document.querySelectorAll('.max-w-7xl');
+                        containers.forEach(el => el.style.direction = 'rtl');
+                        
                         if (typeof updateContent === 'function') updateContent('ar');
                     } else {
                         htmlRoot.setAttribute('lang', 'en');
                         htmlRoot.setAttribute('dir', 'ltr');
                         document.body.style.direction = 'ltr';
                         document.body.style.textAlign = 'left';
+                        
+                        // Ensure container alignment
+                        const containers = document.querySelectorAll('.max-w-7xl');
+                        containers.forEach(el => el.style.direction = 'ltr');
+                        
                         if (typeof updateContent === 'function') updateContent('en');
                     }
                 }
