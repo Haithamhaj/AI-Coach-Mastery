@@ -80,32 +80,33 @@ def show_landing_page(language="English"):
     
     txt = t[language]
     
-    # Hide sidebar for landing page
+    # Callback to change language
+    def set_language(lang):
+        st.session_state.language_selector = lang
+
+    # Hide sidebar for landing page & Adjust top padding
     st.markdown("""
         <style>
         [data-testid="stSidebar"] {
             display: none;
         }
-        .main > div {
-            padding-top: 2rem;
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 0rem !important;
         }
         </style>
     """, unsafe_allow_html=True)
     
-    # Language Toggle & Header
-    lang_col1, lang_col2 = st.columns([8, 2])
+    # Top Bar: Language Button (Right aligned)
+    # Using columns to push button to the right
+    top_col1, top_col2 = st.columns([10, 2])
     
-    with lang_col2:
-        # Language Switcher
+    with top_col2:
         current_lang = st.session_state.get("language_selector", "English")
         if current_lang == "English":
-            if st.button("🇮🇶 العربية", key="switch_to_ar"):
-                st.session_state.language_selector = "العربية"
-                st.rerun()
+            st.button("🇮🇶 العربية", key="switch_to_ar", on_click=set_language, args=("العربية",), use_container_width=True)
         else:
-            if st.button("🇺🇸 English", key="switch_to_en"):
-                st.session_state.language_selector = "English"
-                st.rerun()
+            st.button("🇺🇸 English", key="switch_to_en", on_click=set_language, args=("English",), use_container_width=True)
 
     # Apply RTL if Arabic
     if is_rtl:
@@ -115,36 +116,40 @@ def show_landing_page(language="English"):
                 direction: rtl;
                 text-align: right;
             }
+            /* Fix button alignment in RTL */
+            div[data-testid="column"] {
+                text-align: right;
+            }
             </style>
         """, unsafe_allow_html=True)
     
-    # Hero Section - Centered Layout
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Hero Section
     
-    # Logo - Centered and smaller
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Logo - Centered
+    col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
         try:
-            st.image("logo.jpg", width=180)  # Smaller logo
+            # Display logo with centered alignment
+            st.image("logo.jpg", width=150)
         except:
             st.markdown("""
-            <div style="width: 180px; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: auto;">
-                <div style="font-size: 3rem;">🧠</div>
+            <div style="display: flex; justify-content: center;">
+                <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center;">
+                    <div style="font-size: 3rem;">🧠</div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    
     # Title and Description - Centered
     st.markdown(f"""
-    <div style="text-align: center; max-width: 900px; margin: 0 auto; padding: 0 20px; direction: {direction};">
-        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(to right, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+    <div style="text-align: center; max-width: 900px; margin: 0 auto; padding: 10px 20px; direction: {direction};">
+        <h1 style="font-size: 2.8rem; font-weight: 900; margin-bottom: 0.5rem; background: linear-gradient(to right, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             {txt['title']}
         </h1>
-        <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; color: #ffffff;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #ffffff;">
             {txt['subtitle']}
         </h2>
-        <p style="font-size: 1.1rem; color: #94a3b8; line-height: 1.8; margin-bottom: 2rem;">
+        <p style="font-size: 1.1rem; color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">
             {txt['description']}
         </p>
     </div>
