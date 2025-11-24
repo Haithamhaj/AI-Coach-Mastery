@@ -15,7 +15,8 @@ def get_image_base64(image_path):
 def show_landing_page(language="English"):
     """Display the landing page with embedded original HTML"""
     
-    # Hide sidebar and adjust layout to be truly full screen
+    # Hide sidebar and adjust layout
+    # NOTE: Commented out aggressive hiding to debug blank screen issue
     st.markdown("""
         <style>
         [data-testid="stSidebar"] {
@@ -26,30 +27,30 @@ def show_landing_page(language="English"):
             margin: 0 !important;
             max-width: 100% !important;
         }
-        /* Hide Streamlit header/footer/menu */
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
         
-        /* Ensure iframe takes full width and height without scrollbars if possible */
+        /* Ensure iframe takes full width and height */
         iframe {
             width: 100vw !important;
             height: 100vh !important;
             border: none !important;
             display: block !important;
         }
-        /* Remove default streamlit margins */
-        .stApp {
-            margin: 0;
-            padding: 0;
-        }
         </style>
     """, unsafe_allow_html=True)
 
     try:
+        # Check if file exists
+        if not os.path.exists('index.html'):
+            st.error("Error: index.html not found!")
+            return
+
         # Read the original HTML file
         with open('index.html', 'r', encoding='utf-8') as f:
             html_content = f.read()
+            
+        # Debug: Print first 100 chars to verify read (will be visible if CSS doesn't hide it)
+        # st.write(f"Read {len(html_content)} bytes from index.html") 
+
             
         # --- 1. Embed Images as Base64 ---
         # Logo
