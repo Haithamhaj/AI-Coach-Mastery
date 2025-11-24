@@ -105,6 +105,15 @@ def get_landing_html_v3(language):
         # Inject CSS at the beginning of head
         html_content = html_content.replace('<head>', f'<head>{force_css}')
         
+        # DEBUG: Inject visible version marker
+        debug_html = f"""
+        <div style="position: fixed; bottom: 10px; left: 10px; background: red; color: white; padding: 5px; z-index: 999999; font-size: 12px;">
+            Debug v4 | Arabic: {is_arabic} | Dir: {direction}
+        </div>
+        """
+        if "</body>" in html_content:
+            html_content = html_content.replace("</body>", debug_html + "</body>")
+        
         # Also try to fix the attributes just in case
         if target_lang == 'en':
             html_content = html_content.replace('dir="rtl"', 'dir="ltr"')
