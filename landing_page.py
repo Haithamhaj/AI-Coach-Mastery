@@ -80,10 +80,6 @@ def show_landing_page(language="English"):
     
     txt = t[language]
     
-    # Callback to change language
-    def set_language(lang):
-        st.session_state.language_selector = lang
-
     # Hide sidebar for landing page & Adjust top padding
     st.markdown("""
         <style>
@@ -91,69 +87,91 @@ def show_landing_page(language="English"):
             display: none;
         }
         .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 0rem !important;
+            padding: 0 !important;
+            max-width: 100% !important;
         }
+        /* Hide Streamlit header/footer if possible for cleaner look */
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
         </style>
     """, unsafe_allow_html=True)
-    
-    # Top Bar: Language Button (Right aligned)
-    # Using columns to push button to the right
-    top_col1, top_col2 = st.columns([10, 2])
-    
-    with top_col2:
-        current_lang = st.session_state.get("language_selector", "English")
-        if current_lang == "English":
-            st.button("🇮🇶 العربية", key="switch_to_ar", on_click=set_language, args=("العربية",), use_container_width=True)
-        else:
-            st.button("🇺🇸 English", key="switch_to_en", on_click=set_language, args=("English",), use_container_width=True)
 
-    # Apply RTL if Arabic
-    if is_rtl:
+    # Read the original HTML file
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            html_content = f.read()
+            
+        # Add JavaScript to handle button clicks and communicate with Streamlit
+        # We inject a script that listens for clicks on the "Start Now" button
+        # and sends a message to the parent window
+        script_to_inject = """
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Find the Start Now button (assuming it has an ID or class)
+                // If not, we'll attach to all links/buttons that look like CTA
+                const buttons = document.querySelectorAll('a, button');
+                buttons.forEach(btn => {
+                    if (btn.innerText.includes('ابدأ') || btn.innerText.includes('Start')) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            // Send message to Streamlit
+                            window.parent.postMessage({type: 'streamlit:set_component_value', value: 'start_login'}, '*');
+                        });
+                    }
+                });
+            });
+        </script>
+        """
+        
+        # Insert the script before </body>
+        if "</body>" in html_content:
+            html_content = html_content.replace("</body>", script_to_inject + "</body>")
+        else:
+            html_content += script_to_inject
+
+        # Display the HTML
+        import streamlit.components.v1 as components
+        
+        # Use a component that can return a value
+        # Since standard components.html doesn't return value, we might need a workaround
+        # or just rely on the user clicking a native Streamlit button if the JS bridge is complex.
+        # BUT, to make it seamless, let's try to use the component.
+        
+        # For now, to ensure it works, we will render the HTML.
+        # The user wanted the "Old Shape".
+        components.html(html_content, height=1200, scrolling=True)
+        
+        # Add a floating "Native" Start Button overlay just in case the HTML button doesn't trigger
+        # This is a fallback to ensure functionality
         st.markdown("""
-            <style>
-            .main {
-                direction: rtl;
-                text-align: right;
-            }
-            /* Fix button alignment in RTL */
-            div[data-testid="column"] {
-                text-align: right;
-            }
-            </style>
+        <style>
+        .floating-btn-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid #06b6d4;
+        }
+        </style>
         """, unsafe_allow_html=True)
-    
-    # Hero Section
-    
-    # Logo - Centered
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        try:
-            # Display logo with centered alignment
-            st.image("logo.jpg", width=150)
-        except:
-            st.markdown("""
-            <div style="display: flex; justify-content: center;">
-                <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center;">
-                    <div style="font-size: 3rem;">🧠</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Title and Description - Centered
-    st.markdown(f"""
-    <div style="text-align: center; max-width: 900px; margin: 0 auto; padding: 10px 20px; direction: {direction};">
-        <h1 style="font-size: 2.8rem; font-weight: 900; margin-bottom: 0.5rem; background: linear-gradient(to right, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            {txt['title']}
-        </h1>
-        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #ffffff;">
-            {txt['subtitle']}
-        </h2>
-        <p style="font-size: 1.1rem; color: #94a3b8; line-height: 1.6; margin-bottom: 2rem;">
-            {txt['description']}
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+             if st.button("🚀 تسجيل الدخول / Login", type="primary", use_container_width=True):
+                st.session_state.show_landing = False
+                st.rerun()
+
+    except FileNotFoundError:
+        st.error("ملف التصميم الأصلي (index.html) غير موجود. يرجى إعادة رفعه.")
+        # Fallback to simple version if file is missing
+        st.title("AI Coach Mastery")
+        if st.button("Login"):
+            st.session_state.show_landing = False
+            st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
