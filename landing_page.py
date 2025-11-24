@@ -67,20 +67,9 @@ def show_landing_page(language="English"):
             "step2_title": "تحليل ذكي",
             "step2_desc": "AI يحلل كل العلامات",
             "step3_title": "تقرير مفصل",
-            "step3_desc": "نقاط قوة وفجوات",
-            "step4_title": "تدرّب وتطوّر",
-            "step4_desc": "محاكاة مستمرة",
-            "cta_title": "جاهز لتصبح كوتش محترف؟",
-            "cta_subtitle": "ابدأ رحلتك نحو الاحتراف مع AI Coach Mastery - منصتك الذكية لإتقان معايير ICF",
-            "cta_button": "🚀 ابدأ الآن",
-            "footer_copyright": "© 2024 AI Coach Mastery. جميع الحقوق محفوظة",
-            "footer_features": "✓ تحليل دقيق للجلسات • ✓ محاكاة واقعية • ✓ تقييم فوري"
-        }
-    }
+    """Display the landing page with embedded original HTML"""
     
-    txt = t[language]
-    
-    # Hide sidebar for landing page & Adjust top padding
+    # Hide sidebar and adjust layout
     st.markdown("""
         <style>
         [data-testid="stSidebar"] {
@@ -90,40 +79,58 @@ def show_landing_page(language="English"):
             padding: 0 !important;
             max-width: 100% !important;
         }
-        /* Hide Streamlit header/footer if possible for cleaner look */
+        /* Hide Streamlit header/footer */
         header {visibility: hidden;}
         footer {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
+        
+        /* Ensure iframe takes full width */
+        iframe {
+            width: 100% !important;
+            height: 100vh !important;
+        }
         </style>
     """, unsafe_allow_html=True)
 
-    # Read the original HTML file
     try:
+        # Read the original HTML file
         with open('index.html', 'r', encoding='utf-8') as f:
             html_content = f.read()
             
-        # Add JavaScript to handle button clicks and communicate with Streamlit
-        # We inject a script that listens for clicks on the "Start Now" button
-        # and sends a message to the parent window
+        # --- Embed Images as Base64 ---
+        # This fixes the missing images issue on Streamlit Cloud
+        
+        # 1. Logo
+        logo_b64 = get_image_base64("logo.jpg")
+        if logo_b64:
+            html_content = html_content.replace('src="logo.jpg"', f'src="data:image/jpeg;base64,{logo_b64}"')
+            
+        # 2. Feature Images
+        for img_name in ["feature1.png", "feature2.png", "feature3.png"]:
+            img_b64 = get_image_base64(img_name)
+            if img_b64:
+                html_content = html_content.replace(f'src="{img_name}"', f'src="data:image/png;base64,{img_b64}"')
+
+        # --- Inject JavaScript for Interaction ---
         script_to_inject = """
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Find the Start Now button (assuming it has an ID or class)
-                // If not, we'll attach to all links/buttons that look like CTA
-                const buttons = document.querySelectorAll('a, button');
+                // Find all CTA buttons
+                const buttons = document.querySelectorAll('a[href="#login"], button, .cta-button');
                 buttons.forEach(btn => {
-                    if (btn.innerText.includes('ابدأ') || btn.innerText.includes('Start')) {
-                        btn.addEventListener('click', function(e) {
+                    btn.addEventListener('click', function(e) {
+                        // If it's a login/start button
+                        if (btn.innerText.includes('ابدأ') || btn.innerText.includes('Start') || btn.getAttribute('href') === '#login') {
                             e.preventDefault();
                             // Send message to Streamlit
                             window.parent.postMessage({type: 'streamlit:set_component_value', value: 'start_login'}, '*');
-                        });
-                    }
+                        }
+                    });
                 });
             });
         </script>
         """
         
-        # Insert the script before </body>
         if "</body>" in html_content:
             html_content = html_content.replace("</body>", script_to_inject + "</body>")
         else:
@@ -132,61 +139,41 @@ def show_landing_page(language="English"):
         # Display the HTML
         import streamlit.components.v1 as components
         
-        # Use a component that can return a value
-        # Since standard components.html doesn't return value, we might need a workaround
-        # or just rely on the user clicking a native Streamlit button if the JS bridge is complex.
-        # BUT, to make it seamless, let's try to use the component.
-        
-        # For now, to ensure it works, we will render the HTML.
-        # The user wanted the "Old Shape".
+        # Render HTML with full height
         components.html(html_content, height=1200, scrolling=True)
         
-        # Add a floating "Native" Start Button overlay just in case the HTML button doesn't trigger
-        # This is a fallback to ensure functionality
+        # --- Floating Login Button (Fallback) ---
+        # Only show this if user scrolls down or as a persistent option
         st.markdown("""
         <style>
-        .floating-btn-container {
+        .floating-login-btn {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 20px;
-            border-radius: 30px;
-            border: 1px solid #06b6d4;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99999;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         </style>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-             if st.button("🚀 تسجيل الدخول / Login", type="primary", use_container_width=True):
-                st.session_state.show_landing = False
-                st.rerun()
+        # We use a container to place the button
+        with st.container():
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                # Centered button at the bottom as a clear entry point
+                if st.button("🚀 تسجيل الدخول / Login", type="primary", use_container_width=True):
+                    st.session_state.show_landing = False
+                    st.rerun()
 
     except FileNotFoundError:
-        st.error("ملف التصميم الأصلي (index.html) غير موجود. يرجى إعادة رفعه.")
-        # Fallback to simple version if file is missing
-        st.title("AI Coach Mastery")
+        st.error("ملف التصميم الأصلي (index.html) غير موجود.")
         if st.button("Login"):
             st.session_state.show_landing = False
             st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Stats - Centered
-    col_space1, stat_col1, stat_col2, stat_col3, col_space2 = st.columns([0.5, 1, 1, 1, 0.5])
-    
-    with stat_col1:
-        st.markdown(f"""
-        <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
-            <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat1_num']}</div>
-            <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat1_label']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with stat_col2:
         st.markdown(f"""
         <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
             <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat2_num']}</div>
