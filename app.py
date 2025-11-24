@@ -70,7 +70,7 @@ load_custom_css()
 
 # Sidebar Language Selector
 st.sidebar.image("logo.jpg", width=200)
-language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"])
+language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"], key="language_selector")
 t = translations[language]
 
 # --- NAVIGATION SETUP (Must be early for sidebar placement) ---

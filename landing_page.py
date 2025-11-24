@@ -92,6 +92,21 @@ def show_landing_page(language="English"):
         </style>
     """, unsafe_allow_html=True)
     
+    # Language Toggle & Header
+    lang_col1, lang_col2 = st.columns([8, 2])
+    
+    with lang_col2:
+        # Language Switcher
+        current_lang = st.session_state.get("language_selector", "English")
+        if current_lang == "English":
+            if st.button("🇮🇶 العربية", key="switch_to_ar"):
+                st.session_state.language_selector = "العربية"
+                st.rerun()
+        else:
+            if st.button("🇺🇸 English", key="switch_to_en"):
+                st.session_state.language_selector = "English"
+                st.rerun()
+
     # Apply RTL if Arabic
     if is_rtl:
         st.markdown("""
@@ -103,64 +118,66 @@ def show_landing_page(language="English"):
             </style>
         """, unsafe_allow_html=True)
     
-    # Hero Section
-    hero_cols = st.columns([3, 2]) if not is_rtl else st.columns([2, 3])
+    # Hero Section - Centered Layout
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # Text Column
-    text_col_idx = 0 if not is_rtl else 1
-    img_col_idx = 1 if not is_rtl else 0
-    
-    with hero_cols[text_col_idx]:
-        st.markdown(f"""
-        <div style="padding: 40px 0; direction: {direction};">
-            <h1 style="font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(to right, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                {txt['title']}
-            </h1>
-            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; color: #ffffff;">
-                {txt['subtitle']}
-            </h2>
-            <p style="font-size: 1.2rem; color: #94a3b8; line-height: 1.8; margin-bottom: 2rem;">
-                {txt['description']}
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Stats
-        stat_col1, stat_col2, stat_col3 = st.columns(3)
-        with stat_col1:
-            st.markdown(f"""
-            <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
-                <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat1_num']}</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat1_label']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with stat_col2:
-            st.markdown(f"""
-            <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
-                <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat2_num']}</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat2_label']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with stat_col3:
-            st.markdown(f"""
-            <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
-                <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat3_num']}</div>
-                <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat3_label']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Image Column
-    with hero_cols[img_col_idx]:
+    # Logo - Centered and smaller
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
         try:
-            st.image("logo.jpg", width=400)
+            st.image("logo.jpg", width=180)  # Smaller logo
         except:
             st.markdown("""
-            <div style="width: 400px; height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: auto;">
-                <div style="font-size: 4rem;">🧠</div>
+            <div style="width: 180px; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: auto;">
+                <div style="font-size: 3rem;">🧠</div>
             </div>
             """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Title and Description - Centered
+    st.markdown(f"""
+    <div style="text-align: center; max-width: 900px; margin: 0 auto; padding: 0 20px; direction: {direction};">
+        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem; background: linear-gradient(to right, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {txt['title']}
+        </h1>
+        <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; color: #ffffff;">
+            {txt['subtitle']}
+        </h2>
+        <p style="font-size: 1.1rem; color: #94a3b8; line-height: 1.8; margin-bottom: 2rem;">
+            {txt['description']}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Stats - Centered
+    col_space1, stat_col1, stat_col2, stat_col3, col_space2 = st.columns([0.5, 1, 1, 1, 0.5])
+    
+    with stat_col1:
+        st.markdown(f"""
+        <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
+            <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat1_num']}</div>
+            <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat1_label']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with stat_col2:
+        st.markdown(f"""
+        <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
+            <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat2_num']}</div>
+            <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat2_label']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with stat_col3:
+        st.markdown(f"""
+        <div style="text-align: center; padding: 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.3); direction: {direction};">
+            <div style="font-size: 2.5rem; font-weight: 900; color: #06b6d4;">{txt['stat3_num']}</div>
+            <div style="color: #94a3b8; font-size: 0.9rem;">{txt['stat3_label']}</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
