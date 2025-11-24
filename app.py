@@ -181,257 +181,292 @@ if not auth_handler.is_authenticated():
         auth_handler.save_session(saved_session)
         st.rerun()
 
-# Login Page
+# Check if user wants to view landing page or login
+if 'show_landing' not in st.session_state:
+    st.session_state.show_landing = True
+
+# Landing Page / Login Toggle
 if not auth_handler.is_authenticated():
-    st.title("🔐 Login / تسجيل الدخول")
-    
-    tab1, tab2, tab3 = st.tabs([
-        "Login / دخول", 
-        "Sign Up / تسجيل جديد",
-        "Forgot Password / نسيت كلمة المرور"
-    ])
-    
-    with tab1:
-        st.write("### Email & Password")
-        with st.form("login_form"):
-            email = st.text_input("Email / البريد الإلكتروني", key="login_email")
-            password = st.text_input("Password / كلمة المرور", type="password", key="login_password")
-            remember_me = st.checkbox("Remember me / تذكرني")
-            submit_login = st.form_submit_button("🔓 Login / دخول", use_container_width=True, type="primary")
-            
-            if submit_login:
-                if not email or not password:
-                    st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
-                else:
-                    with st.spinner("Verifying..." if language == "English" else "جاري التحقق..."):
-                        result = auth_handler.sign_in_with_email(email, password)
-                        
-                        if result.get("success"):
-                            auth_handler.save_session(result)
-                            # Save to cookie if remember_me is checked
-                            if remember_me:
-                                with st.spinner("Saving login info..."):
-                                    auth_handler.save_to_cookie(result, remember_me=True, cookies=cookies)
-                                    import time
-                                    time.sleep(2)  # Give time for cookie to save
-                            
-                            st.success(f"Welcome back! / مرحباً بعودتك!")
-                            st.rerun()
-                        else:
-                            error_msg = result.get("error", "Unknown error")
-                            if "INVALID_PASSWORD" in error_msg or "INVALID_LOGIN_CREDENTIALS" in error_msg:
-                                st.error("Invalid email or password" if language == "English" else "البريد الإلكتروني أو كلمة المرور غير صحيحة")
-                            elif "USER_NOT_FOUND" in error_msg:
-                                st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
-                            else:
-                                st.error(f"Error: {error_msg}")
-        
-        # Divider
-        st.markdown("---")
-        st.write("### Or sign in with:")
-        
-        # Google Sign-In using Firebase JS SDK
+    # If user hasn't clicked login/signup, show landing page
+    if st.session_state.get('show_landing', True):
+        # Import landing page component
         import streamlit.components.v1 as components
         
-        # Check if Google auth callback happened
-        if 'google_auth_token' in st.session_state and st.session_state.google_auth_token:
-            # Process the Google login
-            google_session = {
-                "success": True,
-                "email": st.session_state.google_auth_email,
-                "localId": st.session_state.google_auth_uid,
-                "idToken": st.session_state.google_auth_token,
-                "refreshToken": "google_refresh_token"
-            }
-            auth_handler.save_session(google_session)
+        # Load and display the HTML landing page
+        try:
+            with open('index.html', 'r', encoding='utf-8') as f:
+                html_content = f.read()
             
-            # Also create user profile in Firestore if doesn't exist
-            firebase_config.create_user(
-                st.session_state.google_auth_email,
-                "google_oauth_user",
-                st.session_state.google_auth_email.split('@')[0]
-            )
+            # Display the landing page
+            components.html(html_content, height=800, scrolling=True)
             
-            # Clear the temporary state
-            del st.session_state.google_auth_token
-            del st.session_state.google_auth_email
-            del st.session_state.google_auth_uid
-            
+            # Add Login/Signup buttons at the bottom
+            st.markdown("---")
+            col1, col2, col3 = st.columns([1, 1, 1])
+            with col2:
+                if st.button("🔐 Login / Sign Up", type="primary", use_container_width=True):
+                    st.session_state.show_landing = False
+                    st.rerun()
+        except FileNotFoundError:
+            st.error("Landing page file not found. Showing login page...")
+            st.session_state.show_landing = False
+            st.rerun()
+    else:
+        # Show Login/Signup Page
+        st.title("🔐 Login / تسجيل الدخول")
+        
+        # Back to landing page button
+        if st.button("← Back to Home", key="back_to_landing"):
+            st.session_state.show_landing = True
             st.rerun()
         
-        # Firebase configuration from environment
-        firebase_api_key = os.getenv("FIREBASE_API_KEY")
-        firebase_project_id = os.getenv("FIREBASE_PROJECT_ID")
+        tab1, tab2, tab3 = st.tabs([
+            "Login / دخول", 
+            "Sign Up / تسجيل جديد",
+            "Forgot Password / نسيت كلمة المرور"
+        ])
         
-        # Google Sign-In Button with Firebase JS SDK
-        google_signin_html = f"""
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-        
-        <style>
-            .google-btn {{
-                background: rgba(15, 23, 42, 0.7);
-                backdrop-filter: blur(12px);
-                border: 2px solid rgba(255, 255, 255, 0.1);
-                border-radius: 12px;
-                color: #ffffff;
-                cursor: pointer;
-                font-family: 'Inter', 'Roboto', arial, sans-serif;
-                font-size: 14px;
-                font-weight: 600;
-                height: 48px;
-                letter-spacing: 0.25px;
-                padding: 0 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                width: 100%;
-                max-width: 300px;
-                margin: 0 auto;
-                transition: all 0.3s ease;
-            }}
-            .google-btn:hover {{
-                border-color: rgba(6, 182, 212, 0.5);
-                transform: translateY(-2px);
-                box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2);
-            }}
-            .google-btn:active {{
-                transform: translateY(0);
-            }}
-        </style>
-        
-        <button id="googleSignInBtn" class="google-btn">
-            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                <path fill="none" d="M0 0h48v48H0z"></path>
-            </svg>
-            Sign in with Google
-        </button>
-        
-        <div id="status"></div>
-        
-        <script>
-            const firebaseConfig = {{
-                apiKey: "{firebase_api_key}",
-                authDomain: "{firebase_project_id}.firebaseapp.com",
-                projectId: "{firebase_project_id}"
-            }};
-            
-            // Initialize Firebase
-            if (!firebase.apps.length) {{
-                firebase.initializeApp(firebaseConfig);
-            }}
-            
-            const auth = firebase.auth();
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({{
-                prompt: 'select_account'
-            }});
-            
-            document.getElementById('googleSignInBtn').addEventListener('click', async () => {{
-                const statusDiv = document.getElementById('status');
-                statusDiv.textContent = 'Opening Google Sign-In...';
+        with tab1:
+            st.write("### Email & Password")
+            with st.form("login_form"):
+                email = st.text_input("Email / البريد الإلكتروني", key="login_email")
+                password = st.text_input("Password / كلمة المرور", type="password", key="login_password")
+                remember_me = st.checkbox("Remember me / تذكرني")
+                submit_login = st.form_submit_button("🔓 Login / دخول", use_container_width=True, type="primary")
                 
-                try {{
-                    const result = await auth.signInWithPopup(provider);
-                    const user = result.user;
-                    const token = await user.getIdToken();
-                    
-                    statusDiv.textContent = 'Success! Redirecting...';
-                    
-                    // Send data back to Streamlit via query parameters
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('google_token', token);
-                    currentUrl.searchParams.set('google_email', user.email);
-                    currentUrl.searchParams.set('google_uid', user.uid);
-                    
-                    window.parent.location.href = currentUrl.toString();
-                    
-                }} catch (error) {{
-                    console.error('Error during sign in:', error);
-                    statusDiv.textContent = 'Sign-in failed: ' + error.message;
-                }}
-            }});
-        </script>
-        """
-        
-        components.html(google_signin_html, height=100)
-        
-        # Check for Google auth callback in URL parameters
-        query_params = st.query_params
-        if 'google_token' in query_params:
-            st.session_state.google_auth_token = query_params['google_token']
-            st.session_state.google_auth_email = query_params['google_email']
-            st.session_state.google_auth_uid = query_params['google_uid']
-            
-            # Clear query parameters
-            st.query_params.clear()
-            st.rerun()
-    
-    
-    with tab2:
-        st.write("### Create New Account")
-        with st.form("signup_form"):
-            new_email = st.text_input("Email / البريد الإلكتروني", key="signup_email")
-            new_password = st.text_input("Password / كلمة المرور", type="password", key="signup_password")
-            confirm_password = st.text_input("Confirm Password / تأكيد كلمة المرور", type="password")
-            submit_signup = st.form_submit_button("📝 Sign Up / تسجيل", use_container_width=True, type="primary")
-            
-            if submit_signup:
-                if not new_email or not new_password or not confirm_password:
-                    st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
-                elif new_password != confirm_password:
-                    st.error("Passwords do not match" if language == "English" else "كلمات المرور غير متطابقة")
-                elif len(new_password) < 6:
-                    st.error("Password must be at least 6 characters" if language == "English" else "يجب أن تكون كلمة المرور 6 أحرف على الأقل")
-                else:
-                    with st.spinner("Creating account..." if language == "English" else "جاري إنشاء الحساب..."):
-                        result = auth_handler.sign_up_with_email(new_email, new_password)
-                        
-                        if result.get("success"):
-                            # Also create user profile in Firestore
-                            create_result = firebase_config.create_user(new_email, new_password, new_email.split('@')[0])
+                if submit_login:
+                    if not email or not password:
+                        st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
+                    else:
+                        with st.spinner("Verifying..." if language == "English" else "جاري التحقق..."):
+                            result = auth_handler.sign_in_with_email(email, password)
                             
-                            if "error" in create_result:
-                                st.error(f"Account created but profile failed: {create_result['error']}" if language == "English" else f"تم إنشاء الحساب ولكن فشل الملف الشخصي: {create_result['error']}")
+                            if result.get("success"):
+                                auth_handler.save_session(result)
+                                # Save to cookie if remember_me is checked
+                                if remember_me:
+                                    with st.spinner("Saving login info..."):
+                                        auth_handler.save_to_cookie(result, remember_me=True, cookies=cookies)
+                                        import time
+                                        time.sleep(2)  # Give time for cookie to save
+                                
+                                st.success(f"Welcome back! / مرحباً بعودتك!")
+                                st.rerun()
                             else:
-                                st.success("Account created successfully! Please login." if language == "English" else "تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.")
-                        else:
-                            error_msg = result.get("error", "Unknown error")
-                            if "EMAIL_EXISTS" in error_msg:
-                                st.error("Email already exists" if language == "English" else "البريد الإلكتروني مستخدم بالفعل")
-                            elif "WEAK_PASSWORD" in error_msg:
-                                st.error("Password is too weak" if language == "English" else "كلمة المرور ضعيفة جداً")
-                            elif "OPERATION_NOT_ALLOWED" in error_msg:
-                                st.error("Email/Password sign-in is disabled in Firebase Console" if language == "English" else "تسجيل الدخول بالبريد/كلمة المرور معطل في Firebase")
-                            else:
-                                st.error(f"Error: {error_msg}")
-    
-    with tab3:
-        st.write("### Reset Your Password")
-        with st.form("reset_form"):
-            reset_email = st.text_input("Email / البريد الإلكتروني", key="reset_email")
-            submit_reset = st.form_submit_button("📧 Send Reset Link / إرسال رابط إعادة التعيين", use_container_width=True)
+                                error_msg = result.get("error", "Unknown error")
+                                if "INVALID_PASSWORD" in error_msg or "INVALID_LOGIN_CREDENTIALS" in error_msg:
+                                    st.error("Invalid email or password" if language == "English" else "البريد الإلكتروني أو كلمة المرور غير صحيحة")
+                                elif "USER_NOT_FOUND" in error_msg:
+                                    st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
+                                else:
+                                    st.error(f"Error: {error_msg}")
             
-            if submit_reset:
-                if not reset_email:
-                    st.error("Please enter your email" if language == "English" else "الرجاء إدخال بريدك الإلكتروني")
-                else:
-                    with st.spinner("Sending email..." if language == "English" else "جاري الإرسال..."):
-                        result = auth_handler.send_password_reset_email(reset_email)
+            # Divider
+            st.markdown("---")
+            st.write("### Or sign in with:")
+            
+            # Google Sign-In using Firebase JS SDK
+            import streamlit.components.v1 as components
+            
+            # Check if Google auth callback happened
+            if 'google_auth_token' in st.session_state and st.session_state.google_auth_token:
+                # Process the Google login
+                google_session = {
+                    "success": True,
+                    "email": st.session_state.google_auth_email,
+                    "localId": st.session_state.google_auth_uid,
+                    "idToken": st.session_state.google_auth_token,
+                    "refreshToken": "google_refresh_token"
+                }
+                auth_handler.save_session(google_session)
+                
+                # Also create user profile in Firestore if doesn't exist
+                firebase_config.create_user(
+                    st.session_state.google_auth_email,
+                    "google_oauth_user",
+                    st.session_state.google_auth_email.split('@')[0]
+                )
+                
+                # Clear the temporary state
+                del st.session_state.google_auth_token
+                del st.session_state.google_auth_email
+                del st.session_state.google_auth_uid
+                
+                st.rerun()
+            
+            # Firebase configuration from environment
+            firebase_api_key = os.getenv("FIREBASE_API_KEY")
+            firebase_project_id = os.getenv("FIREBASE_PROJECT_ID")
+            
+            # Google Sign-In Button with Firebase JS SDK
+            google_signin_html = f"""
+            <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+            
+            <style>
+                .google-btn {{
+                    background: rgba(15, 23, 42, 0.7);
+                    backdrop-filter: blur(12px);
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    color: #ffffff;
+                    cursor: pointer;
+                    font-family: 'Inter', 'Roboto', arial, sans-serif;
+                    font-size: 14px;
+                    font-weight: 600;
+                    height: 48px;
+                    letter-spacing: 0.25px;
+                    padding: 0 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    width: 100%;
+                    max-width: 300px;
+                    margin: 0 auto;
+                    transition: all 0.3s ease;
+                }}
+                .google-btn:hover {{
+                    border-color: rgba(6, 182, 212, 0.5);
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2);
+                }}
+                .google-btn:active {{
+                    transform: translateY(0);
+                }}
+            </style>
+            
+            <button id="googleSignInBtn" class="google-btn">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    <path fill="none" d="M0 0h48v48H0z"></path>
+                </svg>
+                Sign in with Google
+            </button>
+            
+            <div id="status"></div>
+            
+            <script>
+                const firebaseConfig = {{
+                    apiKey: "{firebase_api_key}",
+                    authDomain: "{firebase_project_id}.firebaseapp.com",
+                    projectId: "{firebase_project_id}"
+                }};
+                
+                // Initialize Firebase
+                if (!firebase.apps.length) {{
+                    firebase.initializeApp(firebaseConfig);
+                }}
+                
+                const auth = firebase.auth();
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({{
+                    prompt: 'select_account'
+                }});
+                
+                document.getElementById('googleSignInBtn').addEventListener('click', async () => {{
+                    const statusDiv = document.getElementById('status');
+                    statusDiv.textContent = 'Opening Google Sign-In...';
+                    
+                    try {{
+                        const result = await auth.signInWithPopup(provider);
+                        const user = result.user;
+                        const token = await user.getIdToken();
                         
-                        if result.get("success"):
-                            st.success("Password reset email sent! Check your inbox." if language == "English" else "تم إرسال رابط إعادة التعيين! تحقق من بريدك.")
-                        else:
-                            error_msg = result.get("error", "Unknown error")
-                            if "EMAIL_NOT_FOUND" in error_msg:
-                                st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
+                        statusDiv.textContent = 'Success! Redirecting...';
+                        
+                        // Send data back to Streamlit via query parameters
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('google_token', token);
+                        currentUrl.searchParams.set('google_email', user.email);
+                        currentUrl.searchParams.set('google_uid', user.uid);
+                        
+                        window.parent.location.href = currentUrl.toString();
+                        
+                    }} catch (error) {{
+                        console.error('Error during sign in:', error);
+                        statusDiv.textContent = 'Sign-in failed: ' + error.message;
+                    }}
+                }});
+            </script>
+            """
+            
+            components.html(google_signin_html, height=100)
+            
+            # Check for Google auth callback in URL parameters
+            query_params = st.query_params
+            if 'google_token' in query_params:
+                st.session_state.google_auth_token = query_params['google_token']
+                st.session_state.google_auth_email = query_params['google_email']
+                st.session_state.google_auth_uid = query_params['google_uid']
+                
+                # Clear query parameters
+                st.query_params.clear()
+                st.rerun()
+        
+        
+        with tab2:
+            st.write("### Create New Account")
+            with st.form("signup_form"):
+                new_email = st.text_input("Email / البريد الإلكتروني", key="signup_email")
+                new_password = st.text_input("Password / كلمة المرور", type="password", key="signup_password")
+                confirm_password = st.text_input("Confirm Password / تأكيد كلمة المرور", type="password")
+                submit_signup = st.form_submit_button("📝 Sign Up / تسجيل", use_container_width=True, type="primary")
+                
+                if submit_signup:
+                    if not new_email or not new_password or not confirm_password:
+                        st.error("Please fill all fields" if language == "English" else "الرجاء ملء جميع الحقول")
+                    elif new_password != confirm_password:
+                        st.error("Passwords do not match" if language == "English" else "كلمات المرور غير متطابقة")
+                    elif len(new_password) < 6:
+                        st.error("Password must be at least 6 characters" if language == "English" else "يجب أن تكون كلمة المرور 6 أحرف على الأقل")
+                    else:
+                        with st.spinner("Creating account..." if language == "English" else "جاري إنشاء الحساب..."):
+                            result = auth_handler.sign_up_with_email(new_email, new_password)
+                            
+                            if result.get("success"):
+                                # Also create user profile in Firestore
+                                create_result = firebase_config.create_user(new_email, new_password, new_email.split('@')[0])
+                                
+                                if "error" in create_result:
+                                    st.error(f"Account created but profile failed: {create_result['error']}" if language == "English" else f"تم إنشاء الحساب ولكن فشل الملف الشخصي: {create_result['error']}")
+                                else:
+                                    st.success("Account created successfully! Please login." if language == "English" else "تم إنشاء الحساب بنجاح! الرجاء تسجيل الدخول.")
                             else:
-                                st.error(f"Error: {error_msg}")
+                                error_msg = result.get("error", "Unknown error")
+                                if "EMAIL_EXISTS" in error_msg:
+                                    st.error("Email already exists" if language == "English" else "البريد الإلكتروني مستخدم بالفعل")
+                                elif "WEAK_PASSWORD" in error_msg:
+                                    st.error("Password is too weak" if language == "English" else "كلمة المرور ضعيفة جداً")
+                                elif "OPERATION_NOT_ALLOWED" in error_msg:
+                                    st.error("Email/Password sign-in is disabled in Firebase Console" if language == "English" else "تسجيل الدخول بالبريد/كلمة المرور معطل في Firebase")
+                                else:
+                                    st.error(f"Error: {error_msg}")
+        
+        with tab3:
+            st.write("### Reset Your Password")
+            with st.form("reset_form"):
+                reset_email = st.text_input("Email / البريد الإلكتروني", key="reset_email")
+                submit_reset = st.form_submit_button("📧 Send Reset Link / إرسال رابط إعادة التعيين", use_container_width=True)
+                
+                if submit_reset:
+                    if not reset_email:
+                        st.error("Please enter your email" if language == "English" else "الرجاء إدخال بريدك الإلكتروني")
+                    else:
+                        with st.spinner("Sending email..." if language == "English" else "جاري الإرسال..."):
+                            result = auth_handler.send_password_reset_email(reset_email)
+                            
+                            if result.get("success"):
+                                st.success("Password reset email sent! Check your inbox." if language == "English" else "تم إرسال رابط إعادة التعيين! تحقق من بريدك.")
+                            else:
+                                error_msg = result.get("error", "Unknown error")
+                                if "EMAIL_NOT_FOUND" in error_msg:
+                                    st.error("No account found with this email" if language == "English" else "لا يوجد حساب بهذا البريد")
+                                else:
+                                    st.error(f"Error: {error_msg}")
     
     # Stop execution if not logged in
     st.stop()
