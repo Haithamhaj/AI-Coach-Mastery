@@ -189,28 +189,10 @@ if 'show_landing' not in st.session_state:
 if not auth_handler.is_authenticated():
     # If user hasn't clicked login/signup, show landing page
     if st.session_state.get('show_landing', True):
-        # Import landing page component
-        import streamlit.components.v1 as components
-        
-        # Load and display the HTML landing page
-        try:
-            with open('index.html', 'r', encoding='utf-8') as f:
-                html_content = f.read()
-            
-            # Display the landing page
-            components.html(html_content, height=800, scrolling=True)
-            
-            # Add Login/Signup buttons at the bottom
-            st.markdown("---")
-            col1, col2, col3 = st.columns([1, 1, 1])
-            with col2:
-                if st.button("🔐 Login / Sign Up", type="primary", use_container_width=True):
-                    st.session_state.show_landing = False
-                    st.rerun()
-        except FileNotFoundError:
-            st.error("Landing page file not found. Showing login page...")
-            st.session_state.show_landing = False
-            st.rerun()
+        # Import and show native Streamlit landing page
+        from landing_page import show_landing_page
+        show_landing_page(language=language)
+        st.stop()  # Stop execution after showing landing page
     else:
         # Show Login/Signup Page
         st.title("🔐 Login / تسجيل الدخول")
