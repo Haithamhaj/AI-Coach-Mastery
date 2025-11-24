@@ -54,8 +54,16 @@ def get_landing_html_v2(language):
                 direction: {direction} !important;
                 text-align: {align} !important;
             }}
-            /* Force flex containers to respect direction */
-            .flex, .wave-text {{
+            /* Force grid and flex containers to respect direction */
+            .grid, .flex, .wave-text {{
+                direction: {direction} !important;
+            }}
+            /* Explicitly handle text alignment for content */
+            h1, h2, h3, h4, p, .text-slate-300 {{
+                text-align: {align} !important;
+            }}
+            /* Fix navbar alignment */
+            nav {{
                 direction: {direction} !important;
             }}
         </style>
