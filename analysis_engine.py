@@ -3,11 +3,15 @@ import json
 import os
 import random
 import time
+from token_tracker import get_token_tracker
 
 class AnalysisEngine:
-    def __init__(self, api_key, markers_data):
+    def __init__(self, api_key, markers_data, user_id=None):
         self.api_key = api_key
         self.markers_data = markers_data
+        self.user_id = user_id  # Track which user is using the API
+        self.tracker = get_token_tracker()
+        
         if self.api_key:
             genai.configure(api_key=self.api_key)
             # Using 'latest' aliases as specific versions (1.5) are not found for this key
@@ -44,10 +48,33 @@ class AnalysisEngine:
         """
         
         try:
+            model_used = "gemini-pro" if is_audio else "gemini-flash"
+            
             if is_audio:
                 response = self.model_pro.generate_content([prompt, content], generation_config={"response_mime_type": "application/json"})
             else:
                 response = self.model_flash.generate_content(prompt + f"\n\nTranscript:\n{content}", generation_config={"response_mime_type": "application/json"})
+            
+            # Extract token usage from response metadata
+            usage_metadata = getattr(response, 'usage_metadata', None)
+            
+            if usage_metadata and self.user_id:
+                # Get token counts
+                input_tokens = getattr(usage_metadata, 'prompt_token_count', 0)
+                output_tokens = getattr(usage_metadata, 'candidates_token_count', 0)
+                total_tokens = getattr(usage_metadata, 'total_token_count', input_tokens + output_tokens)
+                
+                # Log API usage
+                self.tracker.log_api_call(
+                    user_id=self.user_id,
+                    service_type="ethics_check",
+                    tokens_used={
+                        'input': input_tokens,
+                        'output': output_tokens,
+                        'total': total_tokens
+                    },
+                    model=model_used
+                )
             
             return json.loads(response.text)
         except Exception as e:
@@ -240,6 +267,26 @@ REMEMBER: This is PCC Level. Focus on observable behaviors, not coaching artistr
                     'status': 'COMPLETE',
                     'message': 'All 37 markers evaluated'
                 }
+            
+            # Track token usage
+            usage_metadata = getattr(response, 'usage_metadata', None)
+            
+            if usage_metadata and self.user_id:
+                input_tokens = getattr(usage_metadata, 'prompt_token_count', 0)
+                output_tokens = getattr(usage_metadata, 'candidates_token_count', 0)
+                total_tokens = getattr(usage_metadata, 'total_token_count', input_tokens + output_tokens)
+                
+                # Log API usage for PCC analysis
+                self.tracker.log_api_call(
+                    user_id=self.user_id,
+                    service_type="pcc_analysis",
+                    tokens_used={
+                        'input': input_tokens,
+                        'output': output_tokens,
+                        'total': total_tokens
+                    },
+                    model="gemini-pro" if is_audio else "gemini-flash"
+                )
             
             # Ensure required fields exist
             if 'markers_observed' not in result:

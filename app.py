@@ -516,9 +516,11 @@ if mode == t["mode_training"]:
                 st.error(t["enter_api_key"])
             else:
                 from analysis_engine import AnalysisEngine
-                engine = AnalysisEngine(api_key, markers_data)
+                # Create analysis engine with user tracking
+                user_email = st.session_state.get('user_email', 'anonymous')
+                engine = AnalysisEngine(api_key, markers_data, user_id=user_email)
                 
-                gemini_file = None
+                # Stage 1: Ethics Check = None
                 content_to_analyze = None
                 
                 try:
