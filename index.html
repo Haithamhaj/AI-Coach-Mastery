@@ -1,356 +1,1035 @@
 <!DOCTYPE html>
-<html class="dark" dir="rtl" lang="ar">
+<html lang="ar" dir="rtl" id="html-root">
 
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>AI Coach Mastery | شريكك الذكي للمستقبل</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coach Mastery - بوابتك لاحتراف الكوتشينج</title>
 
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;900&display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-        rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
+        rel="stylesheet">
 
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-
         body {
-            /* Deep dark background matching the reference */
-            background: #080B14;
-            background-image:
-                radial-gradient(circle at 50% 0%, rgba(180, 138, 60, 0.15) 0%, transparent 60%),
-                linear-gradient(180deg, rgba(8, 11, 20, 0) 0%, #080B14 100%);
-            position: relative;
-            overflow-x: hidden;
+            font-family: 'Tajawal', sans-serif;
         }
 
-        /* Metallic Gold Text Gradient */
-        .text-gold-gradient {
-            background: linear-gradient(135deg, #F0D597 0%, #C49845 40%, #8B6522 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 10px rgba(196, 152, 69, 0.2);
-        }
+        /* Animated gradient wave effect - word by word */
+        @keyframes waveColor {
+            0% {
+                color: #ffffff;
+            }
 
-        /* Card Style matching the reference */
-        .feature-card {
-            background: linear-gradient(145deg, rgba(20, 24, 35, 0.9) 0%, rgba(10, 12, 18, 0.95) 100%);
-            border: 1px solid rgba(196, 152, 69, 0.3);
-            box-shadow:
-                0 0 0 1px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 10px 30px -10px rgba(0, 0, 0, 0.8);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(180deg, rgba(240, 213, 151, 0.4) 0%, rgba(139, 101, 34, 0.1) 100%);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0.5;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow:
-                0 0 0 1px rgba(196, 152, 69, 0.5),
-                0 20px 40px -10px rgba(139, 101, 34, 0.15);
-            border-color: rgba(240, 213, 151, 0.6);
-        }
-
-        /* Button Style - Metallic Gold */
-        .btn-primary {
-            background: linear-gradient(180deg, #DDB669 0%, #B68A36 100%);
-            border: 1px solid #F0D597;
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                0 4px 15px rgba(182, 138, 54, 0.3);
-            color: #080B14;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(180deg, #EED088 0%, #C49845 100%);
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.4),
-                0 6px 20px rgba(182, 138, 54, 0.4);
-            transform: translateY(-1px);
-        }
-
-        /* Icon Circle - Dark with Gold Glow */
-        .icon-circle {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            /* Squared corners like reference */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(196, 152, 69, 0.1) 0%, rgba(10, 12, 18, 0.5) 100%);
-            border: 1px solid rgba(196, 152, 69, 0.3);
-            box-shadow: inset 0 0 15px rgba(196, 152, 69, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover .icon-circle {
-            background: linear-gradient(135deg, rgba(196, 152, 69, 0.2) 0%, rgba(10, 12, 18, 0.6) 100%);
-            border-color: rgba(240, 213, 151, 0.5);
-            box-shadow: 0 0 20px rgba(196, 152, 69, 0.2);
-        }
-
-        /* Laptop Mockup Glow */
-        .laptop-mockup {
-            position: relative;
-            max-width: 650px;
-            margin: 0 auto;
-            filter: drop-shadow(0 0 40px rgba(196, 152, 69, 0.15));
-            animation: floatLaptop 6s ease-in-out infinite;
-        }
-
-        @keyframes floatLaptop {
-
-            0%,
-            100% {
-                transform: translateY(0px);
+            25% {
+                color: #a8d8ff;
             }
 
             50% {
-                transform: translateY(-15px);
+                color: #06b6d4;
+            }
+
+            75% {
+                color: #a8d8ff;
+            }
+
+            100% {
+                color: #ffffff;
             }
         }
 
-        .nav-link {
-            color: #9CA3AF;
-            transition: color 0.3s ease;
+        .wave-text {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3em;
         }
 
-        .nav-link:hover {
-            color: #F0D597;
+        .wave-text span {
+            display: inline-block;
+            animation: waveColor 2s ease-in-out infinite;
         }
 
-        /* Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
+        .wave-text span:nth-child(1) {
+            animation-delay: 0s;
         }
 
-        .particle {
-            position: absolute;
-            background: rgba(196, 152, 69, 0.3);
-            border-radius: 50%;
-            animation: float 15s infinite linear;
+        .wave-text span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .wave-text span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .wave-text span:nth-child(4) {
+            animation-delay: 0.45s;
+        }
+
+        .wave-text span:nth-child(5) {
+            animation-delay: 0.6s;
+        }
+
+        .wave-text span:nth-child(6) {
+            animation-delay: 0.75s;
+        }
+
+        /* Cyber Grid Animation */
+        .cyber-grid {
+            background-image:
+                linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        .mask-image-gradient {
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        /* Perspective for 3D effects */
+        .perspective-2000 {
+            perspective: 2000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+
+        /* Glow pulse animation */
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(6, 182, 212, 0.5);
+            }
+        }
+
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Spin slow */
+        @keyframes spinSlow {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-spin-slow {
+            animation: spinSlow 20s linear infinite;
+        }
+
+        /* Width animation */
+        @keyframes widthAnim {
+
+            0%,
+            100% {
+                width: 85%;
+            }
+
+            50% {
+                width: 95%;
+            }
+        }
+
+        /* Custom selection color */
+        ::selection {
+            background-color: rgba(6, 182, 212, 0.3);
+            color: white;
+        }
+
+        /* Rotate-x utility */
+        .rotate-x-70 {
+            transform: rotateX(70deg);
         }
     </style>
-
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#C49845",
-                        "primary-light": "#F0D597",
-                        "primary-dark": "#8B6522",
-                        "dark-bg": "#080B14",
-                    },
-                    fontFamily: {
-                        "display": ["Cairo", "sans-serif"],
-                        "body": ["Tajawal", "sans-serif"]
-                    },
-                },
-            },
-        }
-    </script>
 </head>
 
-<body class="font-display text-white min-h-screen relative">
-    <!-- Particles Background -->
-    <div class="particles">
-        <div class="particle"
-            style="left: 10%; animation-delay: 0s; animation-duration: 8s; width: 3px; height: 3px; opacity: 0.3;">
-        </div>
-        <div class="particle"
-            style="left: 20%; animation-delay: 2s; animation-duration: 10s; width: 2px; height: 2px; opacity: 0.5;">
-        </div>
-        <div class="particle"
-            style="left: 30%; animation-delay: 4s; animation-duration: 12s; width: 4px; height: 4px; opacity: 0.2;">
-        </div>
-        <div class="particle" style="left: 40%; animation-delay: 1s; animation-duration: 9s;"></div>
-        <div class="particle" style="left: 50%; animation-delay: 3s; animation-duration: 11s;"></div>
-        <div class="particle" style="left: 60%; animation-delay: 5s; animation-duration: 10s;"></div>
-        <div class="particle" style="left: 70%; animation-delay: 2s; animation-duration: 8s;"></div>
-        <div class="particle" style="left: 80%; animation-delay: 4s; animation-duration: 12s;"></div>
-        <div class="particle" style="left: 90%; animation-delay: 1s; animation-duration: 9s;"></div>
+<body class="min-h-screen bg-[#020617] text-white overflow-x-hidden relative">
+
+    <!-- Neural Network Canvas Background -->
+    <canvas id="neuralCanvas" class="absolute inset-0 z-0 pointer-events-none opacity-50"></canvas>
+
+    <!-- Moving Cyber Grid (Floor) -->
+    <div class="absolute bottom-0 w-full h-[60vh] cyber-grid opacity-15 pointer-events-none z-0 mask-image-gradient">
     </div>
 
-    <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <!-- Ambient Light Orbs -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div id="orb1"
+            class="absolute -top-[10%] -left-[10%] w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen transition-transform duration-1000 ease-out">
+        </div>
+        <div id="orb2"
+            class="absolute top-[20%] -right-[10%] w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[100px] mix-blend-screen transition-transform duration-1000 ease-out">
+        </div>
+    </div>
 
-        <!-- Header -->
-        <header class="flex items-center justify-between py-6 border-b border-white/5">
-            <div class="flex items-center gap-3">
-                <img src="logo.jpg" alt="AI Coach Mastery"
-                    class="h-12 w-12 rounded-xl object-cover border border-primary/30 shadow-[0_0_15px_rgba(196,152,69,0.2)]">
-                <h2 class="text-xl font-bold tracking-tight text-white hidden sm:block">AI Coach Mastery</h2>
-            </div>
+    <!-- Navbar -->
+    <nav
+        class="relative z-50 flex justify-between items-center px-6 py-6 md:px-12 max-w-7xl mx-auto backdrop-blur-sm border-b border-white/5 bg-[#020617]/50 sticky top-0">
+        <div class="text-2xl font-bold tracking-wide text-white flex items-center gap-3">
+            <!-- Logo Image -->
+            <img src="logo.jpg" alt="AI Coach Mastery Logo"
+                class="w-14 h-14 rounded-lg border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
+            <span class="text-slate-400 font-normal text-lg">AI Coach Mastery</span>
+        </div>
 
-            <nav class="hidden md:flex items-center gap-8">
-                <a class="nav-link text-sm font-semibold" href="#features">المميزات</a>
-                <a class="nav-link text-sm font-semibold" href="#beta">النسخة
-                    التجريبية</a>
-                <a class="nav-link text-sm font-semibold" href="#contact">تواصل
-                    معنا</a>
-            </nav>
+        <div class="hidden md:flex items-center gap-8 text-slate-300 text-sm font-medium">
+            <a href="#features" class="relative group overflow-hidden py-2">
+                <span class="relative z-10 group-hover:text-cyan-400 transition-colors duration-300"
+                    data-i18n="nav.analysis">تحليل الجلسات</span>
+                <span
+                    class="absolute bottom-0 right-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a href="#how-it-works" class="relative group overflow-hidden py-2">
+                <span class="relative z-10 group-hover:text-cyan-400 transition-colors duration-300"
+                    data-i18n="nav.simulation">المحاكاة والتدريب</span>
+                <span
+                    class="absolute bottom-0 right-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a href="#features" class="relative group overflow-hidden py-2">
+                <span class="relative z-10 group-hover:text-cyan-400 transition-colors duration-300"
+                    data-i18n="nav.pcc">معايير PCC</span>
+                <span
+                    class="absolute bottom-0 right-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+            </a>
+            <a href="#footer" class="relative group overflow-hidden py-2">
+                <span class="relative z-10 group-hover:text-cyan-400 transition-colors duration-300"
+                    data-i18n="nav.about">عن المنصة</span>
+                <span
+                    class="absolute bottom-0 right-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
+            </a>
+        </div>
 
-            <button class="btn-primary flex items-center justify-center rounded-xl h-11 px-6 text-sm font-bold">
-                ابدأ تجربتك الآن
+        <div class="hidden md:flex items-center gap-4">
+            <!-- Language Toggle Button -->
+            <button id="langToggle" onclick="toggleLanguage()"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/50 hover:border-cyan-500/50 transition-all duration-300 text-sm font-medium text-slate-300 hover:text-white">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path
+                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                    </path>
+                </svg>
+                <span id="langText">EN</span>
             </button>
-        </header>
+
+            <button onclick="handleStart()"
+                class="bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50 flex items-center gap-2 text-sm">
+                <!-- Sparkles Icon -->
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v18m-9-9h18M7.8 7.8l8.4 8.4m0-8.4L7.8 16.2"></path>
+                </svg>
+                <span data-i18n="nav.cta">ابدأ الآن</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pb-24">
 
         <!-- Hero Section -->
-        <main class="py-12 lg:py-20">
-            <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[600px]">
+        <div class="grid md:grid-cols-2 gap-16 items-center min-h-[80vh] pt-20">
 
-                <!-- Text Content -->
-                <div class="flex flex-col gap-8 text-center lg:text-right order-2 lg:order-1">
-                    <div class="space-y-6">
-                        <h1 class="text-4xl lg:text-5xl xl:text-6xl font-black leading-[1.15] tracking-tight">
-                            <span class="text-white">AI Coach Mastery:</span><br>
-                            <span class="text-gold-gradient glow-text">شريكك الذكي للمستقبل -</span><br>
-                            <span class="text-white">اكتشف قدراتك الكامنة.</span>
-                        </h1>
+            <!-- Text Content (Right) -->
+            <div class="order-1 space-y-8 animate-fade-in">
+                <div>
+                    <h1 class="text-5xl md:text-6xl font-black leading-tight mb-6 wave-text">
+                        <span data-i18n="hero.title.word1">AI</span> <span data-i18n="hero.title.word2">Coach</span>
+                        <span data-i18n="hero.title.word3">Mastery</span>
+                    </h1>
 
-                        <p
-                            class="text-base lg:text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-body">
-                            ذكاء اصطناعي متطور تماماً، يفهم، يوجه معك مستقبل قيادي ونجاح حقيقي.
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 wave-text">
+                        <span data-i18n="hero.subtitle.word1">بوابتك</span> <span
+                            data-i18n="hero.subtitle.word2">لاحتراف</span> <span
+                            data-i18n="hero.subtitle.word3">الكوتشينج</span>
+                    </h2>
+
+                    <p class="text-slate-300 text-lg md:text-xl leading-relaxed font-medium"
+                        data-i18n="hero.description">
+                        منصة ذكية تعمل كمقيم وموجه شخصي (Mentor)، تساعدك على إتقان جدارات ICF وعلامات PCC الـ 37 من خلال
+                        التحليل الدقيق والمحاكاة الواقعية.
+                    </p>
+                </div>
+
+                <button onclick="handleStart()"
+                    class="group relative bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50 flex items-center gap-3 text-lg overflow-hidden">
+                    <span class="relative z-10" data-i18n="hero.cta">ابدأ رحلة الاحتراف</span>
+                    <!-- Arrow Icon -->
+                    <svg class="relative z-10 group-hover:translate-x-1 transition-transform" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-white/20 to-cyan-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000">
+                    </div>
+                </button>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-6 pt-8 border-t border-slate-700/50">
+                    <div>
+                        <div class="text-3xl font-black text-cyan-400 mb-1" data-i18n="hero.stat1.number">37</div>
+                        <div class="text-slate-400 text-sm font-medium" data-i18n="hero.stat1.label">علامة PCC</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-black text-cyan-400 mb-1" data-i18n="hero.stat2.number">8</div>
+                        <div class="text-slate-400 text-sm font-medium" data-i18n="hero.stat2.label">جدارات ICF</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-black text-cyan-400 mb-1" data-i18n="hero.stat3.number">95%</div>
+                        <div class="text-slate-400 text-sm font-medium" data-i18n="hero.stat3.label">دقة التحليل</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Content (Left) - 3D Robot -->
+            <div class="order-2 perspective-2000 group h-[600px] flex items-center justify-center relative">
+
+                <!-- Rotating Rings (Holographic Base) -->
+                <div
+                    class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[350px] h-[350px] border border-cyan-500/20 rounded-full rotate-x-70 animate-spin-slow">
+                </div>
+                <div class="absolute bottom-12 left-1/2 -translate-x-1/2 w-[250px] h-[250px] border border-indigo-500/20 rounded-full rotate-x-70"
+                    style="animation: spinSlow 15s linear infinite reverse;"></div>
+
+                <!-- Main 3D Container -->
+                <div id="robot3d"
+                    class="relative z-10 w-full max-w-[500px] transform-style-3d transition-transform duration-200 ease-out hover:scale-[1.02]">
+                    <!-- Main Robot Card -->
+                    <div
+                        class="relative rounded-3xl overflow-hidden border border-slate-600/50 bg-slate-900 shadow-2xl backdrop-blur-md glow-pulse">
+
+                        <!-- Robot Image -->
+                        <div class="relative h-[450px] overflow-hidden bg-[#020617] cursor-crosshair">
+                            <img id="robotImage"
+                                src="https://images.unsplash.com/photo-1633419461186-7d75076e10bc?q=80&w=800&auto=format&fit=crop"
+                                alt="AI 3D Robot"
+                                class="w-full h-full object-cover object-center transition-transform duration-1000"
+                                style="transform: scale(1.1);" />
+
+                            <!-- Interactive Eyes -->
+                            <!-- Left Eye -->
+                            <div
+                                class="absolute top-[42%] left-[33%] w-[10%] h-[10%] flex items-center justify-center pointer-events-none">
+                                <div id="leftEye"
+                                    class="w-5 h-5 bg-cyan-300 rounded-full shadow-[0_0_20px_rgba(34,211,238,1)] blur-[1px] transition-transform duration-75 ease-linear">
+                                </div>
+                            </div>
+
+                            <!-- Right Eye -->
+                            <div
+                                class="absolute top-[42%] right-[33%] w-[10%] h-[10%] flex items-center justify-center pointer-events-none">
+                                <div id="rightEye"
+                                    class="w-5 h-5 bg-cyan-300 rounded-full shadow-[0_0_20px_rgba(34,211,238,1)] blur-[1px] transition-transform duration-75 ease-linear">
+                                </div>
+                            </div>
+
+                            <!-- Subtle Grid Overlay -->
+                            <div
+                                class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay">
+                            </div>
+
+                            <!-- HUD Elements -->
+                            <div class="absolute inset-0 pointer-events-none">
+                                <div
+                                    class="absolute bottom-8 right-8 text-right text-[10px] font-mono text-cyan-400/80 tracking-widest space-y-1 bg-black/40 p-3 rounded-lg backdrop-blur-md border border-cyan-500/20">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <span>SYSTEM: <span class="text-white">ONLINE</span></span>
+                                        <!-- Activity Icon -->
+                                        <svg class="animate-pulse text-green-400" width="10" height="10"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div id="trackingText" class="hidden group-hover:block animate-fade-in">
+                                        <span class="text-cyan-300">TRACKING USER...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Data Panel -->
+                        <div class="bg-slate-900/95 backdrop-blur-xl p-4 border-t border-slate-700/50 relative z-20">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs font-bold text-white">AI COACH V3.0</span>
+                                </div>
+                                <!-- Scan Icon -->
+                                <svg class="text-cyan-400 animate-spin-slow" width="14" height="14" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                </svg>
+                            </div>
+                            <!-- Progress Bar -->
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                                    <span class="w-16">Analysis</span>
+                                    <div class="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-cyan-500"
+                                            style="width: 85%; animation: widthAnim 3s ease-in-out infinite;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div id="features" class="grid md:grid-cols-3 gap-8 mt-32 mb-16 relative z-10">
+            <!-- Feature 1 -->
+            <div
+                class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-1 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-cyan-500/20 hover:shadow-2xl">
+                <div
+                    class="h-full bg-[#0f172a]/80 rounded-xl p-6 border border-transparent hover:border-cyan-500/50 transition-colors">
+
+                    <!-- Image Area -->
+                    <div
+                        class="relative h-40 rounded-lg overflow-hidden mb-6 border border-slate-700/50 group-hover:border-white/10">
+                        <img src="feature1.png" alt="تحليل الجلسات المعمق"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
+
+                        <!-- Floating Icon -->
+                        <div
+                            class="absolute bottom-3 right-3 p-3 rounded-lg bg-slate-900/90 border border-slate-700 shadow-lg text-cyan-400 group-hover:scale-110 transition-transform duration-300">
+                            <!-- FileAudio Icon -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <path d="M12 18v-6"></path>
+                                <path d="M9 15h6"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-l group-hover:from-white group-hover:to-slate-300 transition-all"
+                        data-i18n="feature1.title">
+                        تحليل الجلسات المعمق
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed group-hover:text-slate-300"
+                        data-i18n="feature1.desc">
+                        ارفع ملفاتك الصوتية أو النصية واحصل على تدقيق فوري للعلامات (Markers)، تحليل نسب التحدث، وكشف
+                        الفجوات في الأداء.
+                    </p>
+
+                    <!-- Decorative Corner -->
+                    <div
+                        class="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div
+                class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-1 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-purple-500/20 hover:shadow-2xl">
+                <div
+                    class="h-full bg-[#0f172a]/80 rounded-xl p-6 border border-transparent hover:border-purple-500/50 transition-colors">
+
+                    <div
+                        class="relative h-40 rounded-lg overflow-hidden mb-6 border border-slate-700/50 group-hover:border-white/10">
+                        <img src="feature2.png" alt="محاكاة العملاء"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
+
+                        <div
+                            class="absolute bottom-3 right-3 p-3 rounded-lg bg-slate-900/90 border border-slate-700 shadow-lg text-purple-400 group-hover:scale-110 transition-transform duration-300">
+                            <!-- Mic Icon -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-l group-hover:from-white group-hover:to-slate-300 transition-all"
+                        data-i18n="feature2.title">
+                        محاكاة العملاء (AI Persona)
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed group-hover:text-slate-300"
+                        data-i18n="feature2.desc">
+                        تدرب في بيئة آمنة مع عملاء افتراضيين بأنماط صعبة (المقاوم، العاطفي، كثير التفكير) واحصل على
+                        توجيه لحظي.
+                    </p>
+
+                    <div
+                        class="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div
+                class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-1 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-amber-500/20 hover:shadow-2xl">
+                <div
+                    class="h-full bg-[#0f172a]/80 rounded-xl p-6 border border-transparent hover:border-amber-500/50 transition-colors">
+
+                    <div
+                        class="relative h-40 rounded-lg overflow-hidden mb-6 border border-slate-700/50 group-hover:border-white/10">
+                        <img src="feature3.png" alt="تقييم PCC الموضوعي"
+                            class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
+
+                        <div
+                            class="absolute bottom-3 right-3 p-3 rounded-lg bg-slate-900/90 border border-slate-700 shadow-lg text-amber-400 group-hover:scale-110 transition-transform duration-300">
+                            <!-- Award Icon -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-l group-hover:from-white group-hover:to-slate-300 transition-all"
+                        data-i18n="feature3.title">
+                        تقييم PCC الموضوعي
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed group-hover:text-slate-300"
+                        data-i18n="feature3.desc">
+                        تغذية راجعة حيادية وفورية تستند إلى 37 علامة سلوكية لـ ICF، مما يسرع رحلتك نحو الاعتماد الدولي.
+                    </p>
+
+                    <div
+                        class="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="mt-32 mb-16 relative z-10">
+            <div class="text-center mb-16">
+                <div
+                    class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold px-4 py-2 rounded-full mb-6">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span data-i18n="how.badge">كيف يعمل</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+                    <span data-i18n="how.title.part1">ابدأ رحلتك في</span> <span
+                        class="bg-gradient-to-l from-cyan-400 to-blue-500 bg-clip-text text-transparent"
+                        data-i18n="how.title.part2">4 خطوات بسيطة</span>
+                </h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto" data-i18n="how.subtitle">
+                    نظام متكامل يأخذك من التحليل إلى الاحتراف
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div
+                    class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 hover:border-cyan-500/50 transition-all duration-300">
+                    <div class="mt-4">
+                        <div
+                            class="w-16 h-16 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="text-cyan-400" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="step1.title">ارفع جلستك</h3>
+                        <p class="text-slate-400 text-sm" data-i18n="step1.desc">حمّل ملف صوتي أو نصي لجلسة كوتشينج
+                            حقيقية</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div
+                    class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300">
+                    <div class="mt-4">
+                        <div
+                            class="w-16 h-16 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="text-purple-400" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                </path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="step2.title">تحليل ذكي</h3>
+                        <p class="text-slate-400 text-sm" data-i18n="step2.desc">يقوم الذكاء الاصطناعي بتحليل شامل لكل
+                            العلامات</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div
+                    class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 hover:border-amber-500/50 transition-all duration-300">
+                    <div class="mt-4">
+                        <div
+                            class="w-16 h-16 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="text-amber-400" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="step3.title">تقرير مفصل</h3>
+                        <p class="text-slate-400 text-sm" data-i18n="step3.desc">احصل على تقرير شامل بالنقاط القوية
+                            والفجوات</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div
+                    class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300">
+                    <div class="mt-4">
+                        <div
+                            class="w-16 h-16 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="text-green-400" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2" data-i18n="step4.title">تدرّب وتطوّر</h3>
+                        <p class="text-slate-400 text-sm" data-i18n="step4.desc">استخدم المحاكاة لتحسين مهاراتك باستمرار
                         </p>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <button
-                            class="btn-primary w-full sm:w-auto h-14 px-10 rounded-xl font-bold text-base flex items-center justify-center gap-2 relative z-10">
-                            <span>ابدأ رحلتك الاستثنائية الآن</span>
-                            <span class="material-symbols-outlined text-xl">arrow_back</span>
+        <!-- CTA Section -->
+        <section class="mt-32 mb-16 relative z-10">
+            <div
+                class="bg-gradient-to-br from-cyan-500/10 to-blue-600/10 backdrop-blur-md border border-cyan-500/30 rounded-3xl p-12 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10">
+                </div>
+                <div class="relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+                        <span data-i18n="cta.title.part1">جاهز لتصبح</span> <span
+                            class="bg-gradient-to-l from-cyan-400 to-blue-500 bg-clip-text text-transparent"
+                            data-i18n="cta.title.part2">كوتش محترف؟</span>
+                    </h2>
+                    <p class="text-slate-300 text-lg mb-8 max-w-2xl mx-auto" data-i18n="cta.subtitle">
+                        ابدأ رحلتك نحو الاحتراف مع AI Coach Mastery - منصتك الذكية لإتقان معايير ICF
+                    </p>
+                    <div class="flex justify-center">
+                        <button onclick="handleStart()"
+                            class="bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50 flex items-center gap-3 text-lg">
+                            <span data-i18n="cta.button">ابدأ الآن</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
                         </button>
                     </div>
+                    <p class="text-slate-400 text-sm mt-6" data-i18n="cta.features">
+                        ✓ تحليل دقيق للجلسات • ✓ محاكاة واقعية • ✓ تقييم فوري
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="relative z-10 border-t border-slate-700/50 bg-[#020617]/95 backdrop-blur-sm py-12">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <svg class="text-cyan-400" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                        </svg>
+                        <span class="text-2xl font-bold text-white">AI Coach Mastery</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4" data-i18n="footer.desc">
+                        منصتك الذكية للوصول إلى الاحتراف في الكوتشينج وفق معايير ICF العالمية
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-800 hover:bg-cyan-500 rounded-lg flex items-center justify-center transition-colors">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-800 hover:bg-cyan-500 rounded-lg flex items-center justify-center transition-colors">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                            </svg>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-800 hover:bg-cyan-500 rounded-lg flex items-center justify-center transition-colors">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                            </svg>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Laptop Mockup -->
-                <div class="relative order-1 lg:order-2">
-                    <div class="laptop-mockup">
-                        <img src="hero_3d.png" alt="AI Coach Dashboard" class="w-full h-auto">
-                    </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4" data-i18n="footer.links.title">روابط سريعة</h4>
+                    <ul class="space-y-2 text-slate-400 text-sm">
+                        <li><a href="#footer" class="hover:text-cyan-400 transition-colors"
+                                data-i18n="footer.links.about">عن المنصة</a></li>
+                        <li><a href="#features" class="hover:text-cyan-400 transition-colors"
+                                data-i18n="footer.links.features">الميزات</a></li>
+                        <li><a href="#how-it-works" class="hover:text-cyan-400 transition-colors"
+                                data-i18n="footer.links.how">كيف يعمل</a></li>
+                        <li><a href="#footer" class="hover:text-cyan-400 transition-colors"
+                                data-i18n="footer.links.faq">الأسئلة الشائعة</a></li>
+                    </ul>
                 </div>
-            </section>
 
-            <!-- Features Cards Section -->
-            <section id="features" class="mt-24 lg:mt-32">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                    <!-- Card 1: تحليل الأداء الذكي -->
-                    <div class="feature-card rounded-2xl overflow-hidden group">
-                        <div class="p-6">
-                            <div class="mb-5 overflow-hidden rounded-xl border border-white/5 relative">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-                                <img src="Gemini_Generated_Image_6qwxf96qwxf96qwx.png" alt="تحليل الأداء الذكي"
-                                    class="feature-card-image">
-                            </div>
-
-                            <div class="flex items-start gap-4 mb-4">
-                                <div class="icon-circle flex-shrink-0">
-                                    <span
-                                        class="material-symbols-outlined text-3xl text-primary-light">query_stats</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white mb-2">تحليل الأداء الذكي</h3>
-                                    <p class="text-sm text-gray-400 leading-relaxed">
-                                        تحليل بيانات الأداء الذكي في اكتشاف فجوات الكفاءة.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: توجيه ذكي مخصص -->
-                    <div class="feature-card rounded-2xl overflow-hidden group">
-                        <div class="p-6">
-                            <div class="mb-5 overflow-hidden rounded-xl border border-white/5 relative">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-                                <img src="Gemini_Generated_Image_bdk1vkbdk1vkbdk1.png" alt="توجيه ذكي مخصص"
-                                    class="feature-card-image">
-                            </div>
-
-                            <div class="flex items-start gap-4 mb-4">
-                                <div class="icon-circle flex-shrink-0">
-                                    <span class="material-symbols-outlined text-3xl text-primary">hub</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white mb-2">توجيه ذكي مخصص</h3>
-                                    <p class="text-sm text-gray-400 leading-relaxed">
-                                        توجيه ذكي مخصص على حسب مستشارك قيادي.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: تطوير المهارات المستقبلية -->
-                    <div class="feature-card rounded-2xl overflow-hidden group">
-                        <div class="p-6">
-                            <div class="mb-5 overflow-hidden rounded-xl border border-white/5 relative">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-                                <img src="radar_chart.png" alt="تطوير المهارات المستقبلية"
-                                    class="feature-card-image bg-slate-900/50 p-4">
-                            </div>
-
-                            <div class="flex items-start gap-4 mb-4">
-                                <div class="icon-circle flex-shrink-0">
-                                    <span class="material-symbols-outlined text-3xl text-white">rocket_launch</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white mb-2">تطوير المهارات المستقبلية</h3>
-                                    <p class="text-sm text-gray-400 leading-relaxed">
-                                        تطوير المهارات الاستشرافية تناسب احتياجات المستقبل.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div>
+                    <h4 class="text-white font-bold mb-4" data-i18n="footer.contact.title">تواصل معنا</h4>
+                    <ul class="space-y-2 text-slate-400 text-sm">
+                        <li class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            support@aicoachmastery.com
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
+                            </svg>
+                            +966 XX XXX XXXX
+                        </li>
+                    </ul>
                 </div>
-            </section>
-        </main>
+            </div>
 
-        <!-- Footer -->
-        <footer class="border-t border-white/10 py-8 mt-16 text-center text-gray-400 text-sm">
-            <p class="font-body">&copy; 2025 AI Coach Mastery. الإصدار التجريبي (Beta 1.0).</p>
-        </footer>
-    </div>
+            <div
+                class="border-t border-slate-700/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
+                <p data-i18n="footer.copyright">© 2024 AI Coach Mastery. جميع الحقوق محفوظة</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-cyan-400 transition-colors" data-i18n="footer.privacy">سياسة
+                        الخصوصية</a>
+                    <a href="#" class="hover:text-cyan-400 transition-colors" data-i18n="footer.terms">الشروط
+                        والأحكام</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Neural Network Canvas Animation
+        const canvas = document.getElementById('neuralCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 60;
+        const connectionDistance = 160;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                size: Math.random() * 2 + 1
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(6, 182, 212, ${0.1 - dist / connectionDistance * 0.1})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Mouse tracking for parallax effects
+        let mousePos = { x: 0, y: 0 };
+
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 2 - 1;
+            const y = (e.clientY / window.innerHeight) * 2 - 1;
+            mousePos = { x, y };
+
+            // Update orbs
+            document.getElementById('orb1').style.transform = `translate(${x * -20}px, ${y * -20}px)`;
+            document.getElementById('orb2').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+
+            // Update 3D robot rotation
+            const robot3d = document.getElementById('robot3d');
+            robot3d.style.transform = `rotateY(${x * -2}deg) rotateX(${y * 2}deg)`;
+
+            // Update robot image parallax
+            const robotImage = document.getElementById('robotImage');
+            robotImage.style.transform = `scale(1.1) translate(${x * -5}px, ${y * -5}px)`;
+
+            // Update eyes
+            const leftEye = document.getElementById('leftEye');
+            const rightEye = document.getElementById('rightEye');
+            leftEye.style.transform = `translate(${x * 12}px, ${y * 8}px)`;
+            rightEye.style.transform = `translate(${x * 12}px, ${y * 8}px)`;
+        });
+
+        // Start button handler - REDIRECTS TO STREAMLIT
+        function handleStart() {
+            window.location.href = 'http://localhost:8501';
+        }
+
+        // ========== LANGUAGE SYSTEM ==========
+        const translations = {
+            ar: {
+                'nav.analysis': 'تحليل الجلسات',
+                'nav.simulation': 'المحاكاة والتدريب',
+                'nav.pcc': 'معايير PCC',
+                'nav.about': 'عن المنصة',
+                'nav.cta': 'ابدأ الآن',
+                'hero.title.word1': 'AI',
+                'hero.title.word2': 'Coach',
+                'hero.title.word3': 'Mastery',
+                'hero.subtitle.word1': 'بوابتك',
+                'hero.subtitle.word2': 'لاحتراف',
+                'hero.subtitle.word3': 'الكوتشينج',
+                'hero.description': 'منصة ذكية تعمل كمقيم وموجه شخصي (Mentor)، تساعدك على إتقان جدارات ICF وعلامات PCC الـ 37 من خلال التحليل الدقيق والمحاكاة الواقعية.',
+                'hero.cta': 'ابدأ رحلة الاحتراف',
+                'hero.stat1.number': '37',
+                'hero.stat1.label': 'علامة PCC',
+                'hero.stat2.number': '8',
+                'hero.stat2.label': 'جدارات ICF',
+                'hero.stat3.number': '95%',
+                'hero.stat3.label': 'دقة التحليل',
+                'feature1.title': 'تحليل الجلسات المعمق',
+                'feature1.desc': 'ارفع ملفاتك الصوتية أو النصية واحصل على تدقيق فوري للعلامات (Markers)، تحليل نسب التحدث، وكشف الفجوات في الأداء.',
+                'feature2.title': 'محاكاة العملاء (AI Persona)',
+                'feature2.desc': 'تدرب في بيئة آمنة مع عملاء افتراضيين بأنماط صعبة (المقاوم، العاطفي، كثير التفكير) واحصل على توجيه لحظي.',
+                'feature3.title': 'تقييم PCC الموضوعي',
+                'feature3.desc': 'تغذية راجعة حيادية وفورية تستند إلى 37 علامة سلوكية لـ ICF، مما يسرع رحلتك نحو الاعتماد الدولي.',
+                'how.badge': 'كيف يعمل',
+                'how.title.part1': 'ابدأ رحلتك في',
+                'how.title.part2': '4 خطوات بسيطة',
+                'how.subtitle': 'نظام متكامل يأخذك من التحليل إلى الاحتراف',
+                'step1.title': 'ارفع جلستك',
+                'step1.desc': 'حمّل ملف صوتي أو نصي لجلسة كوتشينج حقيقية',
+                'step2.title': 'تحليل ذكي',
+                'step2.desc': 'يقوم الذكاء الاصطناعي بتحليل شامل لكل العلامات',
+                'step3.title': 'تقرير مفصل',
+                'step3.desc': 'احصل على تقرير شامل بالنقاط القوية والفجوات',
+                'step4.title': 'تدرّب وتطوّر',
+                'step4.desc': 'استخدم المحاكاة لتحسين مهاراتك باستمرار',
+                'cta.title.part1': 'جاهز لتصبح',
+                'cta.title.part2': 'كوتش محترف؟',
+                'cta.subtitle': 'ابدأ رحلتك نحو الاحتراف مع AI Coach Mastery - منصتك الذكية لإتقان معايير ICF',
+                'cta.button': 'ابدأ الآن',
+                'cta.features': '✓ تحليل دقيق للجلسات  •  ✓ محاكاة واقعية  •  ✓ تقييم فوري',
+                'footer.desc': 'منصتك الذكية للوصول إلى الاحتراف في الكوتشينج وفق معايير ICF العالمية',
+                'footer.links.title': 'روابط سريعة',
+                'footer.links.about': 'عن المنصة',
+                'footer.links.features': 'الميزات',
+                'footer.links.how': 'كيف يعمل',
+                'footer.links.faq': 'الأسئلة الشائعة',
+                'footer.contact.title': 'تواصل معنا',
+                'footer.copyright': '© 2024 AI Coach Mastery. جميع الحقوق محفوظة',
+                'footer.privacy': 'سياسة الخصوصية',
+                'footer.terms': 'الشروط والأحكام'
+            },
+            en: {
+                'nav.analysis': 'Session Analysis',
+                'nav.simulation': 'Simulation & Training',
+                'nav.pcc': 'PCC Standards',
+                'nav.about': 'About',
+                'nav.cta': 'Get Started',
+                'hero.title.word1': 'AI',
+                'hero.title.word2': 'Coach',
+                'hero.title.word3': 'Mastery',
+                'hero.subtitle.word1': 'Your',
+                'hero.subtitle.word2': 'Gateway to',
+                'hero.subtitle.word3': 'Coaching Excellence',
+                'hero.description': 'An intelligent platform that acts as your personal assessor and mentor, helping you master ICF competencies and 37 PCC markers through precise analysis and realistic simulation.',
+                'hero.cta': 'Start Your Journey',
+                'hero.stat1.number': '37',
+                'hero.stat1.label': 'PCC Markers',
+                'hero.stat2.number': '8',
+                'hero.stat2.label': 'ICF Competencies',
+                'hero.stat3.number': '95%',
+                'hero.stat3.label': 'Analysis Accuracy',
+                'feature1.title': 'In-Depth Session Analysis',
+                'feature1.desc': 'Upload your audio or text files and get instant marker detection, talk ratio analysis, and performance gap identification.',
+                'feature2.title': 'AI Client Simulation',
+                'feature2.desc': 'Practice in a safe environment with virtual clients exhibiting challenging patterns (resistant, emotional, overthinking) and receive real-time guidance.',
+                'feature3.title': 'Objective PCC Assessment',
+                'feature3.desc': 'Receive unbiased, instant feedback based on 37 ICF behavioral markers, accelerating your journey to international certification.',
+                'how.badge': 'How It Works',
+                'how.title.part1': 'Start Your Journey in',
+                'how.title.part2': '4 Simple Steps',
+                'how.subtitle': 'A comprehensive system that takes you from analysis to mastery',
+                'step1.title': 'Upload Your Session',
+                'step1.desc': 'Upload an audio or text file of a real coaching session',
+                'step2.title': 'Smart Analysis',
+                'step2.desc': 'AI performs comprehensive analysis of all markers',
+                'step3.title': 'Detailed Report',
+                'step3.desc': 'Get a comprehensive report on strengths and gaps',
+                'step4.title': 'Practice & Improve',
+                'step4.desc': 'Use simulation to continuously enhance your skills',
+                'cta.title.part1': 'Ready to Become a',
+                'cta.title.part2': 'Professional Coach?',
+                'cta.subtitle': 'Start your journey to excellence with AI Coach Mastery - your intelligent platform for mastering ICF standards',
+                'cta.button': 'Get Started',
+                'cta.features': '✓ Accurate Session Analysis  •  ✓ Realistic Simulation  •  ✓ Instant Assessment',
+                'footer.desc': 'Your intelligent platform for achieving coaching excellence according to global ICF standards',
+                'footer.links.title': 'Quick Links',
+                'footer.links.about': 'About',
+                'footer.links.features': 'Features',
+                'footer.links.how': 'How It Works',
+                'footer.links.faq': 'FAQ',
+                'footer.contact.title': 'Contact Us',
+                'footer.copyright': '© 2024 AI Coach Mastery. All rights reserved',
+                'footer.privacy': 'Privacy Policy',
+                'footer.terms': 'Terms & Conditions'
+            }
+        };
+
+        // Get current language from localStorage or default to Arabic
+        let currentLang = localStorage.getItem('language') || 'ar';
+
+        // Apply language on page load
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+
+            const htmlRoot = document.getElementById('html-root');
+            htmlRoot.setAttribute('lang', lang);
+            htmlRoot.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+            // Update language toggle button
+            document.getElementById('langText').textContent = lang === 'ar' ? 'EN' : 'AR';
+
+            // Update all translatable elements
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            const newLang = currentLang === 'ar' ? 'en' : 'ar';
+            applyLanguage(newLang);
+        }
+
+        // Apply language on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            applyLanguage(currentLang);
+        });
+    </script>
 </body>
 
 </html>
