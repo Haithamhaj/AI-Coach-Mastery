@@ -102,6 +102,47 @@ class AdminAnalytics:
             print(f"Error getting usage by service: {e}")
             return {}
     
+    def get_token_usage_by_service_filtered(self, days=None, service_type=None):
+        """Get token usage breakdown with optional filters"""
+        try:
+            query = self.db.collection('api_usage_logs')
+            
+            # Apply time filter
+            if days:
+                cutoff_date = datetime.now() - timedelta(days=days)
+                query = query.where('timestamp', '>=', cutoff_date)
+            
+            logs = query.stream()
+            
+            usage_by_service = {}
+            
+            for log in logs:
+                data = log.to_dict()
+                service = data.get('service_type', 'unknown')
+                
+                # Apply service filter
+                if service_type and service_type != "All Services" and service != service_type:
+                    continue
+                
+                tokens = data.get('tokens_used', {}).get('total', 0)
+                cost = data.get('cost_estimate', 0)
+                
+                if service not in usage_by_service:
+                    usage_by_service[service] = {
+                        'tokens': 0,
+                        'cost': 0,
+                        'count': 0
+                    }
+                
+                usage_by_service[service]['tokens'] += tokens
+                usage_by_service[service]['cost'] += cost
+                usage_by_service[service]['count'] += 1
+            
+            return usage_by_service
+        except Exception as e:
+            print(f"Error getting filtered usage: {e}")
+            return {}
+    
     def get_top_users(self, limit=10):
         """Get top users by token usage"""
         try:

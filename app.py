@@ -51,6 +51,61 @@ st.sidebar.image("logo.jpg", width=200)
 language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"])
 t = translations[language]
 
+# --- NAVIGATION SETUP (Must be early for sidebar placement) ---
+# Check if user is admin
+from admin_middleware import get_admin_middleware
+admin = get_admin_middleware()
+is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
+
+# Import User Dashboard
+from user_dashboard import show_user_dashboard
+
+# Navigation State
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Home"
+
+# Sidebar Navigation Options
+nav_options = {
+    "Home": "🏠 Home" if language == "English" else "🏠 الرئيسية",
+    "Training": t["mode_training"],
+    "Exam": t["mode_exam"]
+}
+
+if is_admin_user:
+    nav_options["Admin"] = "📊 Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن"
+
+# Create mappings
+label_to_key = {v: k for k, v in nav_options.items()}
+
+# Determine current selection
+current_label = nav_options.get(st.session_state.current_page, nav_options["Home"])
+options_list = list(nav_options.values())
+
+try:
+    default_index = options_list.index(current_label)
+except ValueError:
+    default_index = 0
+
+# Callback function for sidebar navigation
+def update_page_from_sidebar():
+    """Update current_page when user changes sidebar radio"""
+    selected_label = st.session_state.nav_radio
+    selected_key = label_to_key[selected_label]
+    st.session_state.current_page = selected_key
+
+# Render Sidebar Navigation with callback (AT THE TOP!)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🧭 Navigation")
+st.sidebar.radio(
+    "",
+    options_list,
+    index=default_index,
+    key="nav_radio",
+    on_change=update_page_from_sidebar,
+    label_visibility="collapsed"
+)
+st.sidebar.markdown("---")
+
 # DEBUG: Show current user status
 if 'user_email' in st.session_state:
     st.sidebar.markdown("---")
@@ -61,6 +116,7 @@ if 'user_email' in st.session_state:
     admin_mw = get_admin_middleware()
     is_admin_check = admin_mw.is_admin(st.session_state.user_email)
     st.sidebar.caption(f"Is Admin: {is_admin_check}")
+    st.sidebar.caption(f"Current Page: {st.session_state.get('current_page', 'Not Set')}")
     
     if is_admin_check:
         st.sidebar.success("Admin Access Active")
@@ -451,17 +507,18 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     st.sidebar.error("⚠️ API Key not found in .env file")
 
-# Check if user is admin
-from admin_middleware import get_admin_middleware
-admin = get_admin_middleware()
-is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
 
-# Build mode options
-mode_options = [t["mode_training"], t["mode_exam"], t["mode_profile"]]
-if is_admin_user:
-    mode_options.append("📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن")
 
-mode = st.sidebar.radio(t["select_mode"], mode_options)
+# Set 'mode' variable for backward compatibility with existing code
+# This maps the new page keys to the old mode strings expected by the rest of the app
+if st.session_state.current_page == "Training":
+    mode = t["mode_training"]
+elif st.session_state.current_page == "Exam":
+    mode = t["mode_exam"]
+elif st.session_state.current_page == "Admin":
+    mode = "📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن"
+else:
+    mode = "Home"
 
 # Helper: Radar Chart
 def plot_radar_chart(analysis_result):
@@ -503,7 +560,10 @@ def plot_radar_chart(analysis_result):
 st.title(t["title"])
 
 # --- TRAINING MODE ---
-if mode == t["mode_training"]:
+if mode == "Home":
+    show_user_dashboard(st.session_state.user_email, is_admin_user, language)
+
+elif mode == t["mode_training"]:
     st.header(t["training_header"])
     st.write(t["training_desc"])
     
@@ -1661,55 +1721,6 @@ elif mode == t["mode_exam"]:
                     st.rerun()
 
 
-# --- MY PROFILE ---
-elif mode == t["mode_profile"]:
-    st.header(t["mode_profile"])
-    
-    user_email = st.session_state.user_email
-    user_id = st.session_state.user_id
-    st.write(f"### 👤 {user_email}")
-    st.write(f"📧 {user_email}")
-    
-    # Fetch History
-    with st.spinner("Loading history..."):
-        history = firebase_config.get_user_history(user_id)
-    
-    if not history:
-        st.info("No training history found yet. Start a session to see your progress!")
-    else:
-        # 1. Progress Chart
-        st.subheader("📈 Progress Tracking / تتبع التطور")
-        
-        # Prepare data for chart
-        chart_data = []
-        for session in history:
-            if 'score' in session:
-                chart_data.append({
-                    'Date': session.get('created_at'),
-                    'Score': session.get('score'),
-                    'Type': session.get('session_type', 'Unknown')
-                })
-        
-        if chart_data:
-            df_chart = pd.DataFrame(chart_data)
-            fig = px.line(df_chart, x='Date', y='Score', color='Type', markers=True, title="Performance Over Time")
-            fig.update_layout(yaxis_range=[0, 10])
-            st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown("---")
-        
-        # 2. History Table
-        st.subheader("📜 Session History / سجل الجلسات")
-        
-        for session in history:
-            with st.expander(f"{session.get('date', 'Unknown Date')} - {session.get('session_type', 'Session')} (Score: {session.get('score', 'N/A')})"):
-                st.write(f"**Duration:** {session.get('duration', 'N/A')}")
-                st.write(f"**Score:** {session.get('score', 'N/A')}/10")
-                
-                # Show report summary if available
-                if 'report_json' in session:
-                    report = session['report_json']
-                    st.json(report)
 
 # Admin Dashboard Mode
 elif ("Admin Dashboard" in mode or "لوحة تحكم" in mode):

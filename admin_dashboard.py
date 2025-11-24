@@ -66,10 +66,74 @@ def show_admin_dashboard():
     
     st.markdown("---")
     
-    # Token Usage by Service
+    # --- FILTERS SECTION ---
+    st.subheader("🔍 Filters" if language == "English" else "🔍 الفلاتر")
+    
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
+    
+    with filter_col1:
+        # Time range filter
+        time_range = st.selectbox(
+            "Time Period" if language == "English" else "الفترة الزمنية",
+            options=["Last 7 Days", "Last 30 Days", "Last 90 Days", "Custom"],
+            index=1,  # Default to 30 days
+            key="time_range_filter"
+        )
+        
+        # Map display names to actual days
+        time_map = {
+            "Last 7 Days": 7,
+            "Last 30 Days": 30,
+            "Last 90 Days": 90
+        }
+        
+        if time_range == "Custom":
+            custom_days = st.number_input(
+                "Days" if language == "English" else "أيام",
+                min_value=1,
+                max_value=365,
+                value=30
+            )
+            selected_days = custom_days
+        else:
+            selected_days = time_map[time_range]
+    
+    with filter_col2:
+        # Service type filter
+        all_services = analytics.get_token_usage_by_service()
+        service_options = ["All Services"] + list(all_services.keys())
+        
+        selected_service = st.selectbox(
+            "Service Type" if language == "English" else "نوع الخدمة",
+            options=service_options,
+            key="service_filter"
+        )
+    
+    with filter_col3:
+        # Quick stats for filtered data
+        if selected_service != "All Services" and selected_service in all_services:
+            service_data = all_services[selected_service]
+            st.metric(
+                label=f"{selected_service} Tokens",
+                value=f"{service_data['tokens']:,}",
+                delta=f"${service_data['cost']:.4f}"
+            )
+        else:
+            st.metric(
+                label="Selected Period",
+                value=f"{selected_days} days"
+            )
+    
+    st.markdown("---")
+    
+    # Token Usage by Service (with filters applied)
     st.subheader("🔥 Token Usage by Service" if language == "English" else "🔥 استهلاك Tokens حسب الخدمة")
     
-    usage_by_service = analytics.get_token_usage_by_service()
+    # Get filtered usage data
+    usage_by_service = analytics.get_token_usage_by_service_filtered(
+        days=selected_days,
+        service_type=selected_service if selected_service != "All Services" else None
+    )
     
     if usage_by_service:
         # Create dataframe
@@ -89,7 +153,7 @@ def show_admin_dashboard():
             df_services,
             values='Tokens',
             names='Service',
-            title='Token Distribution by Service',
+            title=f'Token Distribution ({time_range})' if language == "English" else f'توزيع Tokens ({time_range})',
             color_discrete_sequence=px.colors.sequential.Teal
         )
         fig_pie.update_layout(
@@ -110,14 +174,14 @@ def show_admin_dashboard():
             use_container_width=True
         )
     else:
-        st.info("No usage data available yet" if language == "English" else "لا توجد بيانات استخدام بعد")
+        st.info("No usage data available for selected filters" if language == "English" else "لا توجد بيانات للفلاتر المحددة")
     
     st.markdown("---")
     
-    # Usage Over Time
-    st.subheader("📊 Usage Over Time (Last 30 Days)" if language == "English" else "📊 الاستخدام عبر الوقت (آخر 30 يوم)")
+    # Usage Over Time (with filters applied)
+    st.subheader(f"📊 Usage Over Time ({time_range})" if language == "English" else f"📊 الاستخدام عبر الوقت ({time_range})")
     
-    usage_timeline = analytics.get_usage_over_time(days=30)
+    usage_timeline = analytics.get_usage_over_time(days=selected_days)
     
     if usage_timeline:
         # Convert to dataframe
