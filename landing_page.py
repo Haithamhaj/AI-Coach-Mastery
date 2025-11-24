@@ -41,6 +41,16 @@ def get_landing_html(language):
         # --- 3. Enforce Language & Interaction ---
         target_lang = 'ar' if language == "العربية" else 'en'
         
+        # CRITICAL FIX: Modify HTML directly before rendering to ensure correct direction
+        # This prevents "flash of wrong direction" and ensures English is LTR, Arabic is RTL
+        if target_lang == 'en':
+            html_content = html_content.replace('dir="rtl"', 'dir="ltr"')
+            html_content = html_content.replace('lang="ar"', 'lang="en"')
+        else:
+            # Ensure it's RTL for Arabic (in case the file was changed)
+            html_content = html_content.replace('dir="ltr"', 'dir="rtl"')
+            html_content = html_content.replace('lang="en"', 'lang="ar"')
+        
         js_code = """
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -51,23 +61,23 @@ def get_landing_html(language):
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
                     
-                    // NOTE: Directions are mirrored for some reason. Swapping them to fix visual output.
+                    // Standard Logic: Arabic = RTL, English = LTR
                     if (lang === 'ar') {
                         htmlRoot.setAttribute('lang', 'ar');
-                        // Intentionally swapping to LTR for Arabic to fix mirror issue
-                        htmlRoot.setAttribute('dir', 'ltr'); 
-                        document.body.style.direction = 'ltr';
-                        document.body.style.textAlign = 'left'; // Try left for Arabic if it's mirrored
+                        htmlRoot.setAttribute('dir', 'rtl');
+                        document.body.style.direction = 'rtl';
+                        document.body.style.textAlign = 'right';
                         if (typeof updateContent === 'function') updateContent('ar');
                     } else {
                         htmlRoot.setAttribute('lang', 'en');
-                        // Intentionally swapping to RTL for English to fix mirror issue
-                        htmlRoot.setAttribute('dir', 'rtl');
-                        document.body.style.direction = 'rtl';
-                        document.body.style.textAlign = 'right'; // Try right for English if it's mirrored
+                        htmlRoot.setAttribute('dir', 'ltr');
+                        document.body.style.direction = 'ltr';
+                        document.body.style.textAlign = 'left';
                         if (typeof updateContent === 'function') updateContent('en');
                     }
                 }
+                
+                // Ensure JS also enforces the correct language
                 setLanguage(targetLang);
                 
                 // 2. Handle Buttons
