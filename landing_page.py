@@ -48,8 +48,10 @@ def show_landing_page(language="English"):
         with open('index.html', 'r', encoding='utf-8') as f:
             html_content = f.read()
             
-        # Debug: Print first 100 chars to verify read (will be visible if CSS doesn't hide it)
-        # st.write(f"Read {len(html_content)} bytes from index.html") 
+        # DEBUG: Show raw content to verify file read
+        st.warning("DEBUG MODE: Checking file content...")
+        st.text(f"File size: {len(html_content)} bytes")
+        st.code(html_content[:500], language='html')
 
             
         # --- 1. Embed Images as Base64 ---
