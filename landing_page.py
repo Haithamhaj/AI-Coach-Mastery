@@ -2,6 +2,8 @@ import streamlit as st
 import base64
 import os
 
+# Cache the image loading to improve speed
+@st.cache_data
 def get_image_base64(image_path):
     """Read image file and convert to base64 string"""
     try:
@@ -12,48 +14,19 @@ def get_image_base64(image_path):
     except Exception as e:
         return ""
 
-def show_landing_page(language="English"):
-    """Display the landing page with embedded original HTML"""
-    
-    # Hide sidebar and adjust layout
-    # NOTE: Commented out aggressive hiding to debug blank screen issue
-    st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            display: none;
-        }
-        .block-container {
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-        }
-        
-        /* Ensure iframe takes full width and height */
-        iframe {
-            width: 100vw !important;
-            height: 100vh !important;
-            border: none !important;
-            display: block !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
+# Cache the HTML preparation to improve speed
+@st.cache_data
+def get_landing_html(language):
+    """Prepare the HTML content with embedded images and JS"""
     try:
-        # Check if file exists
-        if not os.path.exists('index.html'):
-            st.error("Error: index.html not found!")
-            return
-
         # Read the original HTML file
         with open('index.html', 'r', encoding='utf-8') as f:
             html_content = f.read()
-
             
         # --- 1. Embed Images as Base64 ---
         # Logo
         logo_b64 = get_image_base64("logo.jpg")
         if logo_b64:
-            # Replace logo src specifically
             html_content = html_content.replace('src="logo.jpg"', f'src="data:image/jpeg;base64,{logo_b64}"')
             
         # Feature Images
@@ -63,14 +36,11 @@ def show_landing_page(language="English"):
                 html_content = html_content.replace(f'src="{img_name}"', f'src="data:image/png;base64,{img_b64}"')
 
         # --- 2. Fix Layout (Full Width Navbar) ---
-        # Remove max-w-7xl from navbar to make it full width if requested
         html_content = html_content.replace('max-w-7xl mx-auto', 'w-full px-6 md:px-12 mx-auto')
 
         # --- 3. Enforce Language & Interaction ---
-        # Determine target language code for JS
         target_lang = 'ar' if language == "العربية" else 'en'
         
-        # JS Code to inject - using standard string to avoid f-string brace issues
         js_code = """
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -78,15 +48,12 @@ def show_landing_page(language="English"):
                 const targetLang = 'TARGET_LANG_PLACEHOLDER';
                 const htmlRoot = document.getElementById('html-root');
                 
-                // Function to set language
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
-                    
                     if (lang === 'ar') {
                         htmlRoot.setAttribute('lang', 'ar');
                         htmlRoot.setAttribute('dir', 'rtl');
                         document.body.style.direction = 'rtl';
-                        // Trigger any existing translation logic if available
                         if (typeof updateContent === 'function') updateContent('ar');
                     } else {
                         htmlRoot.setAttribute('lang', 'en');
@@ -95,11 +62,9 @@ def show_landing_page(language="English"):
                         if (typeof updateContent === 'function') updateContent('en');
                     }
                 }
-                
-                // Set initial language
                 setLanguage(targetLang);
                 
-                // 2. Handle Buttons (Start/Login)
+                // 2. Handle Buttons
                 const buttons = document.querySelectorAll('a[href="#login"], button, .cta-button');
                 buttons.forEach(btn => {
                     btn.addEventListener('click', function(e) {
@@ -111,12 +76,11 @@ def show_landing_page(language="English"):
                     });
                 });
                 
-                // 3. Handle Language Toggle Button Click
+                // 3. Handle Language Toggle
                 const langBtn = document.getElementById('langToggle');
                 if (langBtn) {
                     langBtn.addEventListener('click', function(e) {
                         e.preventDefault();
-                        // Toggle local state
                         const currentDir = htmlRoot.getAttribute('dir');
                         const newLang = currentDir === 'rtl' ? 'en' : 'ar';
                         setLanguage(newLang);
@@ -125,41 +89,78 @@ def show_landing_page(language="English"):
             });
         </script>
         """
-        
-        # Replace placeholder with actual language
         js_code = js_code.replace('TARGET_LANG_PLACEHOLDER', target_lang)
         
         if "</body>" in html_content:
             html_content = html_content.replace("</body>", js_code + "</body>")
         else:
             html_content += js_code
+            
+        return html_content
+    except Exception as e:
+        return None
 
-        # Display the HTML
-        import streamlit.components.v1 as components
-        
-        # Render HTML with full height and width
-        components.html(html_content, height=1200, scrolling=True)
-        
-        # --- Floating Login Button (Fallback) ---
-        st.markdown("""
+def show_landing_page(language="English"):
+    """Display the landing page"""
+    
+    # CSS to remove ALL whitespace and padding
+    st.markdown("""
         <style>
-        .floating-login-btn {
+        /* Hide Sidebar */
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        
+        /* Remove all padding/margins from the main block container */
+        .block-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+        }
+        
+        /* Hide the Streamlit header */
+        header[data-testid="stHeader"] {
+            display: none !important;
+            height: 0 !important;
+        }
+        
+        /* Force iframe to be fixed and cover everything */
+        iframe {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            z-index: 1 !important;
+            display: block !important;
+        }
+        
+        /* Ensure the fallback button stays on top if needed */
+        .stButton {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            z-index: 99999;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999 !important;
         }
         </style>
-        """, unsafe_allow_html=True)
-        
-        with st.container():
-            col1, col2, col3 = st.columns([1, 1, 1])
-            with col2:
-                if st.button("🚀 تسجيل الدخول / Login", type="primary", use_container_width=True):
-                    st.session_state.show_landing = False
-                    st.rerun()
+    """, unsafe_allow_html=True)
 
-    except FileNotFoundError:
+    # Get cached HTML
+    html_content = get_landing_html(language)
+
+    if html_content:
+        import streamlit.components.v1 as components
+        # Render HTML
+        components.html(html_content, height=1200, scrolling=True)
+        
+        # Fallback Login Button (Styled to float)
+        # We use a container to place the button, but CSS handles positioning
+        if st.button("🚀 تسجيل الدخول / Login", type="primary", key="fallback_login"):
+            st.session_state.show_landing = False
+            st.rerun()
+    else:
         st.error("ملف التصميم الأصلي (index.html) غير موجود.")
         if st.button("Login"):
             st.session_state.show_landing = False
