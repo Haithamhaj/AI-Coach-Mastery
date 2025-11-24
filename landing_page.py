@@ -44,7 +44,32 @@ def get_landing_html_v3(language):
         is_arabic = "ar" in language.lower() or "عربي" in language
         target_lang = 'ar' if is_arabic else 'en'
         
-        # CSS to FORCE direction (The Nuclear Option)
+        if is_arabic:
+            # --- MANUAL LAYOUT SWAP FOR ARABIC ---
+            # Instead of relying on dir="rtl" which seems flaky in this context,
+            # we will manually swap the visual order of the columns.
+            # Current: Text is order-1, Image is order-2.
+            # Desired in Arabic: Text on Right, Image on Left.
+            # In a standard LTR grid: [Left Element] [Right Element]
+            # So we want: [Image] [Text] -> Image Left, Text Right.
+            # So Image needs to be first (order-1) and Text needs to be second (order-2).
+            
+            # Swap order-1 and order-2
+            # Use placeholders to avoid double replacement
+            html_content = html_content.replace('order-1', 'ORDER_PLACEHOLDER_1')
+            html_content = html_content.replace('order-2', 'ORDER_PLACEHOLDER_2')
+            
+            html_content = html_content.replace('ORDER_PLACEHOLDER_1', 'order-2') # Text becomes order-2 (Right in LTR)
+            html_content = html_content.replace('ORDER_PLACEHOLDER_2', 'order-1') # Image becomes order-1 (Left in LTR)
+            
+            # Force Text Alignment to Right
+            html_content = html_content.replace('text-left', 'text-right') # If any
+            # Inject explicit text-right class to the text container
+            html_content = html_content.replace('class="order-2 space-y-8', 'class="order-2 space-y-8 text-right')
+            
+            # Flip the Navbar logic too if needed, but let's stick to the main hero first.
+            
+        # CSS to FORCE direction (The Nuclear Option) - Still keep this for other elements
         direction = "rtl" if is_arabic else "ltr"
         align = "right" if is_arabic else "left"
         
@@ -69,11 +94,6 @@ def get_landing_html_v3(language):
             nav {{
                 direction: {direction} !important;
             }}
-            
-            /* Specific fix for the Hero Grid to swap columns visually if needed */
-            /* In RTL, the first column (Text) should be on Right, Second (Image) on Left */
-            /* Tailwind's grid-cols-2 usually handles this with dir=rtl automatically */
-            /* But we enforce it just in case */
             
             /* Ensure icons in buttons flip correctly if needed */
             .group svg {{
