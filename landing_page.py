@@ -15,8 +15,9 @@ def get_image_base64(image_path):
         return ""
 
 # Cache the HTML preparation to improve speed
+# RENAMED to v2 to force cache invalidation
 @st.cache_data
-def get_landing_html(language):
+def get_landing_html_v2(language):
     """Prepare the HTML content with embedded images and JS"""
     try:
         # Read the original HTML file
@@ -39,15 +40,35 @@ def get_landing_html(language):
         html_content = html_content.replace('max-w-7xl mx-auto', 'w-full px-6 md:px-12 mx-auto')
 
         # --- 3. Enforce Language & Interaction ---
-        target_lang = 'ar' if language == "العربية" else 'en'
+        # Robust language check
+        is_arabic = "ar" in language.lower() or "عربي" in language
+        target_lang = 'ar' if is_arabic else 'en'
         
-        # CRITICAL FIX: Modify HTML directly before rendering to ensure correct direction
-        # This prevents "flash of wrong direction" and ensures English is LTR, Arabic is RTL
+        # CSS to FORCE direction (The Nuclear Option)
+        direction = "rtl" if is_arabic else "ltr"
+        align = "right" if is_arabic else "left"
+        
+        force_css = f"""
+        <style>
+            html, body, #html-root {{
+                direction: {direction} !important;
+                text-align: {align} !important;
+            }}
+            /* Force flex containers to respect direction */
+            .flex, .wave-text {{
+                direction: {direction} !important;
+            }}
+        </style>
+        """
+        
+        # Inject CSS at the beginning of head
+        html_content = html_content.replace('<head>', f'<head>{force_css}')
+        
+        # Also try to fix the attributes just in case
         if target_lang == 'en':
             html_content = html_content.replace('dir="rtl"', 'dir="ltr"')
             html_content = html_content.replace('lang="ar"', 'lang="en"')
         else:
-            # Ensure it's RTL for Arabic (in case the file was changed)
             html_content = html_content.replace('dir="ltr"', 'dir="rtl"')
             html_content = html_content.replace('lang="en"', 'lang="ar"')
         
@@ -61,36 +82,18 @@ def get_landing_html(language):
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
                     
-                    // STRICT STANDARD LOGIC
-                    // Arabic = RTL (Right to Left)
-                    // English = LTR (Left to Right)
-                    
                     if (lang === 'ar') {
                         htmlRoot.setAttribute('lang', 'ar');
                         htmlRoot.setAttribute('dir', 'rtl');
                         document.body.style.direction = 'rtl';
                         document.body.style.textAlign = 'right';
-                        
-                        // Ensure container alignment
-                        const containers = document.querySelectorAll('.max-w-7xl');
-                        containers.forEach(el => el.style.direction = 'rtl');
-                        
-                        if (typeof updateContent === 'function') updateContent('ar');
                     } else {
                         htmlRoot.setAttribute('lang', 'en');
                         htmlRoot.setAttribute('dir', 'ltr');
                         document.body.style.direction = 'ltr';
                         document.body.style.textAlign = 'left';
-                        
-                        // Ensure container alignment
-                        const containers = document.querySelectorAll('.max-w-7xl');
-                        containers.forEach(el => el.style.direction = 'ltr');
-                        
-                        if (typeof updateContent === 'function') updateContent('en');
                     }
                 }
-                
-                // Ensure JS also enforces the correct language
                 setLanguage(targetLang);
                 
                 // 2. Handle Buttons
@@ -177,7 +180,7 @@ def show_landing_page(language="English"):
     """, unsafe_allow_html=True)
 
     # Get cached HTML
-    html_content = get_landing_html(language)
+    html_content = get_landing_html_v2(language)
 
     if html_content:
         import streamlit.components.v1 as components
