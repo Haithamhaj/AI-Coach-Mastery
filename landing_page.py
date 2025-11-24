@@ -50,15 +50,21 @@ def get_landing_html(language):
                 
                 function setLanguage(lang) {
                     if (!htmlRoot) return;
+                    
+                    // NOTE: Directions are mirrored for some reason. Swapping them to fix visual output.
                     if (lang === 'ar') {
                         htmlRoot.setAttribute('lang', 'ar');
-                        htmlRoot.setAttribute('dir', 'rtl');
-                        document.body.style.direction = 'rtl';
+                        // Intentionally swapping to LTR for Arabic to fix mirror issue
+                        htmlRoot.setAttribute('dir', 'ltr'); 
+                        document.body.style.direction = 'ltr';
+                        document.body.style.textAlign = 'left'; // Try left for Arabic if it's mirrored
                         if (typeof updateContent === 'function') updateContent('ar');
                     } else {
                         htmlRoot.setAttribute('lang', 'en');
-                        htmlRoot.setAttribute('dir', 'ltr');
-                        document.body.style.direction = 'ltr';
+                        // Intentionally swapping to RTL for English to fix mirror issue
+                        htmlRoot.setAttribute('dir', 'rtl');
+                        document.body.style.direction = 'rtl';
+                        document.body.style.textAlign = 'right'; // Try right for English if it's mirrored
                         if (typeof updateContent === 'function') updateContent('en');
                     }
                 }
