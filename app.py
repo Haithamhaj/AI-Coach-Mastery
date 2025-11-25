@@ -197,6 +197,15 @@ if not auth_handler.is_authenticated():
         show_landing_page(language=lang_code)
         
         # Handle component values (Login/Start)
+        # Check for query param action=start_login
+        query_params = st.query_params
+        if query_params.get("action") == "start_login":
+            st.session_state.show_landing = False
+            # Clear the query param so we don't get stuck in a loop if they reload
+            st.query_params.clear()
+            st.rerun()
+
+        # Also keep the old component check just in case, though likely unused now
         component_value = st.session_state.get('landing_page_component')
         if component_value == 'start_login':
             st.session_state.show_landing = False

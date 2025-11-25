@@ -264,15 +264,7 @@
                 <span id="langText">EN</span>
             </button>
 
-            <button onclick="handleStart()"
-                class="bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50 flex items-center gap-2 text-sm">
-                <!-- Sparkles Icon -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3v18m-9-9h18M7.8 7.8l8.4 8.4m0-8.4L7.8 16.2"></path>
-                </svg>
-                <span data-i18n="nav.cta">ابدأ الآن</span>
-            </button>
+
         </div>
     </nav>
 
@@ -304,20 +296,7 @@
                     </p>
                 </div>
 
-                <button onclick="handleStart()"
-                    class="group relative bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50 flex items-center gap-3 text-lg overflow-hidden">
-                    <span class="relative z-10" data-i18n="hero.cta">ابدأ رحلة الاحتراف</span>
-                    <!-- Arrow Icon -->
-                    <svg class="relative z-10 group-hover:translate-x-1 transition-transform" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                    <div
-                        class="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-white/20 to-cyan-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000">
-                    </div>
-                </button>
+
 
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-6 pt-8 border-t border-slate-700/50">
@@ -681,17 +660,7 @@
                     <p class="text-slate-300 text-lg mb-8 max-w-2xl mx-auto" data-i18n="cta.subtitle">
                         ابدأ رحلتك نحو الاحتراف مع AI Coach Mastery - منصتك الذكية لإتقان معايير ICF
                     </p>
-                    <div class="flex justify-center">
-                        <button onclick="handleStart()"
-                            class="bg-gradient-to-l from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-4 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50 flex items-center gap-3 text-lg">
-                            <span data-i18n="cta.button">ابدأ الآن</span>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                        </button>
-                    </div>
+
                     <p class="text-slate-400 text-sm mt-6" data-i18n="cta.features">
                         ✓ تحليل دقيق للجلسات • ✓ محاكاة واقعية • ✓ تقييم فوري
                     </p>
@@ -885,8 +854,11 @@
 
         // Start button handler - REDIRECTS TO STREAMLIT
         function handleStart() {
-            // Send message to parent Streamlit app to switch to login view
-            window.parent.postMessage({ type: 'streamlit:set_component_value', value: 'start_login' }, '*');
+            console.log("handleStart")
+            // Redirect parent window to the same URL with ?action=start_login
+            const currentUrl = new URL(window.parent.location.href);
+            currentUrl.searchParams.set('action', 'start_login');
+            window.parent.location.href = "https://ai-coach-mastery.streamlit.app/?action=start_login"
         }
 
         // ========== LANGUAGE SYSTEM ==========
