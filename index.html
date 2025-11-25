@@ -249,7 +249,7 @@
             </a>
         </div>
 
-        <div class="hidden md:flex items-center gap-4">
+        <div class="flex items-center gap-4">
             <!-- Language Toggle Button -->
             <button id="langToggle" onclick="toggleLanguage()"
                 class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/50 hover:border-cyan-500/50 transition-all duration-300 text-sm font-medium text-slate-300 hover:text-white">
@@ -269,21 +269,22 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pb-24">
+    <main class="relative z-10 max-w-7xl mx-auto px-4 md:px-12 pb-12 md:pb-24">
 
         <!-- Hero Section -->
-        <div id="hero-section" class="grid md:grid-cols-2 gap-16 items-center min-h-[80vh] pt-20">
+        <div id="hero-section"
+            class="grid md:grid-cols-2 gap-8 md:gap-16 items-center min-h-[60vh] md:min-h-[80vh] pt-10 md:pt-20">
 
             <!-- Text Content (Right) -->
             <div class="order-1 space-y-8 animate-fade-in">
                 <div>
                     <h1
-                        class="text-5xl md:text-6xl font-black leading-tight mb-6 wave-text flex flex-row justify-end ltr:justify-start rtl:dir-ltr">
+                        class="text-3xl md:text-6xl font-black leading-tight mb-6 wave-text flex flex-row justify-end ltr:justify-start rtl:dir-ltr">
                         <span data-i18n="hero.title.word1">AI</span> <span data-i18n="hero.title.word2">Coach</span>
                         <span data-i18n="hero.title.word3">Mastery</span>
                     </h1>
 
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6 wave-text">
+                    <h2 class="text-2xl md:text-4xl font-bold mb-6 wave-text">
                         <span data-i18n="hero.subtitle.word1">بوابتك</span> <span
                             data-i18n="hero.subtitle.word2">لاحتراف</span> <span
                             data-i18n="hero.subtitle.word3">الكوتشينج</span>
@@ -316,7 +317,8 @@
             </div>
 
             <!-- Visual Content (Left) - 3D Robot -->
-            <div class="order-2 perspective-2000 group h-[600px] flex items-center justify-center relative">
+            <div
+                class="order-2 perspective-2000 group h-[400px] md:h-[600px] flex items-center justify-center relative">
 
                 <!-- Rotating Rings (Holographic Base) -->
                 <div
@@ -333,7 +335,7 @@
                         class="relative rounded-3xl overflow-hidden border border-slate-600/50 bg-slate-900 shadow-2xl backdrop-blur-md glow-pulse">
 
                         <!-- Robot Image -->
-                        <div class="relative h-[450px] overflow-hidden bg-[#020617] cursor-crosshair">
+                        <div class="relative h-[300px] md:h-[450px] overflow-hidden bg-[#020617] cursor-crosshair">
                             <img id="robotImage"
                                 src="https://images.unsplash.com/photo-1633419461186-7d75076e10bc?q=80&w=800&auto=format&fit=crop"
                                 alt="AI 3D Robot"
@@ -416,7 +418,7 @@
         </div>
 
         <!-- Features Grid -->
-        <div id="features" class="grid md:grid-cols-3 gap-8 mt-32 mb-16 relative z-10">
+        <div id="features" class="grid md:grid-cols-3 gap-6 md:gap-8 mt-16 md:mt-32 mb-16 relative z-10">
             <!-- Feature 1 -->
             <div
                 class="group relative bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl p-1 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-cyan-500/20 hover:shadow-2xl">
@@ -542,7 +544,7 @@
         </div>
 
         <!-- How It Works Section -->
-        <section id="how-it-works" class="mt-32 mb-16 relative z-10">
+        <section id="how-it-works" class="mt-16 md:mt-32 mb-16 relative z-10">
             <div class="text-center mb-16">
                 <div
                     class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold px-4 py-2 rounded-full mb-6">
@@ -553,7 +555,7 @@
                     </svg>
                     <span data-i18n="how.badge">كيف يعمل</span>
                 </div>
-                <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+                <h2 class="text-2xl md:text-5xl font-black text-white mb-6">
                     <span data-i18n="how.title.part1">ابدأ رحلتك في</span> <span
                         class="bg-gradient-to-l from-cyan-400 to-blue-500 bg-clip-text text-transparent"
                         data-i18n="how.title.part2">4 خطوات بسيطة</span>
@@ -646,13 +648,13 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="mt-32 mb-16 relative z-10">
+        <section class="mt-16 md:mt-32 mb-16 relative z-10">
             <div
                 class="bg-gradient-to-br from-cyan-500/10 to-blue-600/10 backdrop-blur-md border border-cyan-500/30 rounded-3xl p-12 text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10">
                 </div>
                 <div class="relative z-10">
-                    <h2 class="text-4xl md:text-5xl font-black text-white mb-6">
+                    <h2 class="text-2xl md:text-5xl font-black text-white mb-6">
                         <span data-i18n="cta.title.part1">جاهز لتصبح</span> <span
                             class="bg-gradient-to-l from-cyan-400 to-blue-500 bg-clip-text text-transparent"
                             data-i18n="cta.title.part2">كوتش محترف؟</span>
