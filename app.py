@@ -187,11 +187,21 @@ if 'show_landing' not in st.session_state:
 
 # Landing Page / Login Toggle
 if not auth_handler.is_authenticated():
-    # If user hasn't clicked login/signup, show landing page
+    # Show Landing Page if not logged in
     if st.session_state.get('show_landing', True):
         # Import and show native Streamlit landing page
         from landing_page import show_landing_page
-        show_landing_page(language=language)
+        
+        # Normalize language code for the landing page
+        lang_code = 'ar' if language == "العربية" else 'en'
+        show_landing_page(language=lang_code)
+        
+        # Handle component values (Login/Start)
+        component_value = st.session_state.get('landing_page_component')
+        if component_value == 'start_login':
+            st.session_state.show_landing = False
+            st.rerun()
+            
         st.stop()  # Stop execution after showing landing page
     else:
         # Show Login/Signup Page

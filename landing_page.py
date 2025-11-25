@@ -44,135 +44,26 @@ def get_landing_html_v3(language):
         is_arabic = "ar" in language.lower() or "عربي" in language
         target_lang = 'ar' if is_arabic else 'en'
         
-        if is_arabic:
-            # --- REVERTING MANUAL SWAP ---
-            # The original order (Text=order-1, Image=order-2) is CORRECT for RTL.
-            # RTL Grid: Col 1 is Right, Col 2 is Left.
-            # So Item 1 (Text) -> Right. Item 2 (Image) -> Left.
-            # My previous swap put Image in Col 1 (Right), which looked like LTR.
-            # So we just rely on the CSS direction enforcement below.
-            pass
-            
-            # Flip the Navbar logic too if needed, but let's stick to the main hero first.
-            
-        # CSS to FORCE direction (The Nuclear Option) - Still keep this for other elements
-        direction = "rtl" if is_arabic else "ltr"
-        align = "right" if is_arabic else "left"
-        
-        # Enhanced CSS for RTL
-        force_css = f"""
-        <style>
-            html, body, #html-root {{
-                direction: {direction} !important;
-                text-align: {align} !important;
-            }}
-            /* Force grid and flex containers to respect direction */
-            .grid, .flex, .wave-text, .space-y-8, .space-y-2 {{
-                direction: {direction} !important;
-            }}
-            
-            /* Explicitly handle text alignment for content */
-            h1, h2, h3, h4, p, .text-slate-300, .text-slate-400 {{
-                text-align: {align} !important;
-            }}
-            
-            /* Fix navbar alignment */
-            nav {{
-                direction: {direction} !important;
-            }}
-            
-            /* Ensure icons in buttons flip correctly if needed */
-            .group svg {{
-                transform: { "scaleX(-1)" if is_arabic else "none" };
-            }}
-        </style>
-        """
-        
-        # Inject CSS at the beginning of head
-        html_content = html_content.replace('<head>', f'<head>{force_css}')
-        
-        # Also try to fix the attributes just in case
-        if target_lang == 'en':
-            html_content = html_content.replace('dir="rtl"', 'dir="ltr"')
-            html_content = html_content.replace('lang="ar"', 'lang="en"')
-        else:
-            html_content = html_content.replace('dir="ltr"', 'dir="rtl"')
-            html_content = html_content.replace('lang="en"', 'lang="ar"')
-        
-        js_code = """
+        # Inject Initial Language State for index.html to pick up
+        js_code = f"""
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // 1. Handle Language
-                const targetLang = 'TARGET_LANG_PLACEHOLDER';
-                const htmlRoot = document.getElementById('html-root');
-                
-                function setLanguage(lang) {
-                    if (!htmlRoot) return;
-                    
-                    const isAr = lang === 'ar';
-                    const dir = isAr ? 'rtl' : 'ltr';
-                    const align = isAr ? 'right' : 'left';
-                    
-                    htmlRoot.setAttribute('lang', lang);
-                    htmlRoot.setAttribute('dir', dir);
-                    document.body.style.direction = dir;
-                    document.body.style.textAlign = align;
-                    
-                    // Force all grids and flex containers
-                    document.querySelectorAll('.grid, .flex').forEach(el => {
-                        el.style.direction = dir;
-                    });
-                    
-                    // Force text alignment
-                    document.querySelectorAll('h1, h2, h3, h4, p').forEach(el => {
-                        el.style.textAlign = align;
-                    });
-                    
-                    // Fix Icons mirroring in RTL
-                    if (isAr) {
-                        document.querySelectorAll('svg.feather, svg.lucide').forEach(svg => {
-                            svg.style.transform = 'scaleX(-1)';
-                        });
-                    }
-                }
-                
-                // Initial set
-                setLanguage(targetLang);
-                
-                // Aggressive enforcement (every 500ms for 5 seconds) to fight race conditions
-                let attempts = 0;
-                const interval = setInterval(() => {
-                    setLanguage(targetLang);
-                    attempts++;
-                    if (attempts > 10) clearInterval(interval);
-                }, 500);
-                
-                // 2. Handle Buttons
+            window.initialLang = "{target_lang}";
+            
+            document.addEventListener('DOMContentLoaded', function() {{
+                // Handle Buttons (CTA Logic Only - Language logic is now native in index.html)
                 const buttons = document.querySelectorAll('a[href="#login"], button, .cta-button');
-                buttons.forEach(btn => {
-                    btn.addEventListener('click', function(e) {
+                buttons.forEach(btn => {{
+                    btn.addEventListener('click', function(e) {{
                         const text = btn.innerText.toLowerCase();
-                        if (text.includes('ابدأ') || text.includes('start') || text.includes('login') || btn.getAttribute('href') === '#login') {
+                        if (text.includes('ابدأ') || text.includes('start') || text.includes('login') || btn.getAttribute('href') === '#login') {{
                             e.preventDefault();
-                            window.parent.postMessage({type: 'streamlit:set_component_value', value: 'start_login'}, '*');
-                        }
-                    });
-                });
-                
-                // 3. Handle Language Toggle
-                const langBtn = document.getElementById('langToggle');
-                if (langBtn) {
-                    langBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const currentDir = htmlRoot.getAttribute('dir');
-                        const newLang = currentDir === 'rtl' ? 'en' : 'ar';
-                        setLanguage(newLang);
-                    });
-                }
-            });
+                            window.parent.postMessage({{type: 'streamlit:set_component_value', value: 'start_login'}}, '*');
+                        }}
+                    }});
+                }});
+            }});
         </script>
         """
-        js_code = js_code.replace('TARGET_LANG_PLACEHOLDER', target_lang)
         
         if "</body>" in html_content:
             html_content = html_content.replace("</body>", js_code + "</body>")

@@ -1027,6 +1027,10 @@
 
         // Apply language on page load
         document.addEventListener('DOMContentLoaded', () => {
+            // Check for injected initial language from Python (Prioritize this!)
+            if (window.initialLang && (window.initialLang === 'ar' || window.initialLang === 'en')) {
+                currentLang = window.initialLang;
+            }
             applyLanguage(currentLang);
         });
     </script>
