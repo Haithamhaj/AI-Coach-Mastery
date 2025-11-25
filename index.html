@@ -183,6 +183,13 @@
         .rotate-x-70 {
             transform: rotateX(70deg);
         }
+
+        /* Fix English Title in RTL (AI Coach Mastery) */
+        /* Forces LTR visual order (AI -> Coach -> Mastery) but aligned to Right */
+        html[dir="rtl"] h1.wave-text {
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 
