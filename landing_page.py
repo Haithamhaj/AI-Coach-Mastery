@@ -48,20 +48,6 @@ def get_landing_html_v3(language):
         js_code = f"""
         <script>
             window.initialLang = "{target_lang}";
-            
-            document.addEventListener('DOMContentLoaded', function() {{
-                // Handle Buttons (CTA Logic Only - Language logic is now native in index.html)
-                const buttons = document.querySelectorAll('a[href="#login"], button, .cta-button');
-                buttons.forEach(btn => {{
-                    btn.addEventListener('click', function(e) {{
-                        const text = btn.innerText.toLowerCase();
-                        if (text.includes('ابدأ') || text.includes('start') || text.includes('login') || btn.getAttribute('href') === '#login') {{
-                            e.preventDefault();
-                            window.parent.postMessage({{type: 'streamlit:set_component_value', value: 'start_login'}}, '*');
-                        }}
-                    }});
-                }});
-            }});
         </script>
         """
         

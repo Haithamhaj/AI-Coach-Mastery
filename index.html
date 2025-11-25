@@ -885,7 +885,8 @@
 
         // Start button handler - REDIRECTS TO STREAMLIT
         function handleStart() {
-            window.location.href = 'http://localhost:8501';
+            // Send message to parent Streamlit app to switch to login view
+            window.parent.postMessage({ type: 'streamlit:set_component_value', value: 'start_login' }, '*');
         }
 
         // ========== LANGUAGE SYSTEM ==========
