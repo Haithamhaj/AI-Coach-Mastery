@@ -776,6 +776,7 @@ Output only the clean transcribed text, nothing else.
         
         TASK: Create a specific, realistic coaching scenario.
         DIFFICULTY: {difficulty}
+        LANGUAGE: {language}
         
         1. **Select a Target**:
            - Choose ONE specific ICF Core Competency (3-8).
@@ -796,7 +797,8 @@ Output only the clean transcribed text, nothing else.
         4. **Explanation**:
            - Explain WHY the Coach Response fits the correct Competency, Marker, and GROW Phase.
            
-        {lang_instruction}
+        IMPORTANT: Output ALL text (Context, Dialogue, Options, Explanation) in {language}.
+        If the language is Arabic, translate the Competency Names, Marker Descriptions, and GROW Phases into Arabic.
         
         Output JSON:
         {{
@@ -806,14 +808,14 @@ Output only the clean transcribed text, nothing else.
                 "coach_response": "..."
             }},
             "correct_answers": {{
-                "competency": "Competency 7: Evokes Awareness",
-                "marker": "7.1: Coach asks questions about the client...",
-                "grow_phase": "{target_phase}"
+                "competency": "Competency Name (in {language})",
+                "marker": "Marker Description (in {language})",
+                "grow_phase": "GROW Phase Name (in {language})"
             }},
             "distractors": {{
-                "competencies": ["Option A", ...],
-                "markers": ["Option A", ...],
-                "grow_phases": ["Option A", ...]
+                "competencies": ["Option A (in {language})", ...],
+                "markers": ["Option A (in {language})", ...],
+                "grow_phases": ["Option A (in {language})", ...]
             }},
             "explanation": "..."
         }}
