@@ -254,7 +254,15 @@ def show(api_key, markers_data, language="English"):
             # Explanation
             explanation_text = fb.get('explanation', '')
             if not explanation_text:
-                explanation_text = "No explanation provided." if language == "English" else "لا يوجد تفسير متاح."
+                # Check for perfect score (bonus points awarded) to show encouraging message
+                # We know bonus is 20 points, so if points_earned >= 50 (10+10+10+20), it's a perfect round.
+                # Or simpler: check if all flags are true.
+                all_correct = fb['is_correct_comp'] and fb['is_correct_marker'] and fb['is_correct_grow']
+                
+                if all_correct:
+                    explanation_text = "Great job! You nailed it. Keep up the excellent work, future MCC!" if language == "English" else "أحسنت! إجابة موفقة. استمر في هذا الأداء الرائع يا كوتش المستقبل!"
+                else:
+                    explanation_text = "No explanation provided." if language == "English" else "لا يوجد تفسير متاح."
             
             st.info(f"**{txt['explanation']}:**\n\n{explanation_text}")
             
