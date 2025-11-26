@@ -39,7 +39,7 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "avg_score": "متوسط الأداء",
             "hours": "ساعات التدريب",
             "start_training": "ابدأ التدريب",
-            "start_exam": "ابدأ الاختبار",
+            "start_exam": "ابدأ المحاكاة",
             "view_profile": "ملفي الشخصي",
             "admin_panel": "لوحة الإدارة",
             "training_desc": "تدرب على مؤشرات PCC الفردية واحصل على تغذية راجعة فورية.",

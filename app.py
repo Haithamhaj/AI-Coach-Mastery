@@ -4,7 +4,7 @@ import os
 import tempfile
 import plotly.express as px
 import pandas as pd
-from translations import translations
+from translations import translations # Translations module
 from marker_helpers import get_marker_recommendation, get_marker_explanation
 
 from dotenv import load_dotenv
