@@ -112,7 +112,8 @@ except ValueError:
 def update_page_from_sidebar():
     """Update current_page when user changes sidebar radio"""
     selected_label = st.session_state.nav_radio
-    selected_key = label_to_key[selected_label]
+    # Handle potential key errors if labels change (e.g. during updates)
+    selected_key = label_to_key.get(selected_label, "Home")
     st.session_state.current_page = selected_key
 
 # Render Sidebar Navigation with callback (AT THE TOP!)
