@@ -1722,6 +1722,17 @@ elif mode == t["mode_exam"]:
                     else:
                         st.caption("No markers clearly demonstrated")
                 
+                # New Indicators Row
+                i_col1, i_col2 = st.columns(2)
+                with i_col1:
+                    comp = feedback.get('primary_competency', 'N/A')
+                    st.markdown(f"<div style='background-color:rgba(59, 130, 246, 0.1); color:#3b82f6; padding:8px; border-radius:5px; border:1px solid rgba(59, 130, 246, 0.3); text-align:center;'><strong>🏆 {comp}</strong></div>", unsafe_allow_html=True)
+                with i_col2:
+                    grow = feedback.get('grow_phase', 'N/A')
+                    st.markdown(f"<div style='background-color:rgba(16, 185, 129, 0.1); color:#10b981; padding:8px; border-radius:5px; border:1px solid rgba(16, 185, 129, 0.3); text-align:center;'><strong>🌱 Phase: {grow}</strong></div>", unsafe_allow_html=True)
+                
+                st.write("") # Spacing
+                
                 # Feedback
                 fb_text = feedback.get('feedback', '')
                 if fb_text:

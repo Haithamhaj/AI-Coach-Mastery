@@ -535,6 +535,10 @@ Task: Evaluate this specific coach response comprehensively.
 
 6. RECOMMENDATION: One key actionable insight for the coach to remember
 
+7. PRIMARY COMPETENCY: The main ICF competency demonstrated (e.g., "Competency 7: Evokes Awareness")
+
+8. GROW PHASE: The likely GROW phase of this interaction (Goal, Reality, Options, Will)
+
 {lang_instruction}
 
 Output JSON:
@@ -542,6 +546,8 @@ Output JSON:
     "score": <0-10>,
     "rating": "Strong" or "Acceptable" or "Weak",
     "markers_demonstrated": ["7.1", "7.2"],
+    "primary_competency": "Competency 7: Evokes Awareness",
+    "grow_phase": "Reality",
     "feedback": "Brief feedback on what was good/what to improve",
     "what_could_be_better": "Specific suggestions for improvement",
     "recommendation": "One key takeaway or action"
