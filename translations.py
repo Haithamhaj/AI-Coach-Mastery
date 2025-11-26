@@ -44,7 +44,9 @@ translations = {
         "marker": "Marker Demonstrated",
         "comments": "Comments",
         "client_label": "Client",
-        "footer": "Based on ICF PCC Markers 2021"
+        "footer": "Based on ICF PCC Markers 2021",
+        "arcade_title": "The Arcade (Game)",
+        "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
     },
     "العربية": {
         "title": "إتقان الكوتشينج بالذكاء الاصطناعي",
@@ -91,6 +93,8 @@ translations = {
         "marker": "العلامة التي ظهرت",
         "comments": "ملاحظات",
         "client_label": "العميل",
-        "footer": "مبني على علامات ICF PCC 2021"
+        "footer": "مبني على علامات ICF PCC 2021",
+        "arcade_title": "الأركيد (لعبة)",
+        "arcade_desc": "العب 'Spot-It Pro' لإتقان الجدارات والمؤشرات بطريقة ممتعة."
     }
 }

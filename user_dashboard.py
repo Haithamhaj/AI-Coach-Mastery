@@ -27,23 +27,6 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "gym_title": "The Gym (Training)",
             "exam_title": "The Exam (Simulation)",
             "profile_title": "My Profile",
-            "admin_title": "Admin Dashboard"
-        },
-        "العربية": {
-            "welcome": "مرحباً بعودتك،",
-            "dashboard": "لوحة التحكم",
-            "stats_title": "تقدمك",
-            "sessions": "عدد الجلسات",
-            "avg_score": "متوسط الأداء",
-            "hours": "ساعات التدريب",
-            "start_training": "ابدأ التدريب",
-            "start_exam": "ابدأ الاختبار",
-            "view_profile": "ملفي الشخصي",
-            "admin_panel": "لوحة الإدارة",
-            "training_desc": "تدرب على مؤشرات PCC الفردية واحصل على تغذية راجعة فورية.",
-            "exam_desc": "محاكاة كاملة لجلسة كوتشينغ مع تقييم شامل.",
-            "profile_desc": "تتبع تقدمك، سجلك، وإدارة حسابك.",
-            "admin_desc": "إدارة المستخدمين، الإحصائيات، وإعدادات النظام.",
             "admin_title": "Admin Dashboard",
             "arcade_title": "The Arcade (Game)",
             "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
@@ -163,8 +146,8 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
         with st.container():
             st.markdown(f"""
             <div class="nav-card">
-                <div class="card-title">🧩 {txt['arcade_title']}</div>
-                <div class="card-desc">{txt['arcade_desc']}</div>
+                <div class="card-title">🧩 {txt.get('arcade_title', 'The Arcade')}</div>
+                <div class="card-desc">{txt.get('arcade_desc', 'Play Spot-It Pro')}</div>
             </div>
             """, unsafe_allow_html=True)
             if st.button("🎮 Play Now / العب الآن", key="btn_nav_arcade", use_container_width=True):
