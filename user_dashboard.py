@@ -153,6 +153,18 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             if st.button("🎮 Play Now / العب الآن", key="btn_nav_arcade", use_container_width=True):
                 st.session_state.current_page = "Arcade"
                 st.rerun()
+    
+    with c4:
+        with st.container():
+            st.markdown(f"""
+            <div class="nav-card">
+                <div class="card-title">👤 {txt['profile_title']}</div>
+                <div class="card-desc">{txt['profile_desc']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button(txt['view_profile'], key="btn_nav_profile", use_container_width=True):
+                st.session_state.current_page = "Profile"
+                st.rerun()
                 
     # Conditional third card: Admin Dashboard
     if is_admin:

@@ -90,7 +90,8 @@ if 'current_page' not in st.session_state:
 nav_options = {
     "Home": "🏠 Home" if language == "English" else "🏠 الرئيسية",
     "Training": t["mode_training"],
-    "Exam": t["mode_exam"]
+    "Exam": t["mode_exam"],
+    "Profile": t["mode_profile"]
 }
 
 if is_admin_user:
