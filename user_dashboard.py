@@ -44,10 +44,31 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "exam_desc": "محاكاة كاملة لجلسة كوتشينغ مع تقييم شامل.",
             "profile_desc": "تتبع تقدمك، سجلك، وإدارة حسابك.",
             "admin_desc": "إدارة المستخدمين، الإحصائيات، وإعدادات النظام.",
+            "admin_title": "Admin Dashboard",
+            "arcade_title": "The Arcade (Game)",
+            "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
+        },
+        "العربية": {
+            "welcome": "مرحباً بعودتك،",
+            "dashboard": "لوحة التحكم",
+            "stats_title": "تقدمك",
+            "sessions": "عدد الجلسات",
+            "avg_score": "متوسط الأداء",
+            "hours": "ساعات التدريب",
+            "start_training": "ابدأ التدريب",
+            "start_exam": "ابدأ الاختبار",
+            "view_profile": "ملفي الشخصي",
+            "admin_panel": "لوحة الإدارة",
+            "training_desc": "تدرب على مؤشرات PCC الفردية واحصل على تغذية راجعة فورية.",
+            "exam_desc": "محاكاة كاملة لجلسة كوتشينغ مع تقييم شامل.",
+            "profile_desc": "تتبع تقدمك، سجلك، وإدارة حسابك.",
+            "admin_desc": "إدارة المستخدمين، الإحصائيات، وإعدادات النظام.",
             "gym_title": "النادي (تدريب)",
             "exam_title": "الاختبار (محاكاة)",
             "profile_title": "ملفي الشخصي",
-            "admin_title": "لوحة التحكم"
+            "admin_title": "لوحة التحكم",
+            "arcade_title": "الأركيد (لعبة)",
+            "arcade_desc": "العب 'Spot-It Pro' لإتقان الجدارات والمؤشرات بطريقة ممتعة."
         }
     }
     
@@ -133,6 +154,21 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             """, unsafe_allow_html=True)
             if st.button(txt['start_exam'], key="btn_nav_exam", use_container_width=True):
                 st.session_state.current_page = "Exam"
+                st.rerun()
+
+    # Card 3: Arcade (New)
+    st.markdown("<br>", unsafe_allow_html=True)
+    c3, c4 = st.columns(2)
+    with c3:
+        with st.container():
+            st.markdown(f"""
+            <div class="nav-card">
+                <div class="card-title">🧩 {txt['arcade_title']}</div>
+                <div class="card-desc">{txt['arcade_desc']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("🎮 Play Now / العب الآن", key="btn_nav_arcade", use_container_width=True):
+                st.session_state.current_page = "Arcade"
                 st.rerun()
                 
     # Conditional third card: Admin Dashboard

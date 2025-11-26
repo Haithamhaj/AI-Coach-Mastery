@@ -742,3 +742,91 @@ Output only the clean transcribed text, nothing else.
             if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)
             return f"Error: {str(e)}"
+
+    def generate_learning_scenario(self, language="English", difficulty="Level 1"):
+        """
+        Generates a coaching scenario for the 'Spot-It' game.
+        Returns a JSON with the scenario, correct answers (Competency, Marker, GROW), and distractors.
+        
+        Difficulty Levels:
+        - Level 1: Novice (2 options, Competency + GROW only)
+        - Level 2: Intermediate (3 options, All 3 targets)
+        - Level 3: Expert (4 options, Tricky distractors)
+        """
+        lang_instruction = "Output ALL text in Arabic" if language == "العربية" else "Output ALL text in English"
+        
+        # Difficulty settings
+        if difficulty == "Level 1":
+            distractor_count = 1
+            complexity_instruction = "Make distractors OBVIOUSLY incorrect."
+        elif difficulty == "Level 2":
+            distractor_count = 2
+            complexity_instruction = "Make distractors plausible but incorrect."
+        else: # Level 3
+            distractor_count = 3
+            complexity_instruction = "Make distractors VERY TRICKY (e.g., markers from the same competency)."
+
+        # Randomly select a target phase to ensure variety
+        import random
+        phases = ["Goal", "Reality", "Options", "Will"]
+        target_phase = random.choice(phases)
+        
+        prompt = f"""
+        You are a Master Coach Trainer creating a learning scenario for a student.
+        
+        TASK: Create a specific, realistic coaching scenario.
+        DIFFICULTY: {difficulty}
+        
+        1. **Select a Target**:
+           - Choose ONE specific ICF Core Competency (3-8).
+           - Choose ONE specific PCC Marker within that competency.
+           - Target GROW Phase: {target_phase}
+           
+        2. **Create the Dialogue**:
+           - **Context**: Brief background (1 sentence).
+           - **Client Statement**: A realistic thing a client would say in the {target_phase} phase.
+           - **Coach Response**: A POWERFUL question or statement that perfectly demonstrates the chosen Marker and fits the {target_phase} phase.
+           
+        3. **Generate Distractors**:
+           - Provide {distractor_count} incorrect Competency options.
+           - Provide {distractor_count} incorrect Marker options.
+           - Provide {distractor_count} incorrect GROW phases.
+           - {complexity_instruction}
+           
+        4. **Explanation**:
+           - Explain WHY the Coach Response fits the correct Competency, Marker, and GROW Phase.
+           
+        {lang_instruction}
+        
+        Output JSON:
+        {{
+            "scenario": {{
+                "context": "...",
+                "client_statement": "...",
+                "coach_response": "..."
+            }},
+            "correct_answers": {{
+                "competency": "Competency 7: Evokes Awareness",
+                "marker": "7.1: Coach asks questions about the client...",
+                "grow_phase": "{target_phase}"
+            }},
+            "distractors": {{
+                "competencies": ["Option A", ...],
+                "markers": ["Option A", ...],
+                "grow_phases": ["Option A", ...]
+            }},
+            "explanation": "..."
+        }}
+        """
+        
+        try:
+            response = self.model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            return json.loads(text)
+        except Exception as e:
+            return {"error": str(e)}
+

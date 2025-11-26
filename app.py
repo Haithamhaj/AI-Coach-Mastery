@@ -1884,7 +1884,185 @@ elif mode == t["mode_exam"]:
                         del st.session_state.transcribed_text
                     st.rerun()
 
+# --- ARCADE (GAME MODE) ---
+elif mode == "Arcade":
+    st.header("🧩 The Arcade: Spot-It Pro")
+    st.write("Master the art of coaching observation! / أتقن فن الملاحظة في الكوتشينغ!" if language == "العربية" else "Master the art of coaching observation!")
+    
+    # Initialize Game State
+    if 'arcade_score' not in st.session_state:
+        st.session_state.arcade_score = 0
+    if 'arcade_streak' not in st.session_state:
+        st.session_state.arcade_streak = 0
+    if 'current_scenario' not in st.session_state:
+        st.session_state.current_scenario = None
+    if 'game_feedback' not in st.session_state:
+        st.session_state.game_feedback = None
+    if 'arcade_difficulty' not in st.session_state:
+        st.session_state.arcade_difficulty = "Level 1"
+    
+    # Top Bar Stats
+    col1, col2, col3, col4 = st.columns([2, 2, 3, 2])
+    with col1:
+        st.metric("🏆 Score", st.session_state.arcade_score)
+    with col2:
+        st.metric("🔥 Streak", st.session_state.arcade_streak)
+    with col3:
+        # Difficulty Selector
+        diff_options = ["Level 1", "Level 2", "Level 3"]
+        st.session_state.arcade_difficulty = st.selectbox(
+            "Difficulty / الصعوبة", 
+            diff_options, 
+            index=diff_options.index(st.session_state.arcade_difficulty),
+            label_visibility="collapsed"
+        )
+    with col4:
+        if st.button("🔄 New Game", use_container_width=True):
+            st.session_state.arcade_score = 0
+            st.session_state.arcade_streak = 0
+            st.session_state.current_scenario = None
+            st.session_state.game_feedback = None
+            st.rerun()
+            
+    st.markdown("---")
+    
+    # Generate Scenario if needed
+    if not st.session_state.current_scenario:
+        if st.button("🎲 Deal New Hand / توزيع ورق جديد", type="primary", use_container_width=True):
+            if not api_key:
+                st.error("Please enter API Key")
+            else:
+                with st.spinner("Generating Scenario..." if language == "English" else "جاري توليد السيناريو..."):
+                    from training_engine import TrainingEngine
+                    trainer = TrainingEngine(api_key, markers_data)
+                    st.session_state.current_scenario = trainer.generate_learning_scenario(
+                        language=language, 
+                        difficulty=st.session_state.arcade_difficulty
+                    )
+                    st.session_state.game_feedback = None
+                    st.rerun()
+    
+    # Display Game Board
+    if st.session_state.current_scenario and 'error' not in st.session_state.current_scenario:
+        scenario_data = st.session_state.current_scenario
+        scen = scenario_data.get('scenario', {})
+        
+        # 1. The Scenario Card
+        st.info(f"**Context:** {scen.get('context', '')}")
+        
+        col_chat_1, col_chat_2 = st.columns([1, 4])
+        with col_chat_1:
+            st.image("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", width=60)
+        with col_chat_2:
+            st.markdown(f"**Client:** {scen.get('client_statement', '')}")
+            
+        col_coach_1, col_coach_2 = st.columns([4, 1])
+        with col_coach_1:
+            st.success(f"**Coach:** {scen.get('coach_response', '')}")
+        with col_coach_2:
+            st.image("https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka", width=60)
+            
+        st.markdown("---")
+        
+        # 2. The Challenge Board
+        st.subheader("🕵️‍♂️ Spot It! / اكتشفها!")
+        
+        with st.form("arcade_form"):
+            correct = scenario_data.get('correct_answers', {})
+            distractors = scenario_data.get('distractors', {})
+            
+            # Competency Challenge
+            st.write("### 1. Which Competency? / أي جدارة؟")
+            comp_options = [correct.get('competency')] + distractors.get('competencies', [])
+            import random
+            random.shuffle(comp_options)
+            selected_comp = st.radio("Select Competency", comp_options, label_visibility="collapsed")
+            
+            # Marker Challenge (Only for Level 2+)
+            selected_marker = None
+            if st.session_state.arcade_difficulty != "Level 1":
+                st.write("### 2. Which Marker? / أي مؤشر؟")
+                marker_options = [correct.get('marker')] + distractors.get('markers', [])
+                random.shuffle(marker_options)
+                selected_marker = st.radio("Select Marker", marker_options, label_visibility="collapsed")
+            
+            # GROW Challenge
+            st.write("### 3. Which GROW Phase? / أي مرحلة؟")
+            grow_options = [correct.get('grow_phase')] + distractors.get('grow_phases', [])
+            random.shuffle(grow_options)
+            selected_grow = st.radio("Select Phase", grow_options, label_visibility="collapsed")
+            
+            submitted = st.form_submit_button("✅ Submit Answers / إرسال الإجابات", use_container_width=True)
+            
+            if submitted:
+                # Check Answers
+                is_comp_correct = selected_comp == correct.get('competency')
+                is_marker_correct = True # Default true if skipped
+                if st.session_state.arcade_difficulty != "Level 1":
+                    is_marker_correct = selected_marker == correct.get('marker')
+                
+                is_grow_correct = selected_grow == correct.get('grow_phase')
+                
+                points = 0
+                if is_comp_correct: points += 10
+                if is_marker_correct and st.session_state.arcade_difficulty != "Level 1": points += 10
+                if is_grow_correct: points += 10
+                
+                # Combo Bonus
+                if is_comp_correct and is_marker_correct and is_grow_correct:
+                    points += 20 # Perfect score bonus
+                    st.session_state.arcade_streak += 1
+                    st.balloons()
+                else:
+                    st.session_state.arcade_streak = 0
+                
+                st.session_state.arcade_score += points
+                
+                # Store feedback to display outside form
+                st.session_state.game_feedback = {
+                    "points": points,
+                    "comp_correct": is_comp_correct,
+                    "marker_correct": is_marker_correct,
+                    "grow_correct": is_grow_correct,
+                    "explanation": scenario_data.get('explanation', ''),
+                    "level": st.session_state.arcade_difficulty
+                }
+                st.rerun()
 
+        # Display Feedback Result
+        if st.session_state.game_feedback:
+            fb = st.session_state.game_feedback
+            
+            st.markdown("### 📊 Results / النتائج")
+            
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                if fb['comp_correct']:
+                    st.success("✅ Competency: Correct!")
+                else:
+                    st.error(f"❌ Competency: {correct.get('competency')}")
+            
+            with c2:
+                if fb['level'] != "Level 1":
+                    if fb['marker_correct']:
+                        st.success("✅ Marker: Correct!")
+                    else:
+                        st.error(f"❌ Marker: {correct.get('marker')}")
+                else:
+                    st.info("ℹ️ Marker: Skipped (Level 1)")
+            
+            with c3:
+                if fb['grow_correct']:
+                    st.success("✅ GROW: Correct!")
+                else:
+                    st.error(f"❌ GROW: {correct.get('grow_phase')}")
+            
+            st.info(f"**💡 Mentor's Explanation:**\n\n{fb['explanation']}")
+            
+            if st.button("➡️ Next Challenge / التحدي التالي", type="primary", use_container_width=True):
+                st.session_state.current_scenario = None
+                st.session_state.game_feedback = None
+                st.rerun()
 
 # Admin Dashboard Mode
 elif ("Admin Dashboard" in mode or "لوحة تحكم" in mode):
