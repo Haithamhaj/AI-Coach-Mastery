@@ -12,6 +12,14 @@ class AnalysisEngine:
         self.user_id = user_id  # Track which user is using the API
         self.tracker = get_token_tracker()
         
+        # Load 2025 Competencies
+        try:
+            with open('icf_core_competencies_2025.json', 'r', encoding='utf-8') as f:
+                self.core_competencies_2025 = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load 2025 Competencies: {e}")
+            self.core_competencies_2025 = None
+        
         if self.api_key:
             genai.configure(api_key=self.api_key)
             # Using 'latest' aliases as specific versions (1.5) are not found for this key
@@ -99,6 +107,14 @@ class AnalysisEngine:
             return {"error": "API Key missing"}
 
         markers_context = json.dumps(self.markers_data, ensure_ascii=False)
+        
+        # Prepare 2025 Context
+        competencies_2025_context = ""
+        glossary_context = ""
+        if self.core_competencies_2025:
+            competencies_2025_context = json.dumps(self.core_competencies_2025.get('competencies', []), ensure_ascii=False)
+            glossary_context = json.dumps(self.core_competencies_2025.get('glossary', {}), ensure_ascii=False)
+
         lang_instruction = "Provide ALL text output in Arabic including evidence, reasoning, and feedback." if language == "العربية" else "Provide ALL text output in English."
         
         prompt = f"""
@@ -127,6 +143,12 @@ PCC SCORING PHILOSOPHY:
 
 MARKERS REFERENCE (8 Competencies → 37 Markers):
 {markers_context}
+
+CORE COMPETENCIES 2025 DEFINITIONS (Use for deeper context):
+{competencies_2025_context}
+
+GLOSSARY OF TERMS (Use for precise definitions):
+{glossary_context}
 
 REQUIRED JSON OUTPUT STRUCTURE:
 {{
