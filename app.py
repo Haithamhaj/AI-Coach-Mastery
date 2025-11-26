@@ -579,6 +579,8 @@ elif st.session_state.current_page == "Admin":
     mode = "📊  Admin Dashboard" if language == "English" else "📊 لوحة تحكم الأدمن"
 elif st.session_state.current_page == "Arcade":
     mode = "Arcade"
+elif st.session_state.current_page == "Profile":
+    mode = t["mode_profile"]
 else:
     mode = "Home"
 
