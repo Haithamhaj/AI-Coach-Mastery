@@ -125,47 +125,62 @@ def show(api_key, markers_data, language="English"):
     
     # Display Game Board
     else:
-        scenario = st.session_state.arcade_scenario
+        scenario_data = st.session_state.arcade_scenario
+        # The 'scenario' key contains the context/statements
+        scenario = scenario_data.get('scenario', {})
         
         # 1. The Scenario Card
-        st.markdown(f"""
-        <div style="background-color: #1E1E1E; padding: 20px; border-radius: 10px; border-left: 5px solid #FF4500; margin-bottom: 20px;">
-            <p style="color: #B0B0B0; font-size: 0.9em; margin-bottom: 5px;">{txt['context']}</p>
-            <p style="color: #FFFFFF; font-style: italic; margin-bottom: 15px;">"{scenario.get('context', '')}"</p>
+        with st.container():
+            st.caption(f"{txt['context']}")
+            st.info(f"_{scenario.get('context', '')}_")
             
-            <p style="color: #6495ED; font-weight: bold; margin-bottom: 5px;">👤 {txt['client_says']}:</p>
-            <p style="color: #FFFFFF; margin-bottom: 15px; background-color: #262730; padding: 10px; border-radius: 5px;">"{scenario.get('client_statement', '')}"</p>
+            col_chat_1, col_chat_2 = st.columns([1, 10])
+            with col_chat_1:
+                st.write("👤")
+            with col_chat_2:
+                st.markdown(f"**{txt['client_says']}:**")
+                st.warning(f"\"{scenario.get('client_statement', '')}\"")
             
-            <p style="color: #32CD32; font-weight: bold; margin-bottom: 5px;">🎓 {txt['coach_says']}:</p>
-            <p style="color: #FFFFFF; margin-bottom: 0; background-color: #262730; padding: 10px; border-radius: 5px;">"{scenario.get('coach_response', '')}"</p>
-        </div>
-        """, unsafe_allow_html=True)
+            col_chat_3, col_chat_4 = st.columns([1, 10])
+            with col_chat_3:
+                st.write("🎓")
+            with col_chat_4:
+                st.markdown(f"**{txt['coach_says']}:**")
+                st.success(f"\"{scenario.get('coach_response', '')}\"")
+        
+        st.markdown("---")
         
         # 2. Input Form
         if st.session_state.arcade_feedback is None:
             with st.form("game_form"):
-                # Prepare Options (Shuffle logic should ideally be in backend, but we'll trust the list order for now or shuffle here)
-                # For simplicity, we assume backend returns 'options' list including the correct one
+                # Prepare Options
+                correct = scenario_data.get('correct_answers', {})
+                distractors = scenario_data.get('distractors', {})
                 
                 # Competency Options
-                comp_options = scenario.get('options_competency', [])
+                comp_options = [correct.get('competency')] + distractors.get('competencies', [])
+                # Shuffle options (simple shuffle)
+                import random
+                random.shuffle(comp_options)
                 selected_comp = st.radio(txt['question_1'], comp_options)
                 
                 # Marker Options
-                marker_options = scenario.get('options_marker', [])
+                marker_options = [correct.get('marker')] + distractors.get('markers', [])
+                random.shuffle(marker_options)
                 selected_marker = st.radio(txt['question_2'], marker_options)
                 
                 # GROW Options
-                grow_options = scenario.get('options_grow', [])
+                grow_options = [correct.get('grow_phase')] + distractors.get('grow_phases', [])
+                random.shuffle(grow_options)
                 selected_grow = st.radio(txt['question_3'], grow_options)
                 
                 submitted = st.form_submit_button(txt['submit'], use_container_width=True, type="primary")
                 
                 if submitted:
                     # Check Answers
-                    correct_comp = scenario.get('correct_competency')
-                    correct_marker = scenario.get('correct_marker')
-                    correct_grow = scenario.get('correct_grow')
+                    correct_comp = correct.get('competency')
+                    correct_marker = correct.get('marker')
+                    correct_grow = correct.get('grow_phase')
                     
                     is_correct_comp = (selected_comp == correct_comp)
                     is_correct_marker = (selected_marker == correct_marker)
