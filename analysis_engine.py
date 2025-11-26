@@ -330,7 +330,88 @@ REMEMBER: This is PCC Level. Focus on observable behaviors, not coaching artistr
             
             return result
         except Exception as e:
+            print(f"Error in analyze_markers: {e}")
             return {"error": str(e)}
+
+    def analyze_grow_model(self, content, is_audio=False, language="English"):
+        """
+        Analyze the session based on the GROW Model (Goal, Reality, Options, Will).
+        Returns a JSON with time distribution and quality assessment.
+        """
+        if not self.api_key:
+            return {"error": "API Key missing"}
+
+        lang_instruction = "Provide ALL text output in Arabic." if language == "العربية" else "Provide ALL text output in English."
+        
+        prompt = f"""
+        You are an expert Coaching Assessor. Analyze the following coaching session transcript based on the GROW Model.
+        
+        TRANSCRIPT:
+        {content[:30000]}  # Truncate to avoid token limits if necessary
+        
+        TASK:
+        1. Segment the session into the 4 GROW phases:
+           - GOAL: Defining the objective.
+           - REALITY: Exploring the current situation.
+           - OPTIONS: Generating ideas and strategies.
+           - WILL: Committing to actions and steps.
+           
+        2. Estimate the percentage of the session spent on each phase (must sum to 100%).
+        
+        3. Provide a brief assessment (2-3 sentences) for each phase:
+           - Did the coach spend enough time?
+           - Was the transition smooth?
+           - Key strengths or missed opportunities.
+           
+        4. {lang_instruction}
+
+        REQUIRED JSON OUTPUT STRUCTURE:
+        {{
+            "phases": {{
+                "Goal": {{ "percentage": 10, "assessment": "..." }},
+                "Reality": {{ "percentage": 30, "assessment": "..." }},
+                "Options": {{ "percentage": 40, "assessment": "..." }},
+                "Will": {{ "percentage": 20, "assessment": "..." }}
+            }},
+            "overall_feedback": "..."
+        }}
+        """
+        
+        try:
+            # Use Flash model for speed and lower cost
+            response = self.model_flash.generate_content(prompt)
+            
+            # Track usage
+            try:
+                usage = response.usage_metadata
+                tokens_used = {
+                    'input': usage.prompt_token_count,
+                    'output': usage.candidates_token_count,
+                    'total': usage.total_token_count
+                }
+                self.tracker.log_api_call(
+                    user_id=self.user_id,
+                    service_type="grow_analysis",
+                    tokens_used=tokens_used,
+                    model="gemini-flash"
+                )
+            except Exception as e:
+                print(f"Error tracking usage: {e}")
+
+            # Parse JSON
+            result_text = response.text
+            # Clean up markdown code blocks if present
+            if "```json" in result_text:
+                result_text = result_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in result_text:
+                result_text = result_text.split("```")[1].split("```")[0].strip()
+                
+            return json.loads(result_text)
+            
+        except Exception as e:
+            print(f"Error in analyze_grow_model: {e}")
+            return {"error": str(e)}
+
 
     def upload_audio(self, audio_file_path, mime_type):
         try:

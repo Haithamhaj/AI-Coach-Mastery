@@ -671,6 +671,8 @@ elif mode == t["mode_training"]:
             st.session_state.analysis_result = None
         if 'ethics_result' not in st.session_state:
             st.session_state.ethics_result = None
+        if 'grow_result' not in st.session_state:
+            st.session_state.grow_result = None
             
         # Analyze Button
         if st.button(t["analyze_btn"]):
@@ -709,6 +711,10 @@ elif mode == t["mode_training"]:
                         with st.spinner(t["analyzing_markers"]):
                             st.session_state.analysis_result = engine.analyze_markers(content_to_analyze, is_audio=is_audio, language=language)
                             st.session_state.analysis_result['ethics_status'] = st.session_state.ethics_result.get("status", "UNKNOWN")
+                        
+                        # 3. GROW Model Analysis
+                        with st.spinner("Analyzing Session Flow (GROW Model)..." if language == "English" else "جاري تحليل تدفق الجلسة (نموذج GROW)..."):
+                            st.session_state.grow_result = engine.analyze_grow_model(content_to_analyze, is_audio=is_audio, language=language)
                     else:
                         st.session_state.analysis_result = None # Clear previous analysis if ethics fail
 
@@ -770,6 +776,51 @@ elif mode == t["mode_training"]:
                             st.success("✅ All 37 markers evaluated")
                         
                         st.markdown("---")
+
+                        # --- GROW MODEL ANALYSIS ---
+                        if st.session_state.grow_result and "error" not in st.session_state.grow_result:
+                            grow_data = st.session_state.grow_result
+                            st.subheader("🌱 GROW Model Analysis / تحليل نموذج GROW")
+                            
+                            # Prepare data for Pie Chart
+                            phases = grow_data.get('phases', {})
+                            if phases:
+                                pie_data = []
+                                colors = {'Goal': '#FF4500', 'Reality': '#FFA500', 'Options': '#32CD32', 'Will': '#1E90FF'}
+                                
+                                for phase_name, phase_info in phases.items():
+                                    pie_data.append({
+                                        'Phase': phase_name,
+                                        'Percentage': phase_info.get('percentage', 0),
+                                        'Assessment': phase_info.get('assessment', '')
+                                    })
+                                
+                                df_grow = pd.DataFrame(pie_data)
+                                
+                                col_grow_1, col_grow_2 = st.columns([1, 2])
+                                
+                                with col_grow_1:
+                                    fig_pie = px.pie(df_grow, values='Percentage', names='Phase', 
+                                                    title='Session Time Distribution' if language == "English" else 'توزيع وقت الجلسة',
+                                                    color='Phase', color_discrete_map=colors, hole=0.4)
+                                    fig_pie.update_layout(
+                                        paper_bgcolor='rgba(0,0,0,0)',
+                                        plot_bgcolor='rgba(0,0,0,0)',
+                                        font=dict(color='#ffffff', family='Tajawal, Inter, sans-serif'),
+                                        showlegend=False
+                                    )
+                                    st.plotly_chart(fig_pie, use_container_width=True)
+                                
+                                with col_grow_2:
+                                    st.write("### 📝 Phase Assessment / تقييم المراحل")
+                                    for item in pie_data:
+                                        with st.expander(f"**{item['Phase']} ({item['Percentage']}%)**", expanded=True):
+                                            st.write(item['Assessment'])
+                                    
+                                    if 'overall_feedback' in grow_data:
+                                        st.info(f"**💡 Overall Feedback:** {grow_data['overall_feedback']}")
+                            
+                            st.markdown("---")
 
                         # 2. 8 Competencies Overview (PCC Hierarchy)
                         st.subheader("📋 8 Core Competencies / الكفاءات الثمانية الأساسية")
@@ -1201,6 +1252,17 @@ elif mode == t["mode_exam"]:
                 phase_emoji = {"opening": "📂", "exploration": "🔍", "deepening": "💎", "closing": "🎯"}
                 phase_name = st.session_state.session_phase.title()
                 st.metric("📊 Phase", f"{phase_emoji.get(st.session_state.session_phase, '📊')} {phase_name}")
+                
+                # Real-time GROW Assistant Tip
+                grow_tips = {
+                    "opening": "💡 **Goal Phase:** Establish trust and agree on the session goal.",
+                    "exploration": "💡 **Reality Phase:** Explore the current situation. Ask 'What is happening now?'",
+                    "deepening": "💡 **Options Phase:** Brainstorm possibilities. Ask 'What could you do?'",
+                    "closing": "💡 **Will Phase:** Commit to action. Ask 'What will you do?'"
+                }
+                current_tip = grow_tips.get(st.session_state.session_phase, "")
+                if current_tip:
+                    st.caption(current_tip)
             
             with col4:
                 if st.button("⏹️ End Session", use_container_width=True, type="secondary"):
@@ -1404,6 +1466,39 @@ elif mode == t["mode_exam"]:
                     else:
                         st.warning(f"**🎯 Closing**\n\n{closing}")
                 
+                st.markdown("---")
+                
+                # GROW Question Quality Analysis
+                if 'grow_analysis' in report:
+                    st.write("### 🌱 GROW Question Quality / جودة أسئلة نموذج GROW")
+                    grow = report.get('grow_analysis', {})
+                    
+                    g_col1, g_col2, g_col3, g_col4 = st.columns(4)
+                    
+                    phases = [
+                        ("Goal", "goal", "🎯"),
+                        ("Reality", "reality", "🔍"),
+                        ("Options", "options", "💡"),
+                        ("Will", "will", "⚡")
+                    ]
+                    
+                    # Display Scores
+                    for i, (name, key, icon) in enumerate(phases):
+                        data = grow.get(key, {})
+                        score = data.get('score', 0)
+                        with [g_col1, g_col2, g_col3, g_col4][i]:
+                            st.metric(f"{icon} {name}", f"{score}/10")
+                    
+                    # Display Details
+                    for name, key, icon in phases:
+                        data = grow.get(key, {})
+                        with st.expander(f"**{icon} {name} Phase Analysis**", expanded=False):
+                            st.write(f"**Feedback:** {data.get('feedback', 'No feedback')}")
+                            if data.get('key_questions'):
+                                st.markdown("**Key Questions Asked:**")
+                                for q in data.get('key_questions', []):
+                                    st.caption(f"• {q}")
+
                 st.markdown("---")
                 
                 # Strengths and Areas for Improvement

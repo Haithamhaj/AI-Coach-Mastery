@@ -616,23 +616,29 @@ ANALYSIS STRUCTURE:
    - Deepening: Were there breakthrough moments?
    - Closing: Was there clear action/learning?
 
-3. STRENGTHS (3-5 specific observations):
+3. GROW MODEL QUESTION ANALYSIS:
+   - Analyze the questions asked in each phase (Goal, Reality, Options, Will).
+   - Identify the BEST questions asked in each phase.
+   - Rate the quality of questioning for each phase (0-10).
+   - Provide specific feedback on how to improve questioning in each phase.
+
+4. STRENGTHS (3-5 specific observations):
    - What did the coach do exceptionally well?
    - Which ICF competencies were demonstrated strongly?
 
-4. AREAS FOR IMPROVEMENT (3-5 specific observations):
+5. AREAS FOR IMPROVEMENT (3-5 specific observations):
    - What could be better?
    - Which competencies need work?
 
-5. KEY MOMENTS (2-4 significant moments):
+6. KEY MOMENTS (2-4 significant moments):
    - Timestamps of breakthrough moments or critical errors
    - What happened and why it matters
 
-6. TALK RATIO ASSESSMENT:
+7. TALK RATIO ASSESSMENT:
    - Is {coach_ratio}% coach / {client_ratio}% client appropriate?
    - PCC guideline: Client should talk 60-70%
 
-7. ACTIONABLE RECOMMENDATIONS (3-5):
+8. ACTIONABLE RECOMMENDATIONS (3-5):
    - Specific, practical next steps for coach development
 
 {lang_instruction}
@@ -645,6 +651,12 @@ Output JSON:
         "exploration": "Strong/Acceptable/Weak with brief note",
         "deepening": "Strong/Acceptable/Weak with brief note",
         "closing": "Strong/Acceptable/Weak with brief note"
+    }},
+    "grow_analysis": {{
+        "goal": {{ "score": <0-10>, "key_questions": ["q1"], "feedback": "..." }},
+        "reality": {{ "score": <0-10>, "key_questions": ["q1"], "feedback": "..." }},
+        "options": {{ "score": <0-10>, "key_questions": ["q1"], "feedback": "..." }},
+        "will": {{ "score": <0-10>, "key_questions": ["q1"], "feedback": "..." }}
     }},
     "strengths": ["strength 1", "strength 2", "strength 3"],
     "areas_for_improvement": ["area 1", "area 2", "area 3"],
