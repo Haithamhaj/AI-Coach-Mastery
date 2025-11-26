@@ -938,7 +938,7 @@ elif mode == t["mode_training"]:
 # --- TRAINING GYM (ADVANCED SIMULATOR) ---
 elif mode == t["mode_exam"]:
     st.header(t["exam_header"])
-    st.write("🎯 Advanced Coaching Lab / صالة التدريب المتقدمة" if language == "English" else "🎯 صالة التدريب المتقدمة")
+    st.write("🎯 Simulation Environment / بيئة المحاكاة" if language == "English" else "🎯 بيئة المحاكاة")
     
     # Initialize Training Session States
     if 'training_mode' not in st.session_state:
