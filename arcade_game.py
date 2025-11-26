@@ -55,7 +55,7 @@ def show(api_key, markers_data, language="English"):
             "next_round": "الجولة التالية ➡️",
             "correct": "صحيح! 🎉",
             "incorrect": "غير صحيح",
-            "explanation": "لماذا؟",
+            "explanation": "💡 تفسير الإجابة",
             "game_over": "انتهت اللعبة!",
             "final_score": "النتيجة النهائية",
             "play_again": "العب مجدداً",
@@ -252,7 +252,11 @@ def show(api_key, markers_data, language="English"):
                     st.error(f"❌ {fb['correct_grow']}")
             
             # Explanation
-            st.info(f"**{txt['explanation']}** {fb['explanation']}")
+            explanation_text = fb.get('explanation', '')
+            if not explanation_text:
+                explanation_text = "No explanation provided." if language == "English" else "لا يوجد تفسير متاح."
+            
+            st.info(f"**{txt['explanation']}:**\n\n{explanation_text}")
             
             # Next Button
             if st.button(txt['next_round'], type="primary", use_container_width=True):
