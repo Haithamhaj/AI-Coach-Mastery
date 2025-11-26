@@ -113,3 +113,73 @@ def get_user_history(user_id):
     except Exception as e:
         print(f"Error getting history: {e}")
         return []
+
+def save_arcade_result(user_id, score, level, details):
+    """
+    Save Arcade Mode game results to Firestore.
+    """
+    try:
+        db = firestore.client()
+        data = {
+            'user_id': user_id,
+            'score': score,
+            'level': level,
+            'details': details,
+            'type': 'arcade',
+            'created_at': firestore.SERVER_TIMESTAMP
+        }
+        db.collection('arcade_results').add(data)
+        return True
+    except Exception as e:
+        print(f"Error saving arcade result: {e}")
+        return False
+
+def get_user_stats(user_id):
+    """
+    Aggregate user statistics for the profile page.
+    """
+    try:
+        db = firestore.client()
+        
+        # 1. Fetch Training Sessions
+        sessions_ref = db.collection('sessions').where('user_id', '==', user_id)
+        sessions = [doc.to_dict() for doc in sessions_ref.stream()]
+        
+        # 2. Fetch Arcade Results
+        arcade_ref = db.collection('arcade_results').where('user_id', '==', user_id)
+        arcade_games = [doc.to_dict() for doc in arcade_ref.stream()]
+        
+        # Calculate Stats
+        total_sessions = len(sessions)
+        total_arcade_games = len(arcade_games)
+        
+        # Calculate Total Hours (assuming avg 30 mins per session if duration not tracked)
+        # In a real app, we'd track actual duration.
+        total_hours = (total_sessions * 0.5) + (total_arcade_games * 0.1) # 6 mins per arcade game
+        
+        # Calculate Avg Score (from sessions that have a score)
+        scores = [s.get('compliance_percentage', 0) for s in sessions if 'compliance_percentage' in s]
+        avg_score = sum(scores) / len(scores) if scores else 0
+        
+        # Calculate Arcade Points
+        total_arcade_points = sum([g.get('score', 0) for g in arcade_games])
+        
+        # Determine Rank
+        rank = "Novice Coach"
+        if total_arcade_points > 1000: rank = "Master Coach (MCC)"
+        elif total_arcade_points > 500: rank = "Professional Coach (PCC)"
+        elif total_arcade_points > 200: rank = "Associate Coach (ACC)"
+        
+        return {
+            'total_sessions': total_sessions,
+            'total_hours': round(total_hours, 1),
+            'avg_score': round(avg_score, 1),
+            'arcade_games': total_arcade_games,
+            'arcade_points': total_arcade_points,
+            'rank': rank,
+            'recent_sessions': sorted(sessions, key=lambda x: x.get('created_at', ''), reverse=True)[:5]
+        }
+        
+    except Exception as e:
+        print(f"Error getting user stats: {e}")
+        return None

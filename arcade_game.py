@@ -213,6 +213,20 @@ def show(api_key, markers_data, language="English"):
                         "explanation": scenario.get('explanation', ''),
                         "points_earned": points
                     }
+                    
+                    # Save to Database
+                    if 'user_email' in st.session_state:
+                        from firebase_config import save_arcade_result
+                        save_arcade_result(
+                            user_id=st.session_state.user_email,
+                            score=points,
+                            level=difficulty,
+                            details={
+                                "streak": st.session_state.arcade_streak,
+                                "all_correct": all_correct
+                            }
+                        )
+                    
                     st.rerun()
         
         # 3. Feedback Display

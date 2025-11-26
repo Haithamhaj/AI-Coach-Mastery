@@ -624,6 +624,15 @@ st.title(t["title"])
 if mode == "Home":
     show_user_dashboard(st.session_state.user_email, is_admin_user, language)
 
+# --- PROFILE PAGE ---
+elif mode == t["mode_profile"]:
+    import profile_page
+    profile_page.show(language=language)
+
+# --- ADMIN PANEL ---
+elif mode == "Admin Panel":
+    show_user_dashboard(st.session_state.user_email, is_admin_user, language)
+
 elif mode == t["mode_training"]:
     st.header(t["training_header"])
     st.write(t["training_desc"])
