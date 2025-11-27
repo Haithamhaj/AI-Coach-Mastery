@@ -126,14 +126,10 @@ def show(api_key, language="English"):
             with c_tab3:
                 if 'sub_competencies' in selected_comp:
                     for sub in selected_comp['sub_competencies']:
-                        st.markdown(f"##### {sub['id']}")
-                        st.write(f"{sub['text']}")
-                        st.divider()
+                        st.info(f"**{sub['id']}**\n\n{sub['text']}")
                 elif 'markers' in selected_comp and selected_comp['markers']:
                     for m in selected_comp['markers']:
-                        st.markdown(f"##### {m['id']}")
-                        st.write(f"{m['text']}")
-                        st.divider()
+                        st.info(f"**{m['id']}**\n\n{m['text']}")
                 else:
                     st.caption("No markers available.")
 
@@ -150,31 +146,50 @@ def show(api_key, language="English"):
         if not markers_data:
             st.error("Markers data not found.")
         else:
-            # Filter
-            comp_names = [c['name'] for c in markers_data]
-            selected_comp_name = st.selectbox(txt['comp_select'], ["All"] + comp_names)
+            # Search Bar
+            search_term = st.text_input("🔍 " + txt['marker_search'], placeholder="Type to search...")
             
-            search_term = st.text_input(txt['marker_search'])
+            # Filter (Horizontal Radio)
+            comp_names = ["All"] + [f"{c['id']}. {c['name']}" for c in markers_data]
+            selected_filter = st.radio(
+                "Filter by Competency", 
+                comp_names, 
+                horizontal=True, 
+                label_visibility="collapsed",
+                key="marker_filter"
+            )
             
+            st.markdown("---")
+            
+            # Display Logic
+            found_any = False
             for comp in markers_data:
-                if selected_comp_name != "All" and comp['name'] != selected_comp_name:
+                # Filter check
+                comp_label = f"{comp['id']}. {comp['name']}"
+                if selected_filter != "All" and comp_label != selected_filter:
                     continue
                 
-                # Check if any marker matches search
-                comp_matches = False
+                # Search check (filter markers inside comp)
                 matching_markers = []
-                
                 for m in comp.get('markers', []):
-                    if search_term.lower() in m['text'].lower() or search_term.lower() in m['id'].lower():
-                        comp_matches = True
+                    if search_term:
+                        if search_term.lower() in m['text'].lower() or search_term.lower() in m['id'].lower():
+                            matching_markers.append(m)
+                    else:
                         matching_markers.append(m)
                 
-                if comp_matches or not search_term:
-                    st.subheader(f"{comp['id']}: {comp['name']}")
-                    markers_to_show = matching_markers if search_term else comp.get('markers', [])
+                if matching_markers:
+                    found_any = True
+                    st.subheader(f"📘 {comp['name']}")
                     
-                    for m in markers_to_show:
-                        st.info(f"**{m['id']}**: {m['text']}")
+                    # Grid Layout for Markers
+                    cols = st.columns(2) # 2 cards per row
+                    for i, m in enumerate(matching_markers):
+                        with cols[i % 2]:
+                            st.info(f"**{m['id']}**\n\n{m['text']}")
+            
+            if not found_any:
+                st.warning("No markers found matching your criteria.")
 
     # --- TAB 3: GROW MODEL ---
     with tab3:
