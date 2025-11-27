@@ -4,82 +4,20 @@ import os
 import tempfile
 import plotly.express as px
 import pandas as pd
-from translations import translations # Translations module updated
+import importlib
+import translations as translations_module
+importlib.reload(translations_module)
+from translations import translations
+
 from marker_helpers import get_marker_recommendation, get_marker_explanation
 
 from dotenv import load_dotenv
 
-# Load Environment Variables
-load_dotenv()
-
-# Page Configuration (MUST BE FIRST)
-st.set_page_config(
-    page_title="AI Coach Mastery - PCC Level Training",
-    page_icon="🧠",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# --- FIREBASE KEY SETUP (Cloud Deployment Fix) ---
-# Create firebase_key.json from secrets if it doesn't exist
-if not os.path.exists("firebase_key.json"):
-    try:
-        # Check if we're in cloud environment with secrets
-        if hasattr(st, 'secrets') and "firebase_service_account" in st.secrets:
-            print("☁️ Creating firebase_key.json from secrets...")
-            key_dict = dict(st.secrets["firebase_service_account"])
-            
-            # Fix private_key formatting issues
-            if "private_key" in key_dict:
-                key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
-                
-            with open("firebase_key.json", "w") as f:
-                json.dump(key_dict, f)
-            print("✅ firebase_key.json created successfully!")
-        else:
-            print("⚠️ Running locally - firebase_key.json not found.")
-    except Exception as e:
-        print(f"⚠️ Error creating firebase_key.json: {e}")
-        # Don't crash, continue anyway
-
-# Load Custom CSS and Fonts
-def load_custom_css():
-    # Load Google Fonts
-    st.markdown("""
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    """, unsafe_allow_html=True)
-    
-    # Load Custom CSS
-    try:
-        with open('static/styles.css') as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError:
-        pass  # CSS file not found, continue without custom styles
-    
-    # Load Streamlit Components CSS
-    try:
-        with open('static/streamlit_components.css') as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError:
-        pass  # CSS file not found, continue without custom styles
-
-# Apply custom CSS
-load_custom_css()
-
-# Sidebar Language Selector
-st.sidebar.image("logo.jpg", width=200)
-language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"], key="language_selector")
-t = translations[language]
-
-# --- NAVIGATION SETUP (Must be early for sidebar placement) ---
-# Check if user is admin
-from admin_middleware import get_admin_middleware
-admin = get_admin_middleware()
-is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
+# ... (lines 10-81 omitted) ...
 
 # Import User Dashboard
+import user_dashboard as user_dashboard_module
+importlib.reload(user_dashboard_module)
 from user_dashboard import show_user_dashboard
 
 # Navigation State
