@@ -90,13 +90,7 @@ def show(language="English"):
         st.warning("Please log in to view your profile.")
         return
 
-    user_stats = get_user_stats(st.session_state.user_email)
-    
-    if not user_stats:
-        st.info(txt['no_data'])
-        return
-        
-    # --- Header ---
+    # --- Header & Edit Profile ---
     # Fetch latest profile data
     from firebase_config import get_user_profile, update_user_profile
     user_profile = get_user_profile(st.session_state.user_email) or {}
@@ -115,7 +109,7 @@ def show(language="English"):
             with st.form("edit_profile_form"):
                 new_name = st.text_input("Display Name / الاسم المعروض", value=user_profile.get('display_name', ''))
                 new_title = st.text_input("Title / المسمى الوظيفي", value=user_profile.get('title', ''))
-                experience = st.selectbox("Experience / الخبرة", ["0-2 Years", "2-5 Years", "5-10 Years", "10+ Years"], index=0) # Simple index for now
+                experience = st.selectbox("Experience / الخبرة", ["0-2 Years", "2-5 Years", "5-10 Years", "10+ Years"], index=0)
                 focus_areas = st.multiselect("Focus Areas / مجالات التركيز", ["Executive", "Life", "Career", "Business", "Wellness"], default=user_profile.get('focus_areas', []))
                 
                 if st.form_submit_button("Save / حفظ"):
@@ -130,7 +124,17 @@ def show(language="English"):
                         st.rerun()
                     else:
                         st.error("Error saving.")
+
+    st.markdown("---")
+
+    # --- Stats & Progress ---
+    user_stats = get_user_stats(st.session_state.user_email)
     
+    if not user_stats:
+        st.info(txt['no_data'])
+        # Even if no stats, we let them see the empty profile structure or just stop here for stats
+        return
+        
     # --- Top Stats Cards ---
     st.subheader(txt['stats'])
     c1, c2, c3, c4 = st.columns(4)
