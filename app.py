@@ -976,6 +976,14 @@ elif mode == t["mode_exam"]:
     # Level 3: Full Session Simulator States
     if 'full_session_active' not in st.session_state:
         st.session_state.full_session_active = False
+    if 'session_debrief_active' not in st.session_state:
+        st.session_state.session_debrief_active = False
+    if 'mentor_question' not in st.session_state:
+        st.session_state.mentor_question = None
+    if 'user_reflection' not in st.session_state:
+        st.session_state.user_reflection = None
+    if 'mentor_feedback' not in st.session_state:
+        st.session_state.mentor_feedback = None
     if 'session_start_time' not in st.session_state:
         st.session_state.session_start_time = None
     if 'session_messages' not in st.session_state:
@@ -1280,31 +1288,6 @@ elif mode == t["mode_exam"]:
                     st.caption(current_tip)
             
             with col4:
-                if st.button("⏹️ End Session", use_container_width=True, type="secondary"):
-                    # Generate comprehensive final report
-                    st.session_state.session_phase = 'ended'
-                    st.session_state.full_session_active = False
-                    
-                    with st.spinner("Analyzing complete session..." if language == "English" else "جاري تحليل الجلسة الكاملة..."):
-                        from training_engine import TrainingEngine
-                        trainer = TrainingEngine(api_key, markers_data)
-                        
-                        # Generate comprehensive report
-                        st.session_state.final_session_report = trainer.analyze_full_coaching_session(
-                            st.session_state.session_messages,
-                            st.session_state.hidden_analyses,
-                            elapsed_minutes,
-                            language=language
-                        )
-                        
-                        # Save to Firebase
-                        if auth_handler.is_authenticated():
-                            session_data = {
-                                'user_id': st.session_state.user_id,
-                                'session_type': 'Full Session',
-                                'score': st.session_state.final_session_report.get('overall_score', 0),
-                                'duration': f"{elapsed_minutes} min",
-                                'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
                                 'report_json': st.session_state.final_session_report
                             }
                             firebase_config.save_session(st.session_state.user_id, session_data)
@@ -1406,7 +1389,72 @@ elif mode == t["mode_exam"]:
                         st.rerun()
         
         #Show final report if session ended
-        if st.session_state.final_session_report and not st.session_state.full_session_active:
+        # --- DEBRIEF PHASE ---
+        if st.session_state.session_debrief_active:
+            st.markdown(f"## {t['mentor_moment']}")
+            st.info(t['mentor_intro'])
+            
+            mq = st.session_state.mentor_question
+            if mq:
+                st.markdown("### 🔍 The Moment")
+                st.warning(f"_{mq.get('moment_context', '')}_")
+                
+                st.markdown("### 🧠 Reflection Question")
+                st.markdown(f"**{mq.get('reflection_question', '')}**")
+                
+                # User Reflection Input
+                if st.session_state.mentor_feedback is None:
+                    user_ref = st.text_area(t['your_reflection'], height=100)
+                    if st.button(t['submit_reflection'], type="primary"):
+                        if user_ref:
+                            with st.spinner("Mentor is thinking..."):
+                                from training_engine import TrainingEngine
+                                trainer = TrainingEngine(api_key, markers_data)
+                                fb = trainer.evaluate_reflection_response(user_ref, mq.get('moment_context'), language=language)
+                                st.session_state.mentor_feedback = fb
+                                st.rerun()
+                else:
+                    # Show Feedback
+                    st.success(f"**{t['mentor_feedback']}:**\n\n{st.session_state.mentor_feedback.get('feedback', '')}")
+                    
+                    # Continue to Report
+                    if st.button(t['continue_report']):
+                        with st.spinner("Generating Final Report..."):
+                            from training_engine import TrainingEngine
+                            trainer = TrainingEngine(api_key, markers_data)
+                            
+                            # Calculate duration (approximate since we stopped timer)
+                            # In real app, we'd capture exact stop time
+                            end_time = datetime.datetime.now()
+                            duration = end_time - st.session_state.session_start_time
+                            duration_minutes = int(duration.total_seconds() / 60)
+                            
+                            report = trainer.analyze_full_coaching_session(
+                                st.session_state.session_messages,
+                                st.session_state.hidden_analyses,
+                                duration_minutes,
+                                language=language
+                            )
+                            
+                            st.session_state.final_session_report = report
+                            st.session_state.session_debrief_active = False
+                            
+                            # Save to Firebase
+                            if auth_handler.is_authenticated():
+                                session_data = {
+                                    'user_id': st.session_state.user_email,
+                                    'session_type': 'Full Session',
+                                    'score': report.get('overall_score', 0),
+                                    'duration': f"{duration_minutes} min",
+                                    'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                                    'report_json': report,
+                                    'compliance_percentage': int(report.get('overall_score', 0) * 10) # Convert 0-10 to %
+                                }
+                                firebase_config.save_session(st.session_state.user_email, session_data)
+                            
+                            st.rerun()
+
+        if st.session_state.final_session_report and not st.session_state.full_session_active and not st.session_state.session_debrief_active:
             st.success("✅ Session Complete!" if language == "English" else "✅ الجلسة اكتملت!")
             
             report = st.session_state.final_session_report

@@ -46,7 +46,13 @@ translations = {
         "client_label": "Client",
         "footer": "Based on ICF PCC Markers 2021",
         "arcade_title": "The Arcade (Game)",
-        "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
+        "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way.",
+        "mentor_moment": "🧠 Mentor Moment",
+        "mentor_intro": "Before we look at the score, let's reflect on one moment from the session.",
+        "your_reflection": "Your Reflection:",
+        "submit_reflection": "Submit Reflection",
+        "mentor_feedback": "Mentor Feedback",
+        "continue_report": "Continue to Full Report ➡️"
     },
     "العربية": {
         "title": "إتقان الكوتشينج بالذكاء الاصطناعي",
@@ -95,6 +101,12 @@ translations = {
         "client_label": "العميل",
         "footer": "مبني على علامات ICF PCC 2021",
         "arcade_title": "تحدّي المهارات السريعة",
-        "arcade_desc": "اختبر سرعة التقاطك لمؤشرات الكوتشينج من خلال تحدّي المهارات السريعة."
+        "arcade_desc": "اختبر سرعة التقاطك لمؤشرات الكوتشينج من خلال تحدّي المهارات السريعة.",
+        "mentor_moment": "🧠 لحظة مع المنتور",
+        "mentor_intro": "قبل أن نرى النتيجة، دعنا نتأمل في لحظة واحدة من الجلسة.",
+        "your_reflection": "تأملك:",
+        "submit_reflection": "إرسال التأمل",
+        "mentor_feedback": "تغذية المنتور الراجعة",
+        "continue_report": "المتابعة للتقرير الكامل ➡️"
     }
 }
