@@ -82,7 +82,8 @@ def show(api_key, language="English"):
         else:
             for comp in comps:
                 with st.expander(f"{comp['id']}. {comp['name']}"):
-                    st.markdown(f"**Description:** {comp['definition']}")
+                    desc_label = "التعريف" if language == "العربية" else "Description"
+                    st.markdown(f"**{desc_label}:** {comp['definition']}")
                     
                     # Key Points
                     if 'key_points' in comp:
