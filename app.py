@@ -25,6 +25,11 @@ st.sidebar.image("logo.jpg", width=200)
 language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"], key="language_selector")
 t = translations[language]
 
+# Check if user is admin
+from admin_middleware import get_admin_middleware
+admin = get_admin_middleware()
+is_admin_user = admin.is_admin(st.session_state.user_email) if 'user_email' in st.session_state else False
+
 # Navigation State
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "Home"
