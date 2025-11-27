@@ -64,9 +64,14 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
     txt = t[language]
     
     # --- Header Section ---
+    # Fetch user profile for name
+    from firebase_config import get_user_profile
+    user_profile = get_user_profile(user_email) or {}
+    display_name = user_profile.get('display_name', user_email.split('@')[0])
+    
     st.markdown(f"""
     <div style="padding: 20px; background-color: #1E1E1E; border-radius: 10px; margin-bottom: 20px;">
-        <h1 style="margin:0; color: #FFFFFF;">{txt['welcome']} {user_email.split('@')[0]} 👋</h1>
+        <h1 style="margin:0; color: #FFFFFF;">{txt['welcome']} {display_name} 👋</h1>
         <p style="color: #B0B0B0; margin-top: 5px;">{txt['dashboard']}</p>
     </div>
     """, unsafe_allow_html=True)

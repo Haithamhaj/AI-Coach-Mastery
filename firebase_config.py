@@ -93,6 +93,35 @@ def create_user(email, password, username):
     except Exception as e:
         return {"error": str(e)}
 
+def get_user_profile(email):
+    """
+    Fetch user profile data (name, title, etc.) from Firestore.
+    """
+    try:
+        db = firestore.client()
+        doc_ref = db.collection('users').document(email)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        return None
+    except Exception as e:
+        print(f"Error fetching profile: {e}")
+        return None
+
+def update_user_profile(email, profile_data):
+    """
+    Update user profile fields.
+    """
+    try:
+        db = firestore.client()
+        doc_ref = db.collection('users').document(email)
+        # Use set with merge=True to update existing fields or create if missing
+        doc_ref.set(profile_data, merge=True)
+        return True
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return False
+
 # Database Functions
 def save_session(user_id, session_data):
     try:

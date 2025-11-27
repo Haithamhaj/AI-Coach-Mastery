@@ -97,8 +97,39 @@ def show(language="English"):
         return
         
     # --- Header ---
-    st.title(txt['title'])
-    st.caption(txt['subtitle'])
+    # Fetch latest profile data
+    from firebase_config import get_user_profile, update_user_profile
+    user_profile = get_user_profile(st.session_state.user_email) or {}
+    
+    display_name = user_profile.get('display_name', st.session_state.user_email.split('@')[0])
+    user_title = user_profile.get('title', 'Aspiring Coach')
+    
+    col_header, col_edit = st.columns([3, 1])
+    
+    with col_header:
+        st.title(f"{txt['title']} - {display_name}")
+        st.caption(f"{user_title} | {txt['subtitle']}")
+        
+    with col_edit:
+        with st.popover("✏️ Edit Profile" if language == "English" else "✏️ تعديل الملف"):
+            with st.form("edit_profile_form"):
+                new_name = st.text_input("Display Name / الاسم المعروض", value=user_profile.get('display_name', ''))
+                new_title = st.text_input("Title / المسمى الوظيفي", value=user_profile.get('title', ''))
+                experience = st.selectbox("Experience / الخبرة", ["0-2 Years", "2-5 Years", "5-10 Years", "10+ Years"], index=0) # Simple index for now
+                focus_areas = st.multiselect("Focus Areas / مجالات التركيز", ["Executive", "Life", "Career", "Business", "Wellness"], default=user_profile.get('focus_areas', []))
+                
+                if st.form_submit_button("Save / حفظ"):
+                    updates = {
+                        'display_name': new_name,
+                        'title': new_title,
+                        'experience': experience,
+                        'focus_areas': focus_areas
+                    }
+                    if update_user_profile(st.session_state.user_email, updates):
+                        st.success("Saved!")
+                        st.rerun()
+                    else:
+                        st.error("Error saving.")
     
     # --- Top Stats Cards ---
     st.subheader(txt['stats'])
