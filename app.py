@@ -40,6 +40,7 @@ nav_options = {
     "Learning Hub": t["mode_learning"],
     "Training": t["mode_training"],
     "Exam": t["mode_exam"],
+    "Arcade": t.get("arcade_title", "Skills Challenge"),
     "Profile": t["mode_profile"]
 }
 
