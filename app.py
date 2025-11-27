@@ -39,6 +39,7 @@ nav_options = {
     "Home": "🏠 Home" if language == "English" else "🏠 الرئيسية",
     "Training": t["mode_training"],
     "Exam": t["mode_exam"],
+    "Learning Hub": t["mode_learning"],
     "Profile": t["mode_profile"]
 }
 
@@ -1641,7 +1642,13 @@ elif mode == t["mode_exam"]:
                         }
                     }
                     firebase_config.save_session(st.session_state.user_id, session_data)
-                
+
+# --- LEARNING HUB ---
+elif selected_mode == t["mode_learning"]:
+    from learning_hub import show
+    show(api_key, language)
+
+# --- PROFILE PAGE ---            
                 st.session_state.conversation_history = []
                 if 'coach_textarea_value' in st.session_state:
                     del st.session_state.coach_textarea_value
