@@ -165,10 +165,11 @@ def get_user_stats(user_id):
         total_arcade_points = sum([g.get('score', 0) for g in arcade_games])
         
         # Determine Rank
-        rank = "Novice Coach"
-        if total_arcade_points > 1000: rank = "Master Coach (MCC)"
-        elif total_arcade_points > 500: rank = "Professional Coach (PCC)"
-        elif total_arcade_points > 200: rank = "Associate Coach (ACC)"
+        # Determine Rank
+        rank_key = "rank_novice"
+        if total_arcade_points > 1000: rank_key = "rank_mcc"
+        elif total_arcade_points > 500: rank_key = "rank_pcc"
+        elif total_arcade_points > 200: rank_key = "rank_acc"
         
         return {
             'total_sessions': total_sessions,
@@ -176,7 +177,7 @@ def get_user_stats(user_id):
             'avg_score': round(avg_score, 1),
             'arcade_games': total_arcade_games,
             'arcade_points': total_arcade_points,
-            'rank': rank,
+            'rank_key': rank_key,
             'recent_sessions': sorted(sessions, key=lambda x: x.get('created_at', ''), reverse=True)[:5]
         }
         

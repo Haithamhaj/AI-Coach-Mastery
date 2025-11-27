@@ -75,7 +75,14 @@ def show(language="English"):
     c1.metric(txt['hours'], f"{user_stats['total_hours']}h")
     c2.metric(txt['sessions'], user_stats['total_sessions'])
     c3.metric(txt['avg_score'], f"{user_stats['avg_score']}%")
-    c4.metric(txt['arcade_rank'], user_stats['rank'])
+    
+    # Use markdown for Rank to avoid truncation and allow wrapping
+    rank_key = user_stats.get('rank_key', 'rank_novice')
+    rank_label = txt.get(rank_key, txt['rank_novice'])
+    
+    with c4:
+        st.caption(txt['arcade_rank'])
+        st.markdown(f"**{rank_label}**")
     
     st.markdown("---")
     
