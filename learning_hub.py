@@ -81,16 +81,30 @@ def show(api_key, language="English"):
             st.error("Competencies data not found.")
         else:
             for comp in comps:
-                with st.expander(f"**{comp['id']}: {comp['name']}**"):
-                    st.write(f"_{comp.get('description', '')}_")
+                with st.expander(f"{comp['id']}. {comp['name']}"):
+                    st.markdown(f"**Description:** {comp['definition']}")
                     
-                    if 'sub_competencies' in comp: # 2025 format might have sub-items
+                    # Key Points
+                    if 'key_points' in comp:
+                        st.markdown("#### 💡 Key Points" if language == "English" else "#### 💡 نقاط رئيسية")
+                        for point in comp['key_points']:
+                            st.markdown(f"- {point}")
+                            
+                    # Common Mistakes
+                    if 'common_mistakes' in comp:
+                        st.markdown("#### ⚠️ Common Mistakes" if language == "English" else "#### ⚠️ أخطاء شائعة")
+                        for mistake in comp['common_mistakes']:
+                            st.markdown(f"- {mistake}")
+                    
+                    # Sub-competencies / Markers (if available in this view)
+                    if 'sub_competencies' in comp:
+                        st.markdown("#### 📋 Detailed Markers" if language == "English" else "#### 📋 تفاصيل الجدارة")
                         for sub in comp['sub_competencies']:
-                            st.markdown(f"- {sub}")
-                    elif 'markers' in comp: # Fallback to markers if structure differs
-                        st.markdown("**Markers:**")
-                        for m in comp['markers']:
-                            st.markdown(f"- **{m['id']}**: {m['text']}")
+                            st.markdown(f"- **{sub['id']}**: {sub['text']}")
+                    elif 'markers' in comp and comp['markers']:
+                         st.markdown("#### 🎯 Markers" if language == "English" else "#### 🎯 المؤشرات")
+                         for m in comp['markers']:
+                             st.markdown(f"- **{m['id']}**: {m['text']}")
 
     # --- TAB 2: PCC MARKERS ---
     with tab2:

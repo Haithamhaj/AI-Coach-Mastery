@@ -4,6 +4,18 @@
       "id": "1",
       "name": "Demonstrates Ethical Practice",
       "definition": "Understands and consistently applies coaching ethics and standards of coaching",
+      "key_points": [
+        "Demonstrates personal integrity and honesty.",
+        "Is sensitive to client identity, environment, and values.",
+        "Strictly maintains confidentiality.",
+        "Distinguishes between coaching, consulting, and therapy."
+      ],
+      "common_mistakes": [
+        "Giving advice or consulting instead of coaching.",
+        "Failing to refer a client who needs therapy.",
+        "Breaching confidentiality without consent.",
+        "Imposing personal values on the client."
+      ],
       "sub_competencies": [
         {
           "id": "1.01",
@@ -35,6 +47,18 @@
       "id": "2",
       "name": "Embodies a Coaching Mindset",
       "definition": "Engages in ongoing personal and professional learning and development as a coach. Works with coaching supervisors or mentor coaches as needed. Develops and maintains a mindset that is open, curious, flexible and client -centered.",
+      "key_points": [
+        "Acknowledges client responsibility for choices.",
+        "Engages in ongoing learning and reflective practice.",
+        "Remains aware of bias and culture.",
+        "Manages own emotions and stays mentally/physically well."
+      ],
+      "common_mistakes": [
+        "Thinking the coach is the expert who must 'fix' the client.",
+        "Letting personal biases influence questions.",
+        "Getting emotionally entangled with the client's story.",
+        "Neglecting own professional development."
+      ],
       "sub_competencies": [
         {
           "id": "2.01",
@@ -82,6 +106,18 @@
       "id": "3",
       "name": "Establishes and Maintains Agreements",
       "definition": "Partners with the client and relevant stakeholders to create clear agreements about the coaching relationship, process, plans and goals. Establishes agreements for the overall coaching engagement as well as those for each coaching session.",
+      "key_points": [
+        "Partners to define what the client wants to accomplish (Goal).",
+        "Defines measures of success for the session.",
+        "Explores the importance/meaning of the topic.",
+        "Identifies barriers or what needs to be addressed."
+      ],
+      "common_mistakes": [
+        "Coach setting the topic or goal.",
+        "Vague goals ('I want to be better') without specific measures.",
+        "Skipping the agreement to 'dive in' too quickly.",
+        "Failing to check in on the agreement during the session."
+      ],
       "sub_competencies": [
         {
           "id": "3.01",
@@ -137,6 +173,18 @@
       "id": "4",
       "name": "Cultivates Trust and Safety",
       "definition": "Partners with the client to create a safe, supportive environment that allows the client to share freely. Maintains a relationship of mutual respect and trust.",
+      "key_points": [
+        "Acknowledges client's unique talents and insights.",
+        "Shows genuine empathy and concern.",
+        "Supports expression of feelings and fears.",
+        "Demonstrates openness and vulnerability."
+      ],
+      "common_mistakes": [
+        "Dismissing or ignoring strong emotions.",
+        "Being too clinical or distant.",
+        "Interrupting or talking over the client.",
+        "Judging the client's choices or feelings."
+      ],
       "sub_competencies": [
         {
           "id": "4.01",
@@ -168,6 +216,18 @@
       "id": "5",
       "name": "Maintains Presence",
       "definition": "Is fully conscious and present with the client, employing a style that is open, flexible, grounded and confident",
+      "key_points": [
+        "Remains focused, observant, and responsive.",
+        "Demonstrates curiosity (The 'Who' and the 'What').",
+        "Manages emotions to stay present.",
+        "Comfortable with not knowing and silence."
+      ],
+      "common_mistakes": [
+        "Thinking about the next question instead of listening.",
+        "Rushing to fill silence.",
+        "Being distracted by external factors or internal thoughts.",
+        "Sticking rigidly to a script or tool."
+      ],
       "sub_competencies": [
         {
           "id": "5.01",
@@ -203,6 +263,18 @@
       "id": "6",
       "name": "Listens Actively",
       "definition": "Focuses on what the client is and is not saying to fully understand what is being communicated in the context of the client systems and to support client self -expression",
+      "key_points": [
+        "Considers context, identity, and values.",
+        "Reflects and summarizes for clarity.",
+        "Explores emotions, energy shifts, and non-verbal cues.",
+        "Integrates words, tone, and body language."
+      ],
+      "common_mistakes": [
+        "Listening only to the words (surface listening).",
+        "Interrupting the client's flow.",
+        "Ignoring emotional or energetic shifts.",
+        "Failing to confirm understanding (summarizing)."
+      ],
       "sub_competencies": [
         {
           "id": "6.01",
@@ -234,6 +306,18 @@
       "id": "7",
       "name": "Evokes Awareness",
       "definition": "Facilitates client insight and learning by using tools and techniques such as powerful questioning, silence, metaphor or analogy",
+      "key_points": [
+        "Asks questions about the client (The Who) not just the problem.",
+        "Challenges assumptions to evoke new awareness.",
+        "Uses metaphors and analogies.",
+        "Shares observations without attachment."
+      ],
+      "common_mistakes": [
+        "Asking 'Leading Questions' (disguised advice).",
+        "Stacking multiple questions at once.",
+        "Asking closed questions (Yes/No) that kill exploration.",
+        "Focusing only on solving the problem, not the person."
+      ],
       "sub_competencies": [
         {
           "id": "7.01",
@@ -285,6 +369,18 @@
       "id": "8",
       "name": "Facilitates Client Growth",
       "definition": "Partners with the client to transform learning and insight into action. Promotes client autonomy in the coaching process.",
+      "key_points": [
+        "Integrates new awareness into action steps.",
+        "Partners to design goals, actions, and accountability.",
+        "Identifies resources and potential barriers.",
+        "Celebrates progress and learning."
+      ],
+      "common_mistakes": [
+        "Coach assigning 'homework' instead of partnering.",
+        "Vague action plans ('I'll try harder').",
+        "Skipping the accountability check.",
+        "Ending the session without a clear closing."
+      ],
       "sub_competencies": [
         {
           "id": "8.01",
