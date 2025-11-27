@@ -576,6 +576,11 @@ st.title(t["title"])
 if mode == "Home":
     show_user_dashboard(st.session_state.user_email, is_admin_user, language)
 
+# --- LEARNING HUB ---
+elif mode == t["mode_learning"]:
+    from learning_hub import show
+    show(api_key, language)
+
 # --- PROFILE PAGE ---
 elif mode == t["mode_profile"]:
     import profile_page
@@ -1643,12 +1648,7 @@ elif mode == t["mode_exam"]:
                     }
                     firebase_config.save_session(st.session_state.user_id, session_data)
 
-# --- LEARNING HUB ---
-elif selected_mode == t["mode_learning"]:
-    from learning_hub import show
-    show(api_key, language)
-
-# --- PROFILE PAGE ---            
+            
                 st.session_state.conversation_history = []
                 if 'coach_textarea_value' in st.session_state:
                     del st.session_state.coach_textarea_value
