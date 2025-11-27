@@ -81,32 +81,61 @@ def show(api_key, language="English"):
         if not comps:
             st.error("Competencies data not found.")
         else:
-            for comp in comps:
-                with st.expander(f"{comp['id']}. {comp['name']}"):
-                    desc_label = "التعريف" if language == "العربية" else "Description"
-                    st.markdown(f"**{desc_label}:** {comp['definition']}")
-                    
-                    # Key Points
-                    if 'key_points' in comp:
-                        st.markdown("#### 💡 Key Points" if language == "English" else "#### 💡 نقاط رئيسية")
-                        for point in comp['key_points']:
-                            st.markdown(f"- {point}")
-                            
-                    # Common Mistakes
-                    if 'common_mistakes' in comp:
-                        st.markdown("#### ⚠️ Common Mistakes" if language == "English" else "#### ⚠️ أخطاء شائعة")
-                        for mistake in comp['common_mistakes']:
-                            st.markdown(f"- {mistake}")
-                    
-                    # Sub-competencies / Markers (if available in this view)
-                    if 'sub_competencies' in comp:
-                        st.markdown("#### 📋 Detailed Markers" if language == "English" else "#### 📋 تفاصيل الجدارة")
-                        for sub in comp['sub_competencies']:
-                            st.markdown(f"- **{sub['id']}**: {sub['text']}")
-                    elif 'markers' in comp and comp['markers']:
-                         st.markdown("#### 🎯 Markers" if language == "English" else "#### 🎯 المؤشرات")
-                         for m in comp['markers']:
-                             st.markdown(f"- **{m['id']}**: {m['text']}")
+            # 1. Selection Area (Horizontal Scroll/Pills)
+            comp_names = [f"{c['id']}. {c['name']}" for c in comps]
+            selected_comp_name = st.radio(
+                "Select Competency", 
+                comp_names, 
+                horizontal=True, 
+                label_visibility="collapsed"
+            )
+            
+            # Find selected competency data
+            selected_comp = next((c for c in comps if f"{c['id']}. {c['name']}" == selected_comp_name), comps[0])
+            
+            st.markdown("---")
+            
+            # 2. Detailed View
+            st.header(f"📘 {selected_comp['name']}")
+            
+            # Definition Box
+            desc_label = "التعريف" if language == "العربية" else "Definition"
+            st.info(f"**{desc_label}:** {selected_comp['definition']}")
+            
+            # Tabs for Details
+            c_tab1, c_tab2, c_tab3 = st.tabs([
+                "💡 " + ("Key Points" if language == "English" else "نقاط رئيسية"),
+                "⚠️ " + ("Mistakes" if language == "English" else "أخطاء شائعة"),
+                "🎯 " + ("Markers" if language == "English" else "المؤشرات")
+            ])
+            
+            with c_tab1:
+                if 'key_points' in selected_comp:
+                    for point in selected_comp['key_points']:
+                        st.success(f"**•** {point}")
+                else:
+                    st.caption("No key points available.")
+
+            with c_tab2:
+                if 'common_mistakes' in selected_comp:
+                    for mistake in selected_comp['common_mistakes']:
+                        st.warning(f"**•** {mistake}")
+                else:
+                    st.caption("No common mistakes listed.")
+
+            with c_tab3:
+                if 'sub_competencies' in selected_comp:
+                    for sub in selected_comp['sub_competencies']:
+                        st.markdown(f"##### {sub['id']}")
+                        st.write(f"{sub['text']}")
+                        st.divider()
+                elif 'markers' in selected_comp and selected_comp['markers']:
+                    for m in selected_comp['markers']:
+                        st.markdown(f"##### {m['id']}")
+                        st.write(f"{m['text']}")
+                        st.divider()
+                else:
+                    st.caption("No markers available.")
 
     # --- TAB 2: PCC MARKERS ---
     with tab2:
