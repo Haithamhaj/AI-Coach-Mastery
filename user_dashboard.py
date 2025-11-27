@@ -29,7 +29,11 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "profile_title": "My Coach Profile",
             "admin_title": "Admin Dashboard",
             "arcade_title": "Speed Skills Challenge",
-            "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
+            "arcade_title": "Speed Skills Challenge",
+            "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way.",
+            "learning_title": "Learning Hub",
+            "learning_desc": "Master ICF Competencies, Markers, and GROW Model with AI Tutor.",
+            "start_learning": "Go to Hub"
         },
         "العربية": {
             "welcome": "مرحباً بعودتك،",
@@ -51,7 +55,11 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "profile_title": "ملفي ككوتش",
             "admin_title": "لوحة المشرف",
             "arcade_title": "تحدّي المهارات السريعة",
-            "arcade_desc": "اختبر سرعة التقاطك لمؤشرات الكوتشينج من خلال تحدّي المهارات السريعة."
+            "arcade_title": "تحدّي المهارات السريعة",
+            "arcade_desc": "اختبر سرعة التقاطك لمؤشرات الكوتشينج من خلال تحدّي المهارات السريعة.",
+            "learning_title": "مركز المعرفة",
+            "learning_desc": "أتقن جدارات ICF والمؤشرات ونموذج GROW مع المعلم الذكي.",
+            "start_learning": "اذهب للمركز"
         }
     }
     
@@ -113,8 +121,21 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
     # Grid Layout
     c1, c2 = st.columns(2)
     
-    # Card 1: Training
+    # Card 1: Learning Hub (NEW - First Position)
     with c1:
+        with st.container():
+            st.markdown(f"""
+            <div class="nav-card">
+                <div class="card-title">📚 {txt['learning_title']}</div>
+                <div class="card-desc">{txt['learning_desc']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button(txt['start_learning'], key="btn_nav_learning", use_container_width=True):
+                st.session_state.current_page = "Learning Hub"
+                st.rerun()
+
+    # Card 2: Training
+    with c2:
         with st.container():
             st.markdown(f"""
             <div class="nav-card">
@@ -126,8 +147,11 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
                 st.session_state.current_page = "Training"
                 st.rerun()
 
-    # Card 2: Exam
-    with c2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    c3, c4 = st.columns(2)
+
+    # Card 3: Exam
+    with c3:
         with st.container():
             st.markdown(f"""
             <div class="nav-card">
@@ -139,10 +163,8 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
                 st.session_state.current_page = "Exam"
                 st.rerun()
 
-    # Card 3: Arcade (New)
-    st.markdown("<br>", unsafe_allow_html=True)
-    c3, c4 = st.columns(2)
-    with c3:
+    # Card 4: Arcade
+    with c4:
         with st.container():
             st.markdown(f"""
             <div class="nav-card">
@@ -154,7 +176,10 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
                 st.session_state.current_page = "Arcade"
                 st.rerun()
     
-    with c4:
+    st.markdown("<br>", unsafe_allow_html=True)
+    c5, c6 = st.columns(2)
+    
+    with c5:
         with st.container():
             st.markdown(f"""
             <div class="nav-card">

@@ -37,9 +37,9 @@ if 'current_page' not in st.session_state:
 # Sidebar Navigation Options
 nav_options = {
     "Home": "🏠 Home" if language == "English" else "🏠 الرئيسية",
+    "Learning Hub": t["mode_learning"],
     "Training": t["mode_training"],
     "Exam": t["mode_exam"],
-    "Learning Hub": t["mode_learning"],
     "Profile": t["mode_profile"]
 }
 
