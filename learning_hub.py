@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 from knowledge_bot import KnowledgeEngine
+from icf_data_arabic import COMPETENCIES_AR
 
 def show(api_key, language="English"):
     """
@@ -71,7 +72,10 @@ def show(api_key, language="English"):
         st.header(txt['tab_comp'])
         
         # Load Competencies
-        comps = st.session_state.knowledge_engine.context_data.get('competencies', [])
+        if language == "العربية":
+            comps = COMPETENCIES_AR
+        else:
+            comps = st.session_state.knowledge_engine.context_data.get('competencies', [])
         
         if not comps:
             st.error("Competencies data not found.")
@@ -93,8 +97,10 @@ def show(api_key, language="English"):
         st.header(txt['tab_markers'])
         
         # Load Markers
-        # Assuming markers.json structure is {competencies: [{id, name, markers: []}]}
-        markers_data = st.session_state.knowledge_engine.context_data.get('markers', [])
+        if language == "العربية":
+            markers_data = COMPETENCIES_AR # Structure matches
+        else:
+            markers_data = st.session_state.knowledge_engine.context_data.get('markers', [])
         
         if not markers_data:
             st.error("Markers data not found.")
@@ -132,29 +138,42 @@ def show(api_key, language="English"):
         
         col1, col2, col3, col4 = st.columns(4)
         
+        # Translations for GROW descriptions
+        grow_desc_g = "تحديد الهدف." if language == "العربية" else "Defining the objective."
+        grow_q_g = "- ماذا تريد أن تحقق؟\n- ما أهمية هذا الأمر؟" if language == "العربية" else "- What do you want to achieve?\n- What is important about this?"
+        
+        grow_desc_r = "استكشاف الوضع الحالي." if language == "العربية" else "Exploring the current situation."
+        grow_q_r = "- ماذا يحدث الآن؟\n- ما الذي جربته حتى الآن؟" if language == "العربية" else "- What is happening now?\n- What have you tried so far?"
+        
+        grow_desc_o = "توليد الأفكار والاستراتيجيات." if language == "العربية" else "Generating ideas and strategies."
+        grow_q_o = "- ماذا يمكن أن تفعل؟\n- ما هي الإيجابيات/السلبيات؟" if language == "العربية" else "- What could you do?\n- What are the pros/cons?"
+        
+        grow_desc_w = "الالتزام بالعمل." if language == "العربية" else "Committing to action."
+        grow_q_w = "- ماذا ستفعل؟\n- متى ستبدأ؟" if language == "العربية" else "- What will you do?\n- When will you start?"
+
         with col1:
             st.success(f"### {txt['grow_g']}")
-            st.write("Defining the objective.")
-            with st.expander("Questions"):
-                st.markdown("- What do you want to achieve?\n- What is important about this?")
+            st.write(grow_desc_g)
+            with st.expander("Questions" if language == "English" else "أسئلة"):
+                st.markdown(grow_q_g)
                 
         with col2:
             st.warning(f"### {txt['grow_r']}")
-            st.write("Exploring the current situation.")
-            with st.expander("Questions"):
-                st.markdown("- What is happening now?\n- What have you tried so far?")
+            st.write(grow_desc_r)
+            with st.expander("Questions" if language == "English" else "أسئلة"):
+                st.markdown(grow_q_r)
                 
         with col3:
             st.info(f"### {txt['grow_o']}")
-            st.write("Generating ideas and strategies.")
-            with st.expander("Questions"):
-                st.markdown("- What could you do?\n- What are the pros/cons?")
+            st.write(grow_desc_o)
+            with st.expander("Questions" if language == "English" else "أسئلة"):
+                st.markdown(grow_q_o)
                 
         with col4:
             st.error(f"### {txt['grow_w']}")
-            st.write("Committing to action.")
-            with st.expander("Questions"):
-                st.markdown("- What will you do?\n- When will you start?")
+            st.write(grow_desc_w)
+            with st.expander("Questions" if language == "English" else "أسئلة"):
+                st.markdown(grow_q_w)
 
     # --- TAB 4: AI TUTOR ---
     with tab4:
