@@ -1287,9 +1287,7 @@ elif mode == t["mode_exam"]:
                 if current_tip:
                     st.caption(current_tip)
             
-            with col4:
 
-            
             st.markdown("---")
             
             # Display conversation
