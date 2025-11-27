@@ -163,11 +163,9 @@ def show(api_key, language="English"):
             with column:
                 color_func(f"### {phase['name']}")
                 st.write(f"**{phase['description']}**")
+                st.markdown(f"{phase['details']}")
                 
-                with st.expander("Details & Tips" if language == "English" else "التفاصيل والنصائح"):
-                    st.markdown(f"_{phase['details']}_")
-                    st.markdown("---")
-                    
+                with st.expander("💡 Tips & Mistakes" if language == "English" else "💡 نصائح وأخطاء"):
                     st.markdown("#### 💡 Tips" if language == "English" else "#### 💡 نصائح")
                     for point in phase['key_points']:
                         st.markdown(f"- {point}")
