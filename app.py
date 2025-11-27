@@ -20,6 +20,11 @@ import user_dashboard as user_dashboard_module
 importlib.reload(user_dashboard_module)
 from user_dashboard import show_user_dashboard
 
+# Sidebar Language Selector
+st.sidebar.image("logo.jpg", width=200)
+language = st.sidebar.selectbox("Language / اللغة", ["English", "العربية"], key="language_selector")
+t = translations[language]
+
 # Navigation State
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "Home"
