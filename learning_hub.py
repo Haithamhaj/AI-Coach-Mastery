@@ -81,16 +81,24 @@ def show(api_key, language="English"):
         if not comps:
             st.error("Competencies data not found.")
         else:
-            # 1. Selection Area (Selectbox)
-            comp_names = [f"{c['id']}. {c['name']}" for c in comps]
-            selected_comp_name = st.selectbox(
-                "Select Competency", 
-                comp_names, 
-                label_visibility="collapsed"
-            )
+            # 1. Selection Area (Interactive Cards)
+            if 'selected_comp_id' not in st.session_state:
+                st.session_state.selected_comp_id = comps[0]['id']
+
+            st.markdown("### " + ("Select a Competency" if language == "English" else "اختر جدارة"))
+            
+            # Create rows of 4
+            cols = st.columns(4)
+            for i, c in enumerate(comps):
+                with cols[i % 4]:
+                    # Highlight the selected one? Streamlit buttons don't support active state styling easily, 
+                    # but we can use the label or disabled state to indicate selection if needed.
+                    # For now, just standard buttons.
+                    if st.button(f"📘 {c['id']}", key=f"comp_btn_{c['id']}", use_container_width=True, help=c['name']):
+                        st.session_state.selected_comp_id = c['id']
             
             # Find selected competency data
-            selected_comp = next((c for c in comps if f"{c['id']}. {c['name']}" == selected_comp_name), comps[0])
+            selected_comp = next((c for c in comps if c['id'] == st.session_state.selected_comp_id), comps[0])
             
             st.markdown("---")
             
