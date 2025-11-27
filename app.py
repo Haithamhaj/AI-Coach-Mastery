@@ -1288,11 +1288,7 @@ elif mode == t["mode_exam"]:
                     st.caption(current_tip)
             
             with col4:
-                                'report_json': st.session_state.final_session_report
-                            }
-                            firebase_config.save_session(st.session_state.user_id, session_data)
-                    
-                    st.rerun()
+
             
             st.markdown("---")
             
