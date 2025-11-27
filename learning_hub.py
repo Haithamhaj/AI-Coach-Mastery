@@ -3,6 +3,7 @@ import json
 import os
 from knowledge_bot import KnowledgeEngine
 from icf_data_arabic import COMPETENCIES_AR
+from grow_model_data import GROW_MODEL_EN, GROW_MODEL_AR
 
 def show(api_key, language="English"):
     """
@@ -151,44 +152,38 @@ def show(api_key, language="English"):
         st.header(txt['tab_grow'])
         st.write(txt['grow_desc'])
         
+        # Select Data based on Language
+        grow_data = GROW_MODEL_AR if language == "العربية" else GROW_MODEL_EN
+        
         col1, col2, col3, col4 = st.columns(4)
         
-        # Translations for GROW descriptions
-        grow_desc_g = "تحديد الهدف." if language == "العربية" else "Defining the objective."
-        grow_q_g = "- ماذا تريد أن تحقق؟\n- ما أهمية هذا الأمر؟" if language == "العربية" else "- What do you want to achieve?\n- What is important about this?"
-        
-        grow_desc_r = "استكشاف الوضع الحالي." if language == "العربية" else "Exploring the current situation."
-        grow_q_r = "- ماذا يحدث الآن؟\n- ما الذي جربته حتى الآن؟" if language == "العربية" else "- What is happening now?\n- What have you tried so far?"
-        
-        grow_desc_o = "توليد الأفكار والاستراتيجيات." if language == "العربية" else "Generating ideas and strategies."
-        grow_q_o = "- ماذا يمكن أن تفعل؟\n- ما هي الإيجابيات/السلبيات؟" if language == "العربية" else "- What could you do?\n- What are the pros/cons?"
-        
-        grow_desc_w = "الالتزام بالعمل." if language == "العربية" else "Committing to action."
-        grow_q_w = "- ماذا ستفعل؟\n- متى ستبدأ؟" if language == "العربية" else "- What will you do?\n- When will you start?"
+        # Helper to render GROW card
+        def render_grow_card(column, phase_key, color_func):
+            phase = grow_data[phase_key]
+            with column:
+                color_func(f"### {phase['name']}")
+                st.write(f"**{phase['description']}**")
+                
+                with st.expander("Details & Tips" if language == "English" else "التفاصيل والنصائح"):
+                    st.markdown(f"_{phase['details']}_")
+                    st.markdown("---")
+                    
+                    st.markdown("#### 💡 Tips" if language == "English" else "#### 💡 نصائح")
+                    for point in phase['key_points']:
+                        st.markdown(f"- {point}")
+                        
+                    st.markdown("#### ⚠️ Mistakes" if language == "English" else "#### ⚠️ أخطاء")
+                    for mistake in phase['common_mistakes']:
+                        st.markdown(f"- {mistake}")
 
-        with col1:
-            st.success(f"### {txt['grow_g']}")
-            st.write(grow_desc_g)
-            with st.expander("Questions" if language == "English" else "أسئلة"):
-                st.markdown(grow_q_g)
-                
-        with col2:
-            st.warning(f"### {txt['grow_r']}")
-            st.write(grow_desc_r)
-            with st.expander("Questions" if language == "English" else "أسئلة"):
-                st.markdown(grow_q_r)
-                
-        with col3:
-            st.info(f"### {txt['grow_o']}")
-            st.write(grow_desc_o)
-            with st.expander("Questions" if language == "English" else "أسئلة"):
-                st.markdown(grow_q_o)
-                
-        with col4:
-            st.error(f"### {txt['grow_w']}")
-            st.write(grow_desc_w)
-            with st.expander("Questions" if language == "English" else "أسئلة"):
-                st.markdown(grow_q_w)
+                with st.expander("Questions" if language == "English" else "أسئلة مقترحة"):
+                    for q in phase['questions']:
+                        st.markdown(f"- {q}")
+
+        render_grow_card(col1, "G", st.success)
+        render_grow_card(col2, "R", st.warning)
+        render_grow_card(col3, "O", st.info)
+        render_grow_card(col4, "W", st.error)
 
     # --- TAB 4: AI TUTOR ---
     with tab4:
