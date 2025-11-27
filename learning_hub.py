@@ -81,12 +81,11 @@ def show(api_key, language="English"):
         if not comps:
             st.error("Competencies data not found.")
         else:
-            # 1. Selection Area (Horizontal Scroll/Pills)
+            # 1. Selection Area (Selectbox)
             comp_names = [f"{c['id']}. {c['name']}" for c in comps]
-            selected_comp_name = st.radio(
+            selected_comp_name = st.selectbox(
                 "Select Competency", 
                 comp_names, 
-                horizontal=True, 
                 label_visibility="collapsed"
             )
             
@@ -146,18 +145,16 @@ def show(api_key, language="English"):
         if not markers_data:
             st.error("Markers data not found.")
         else:
-            # Search Bar
-            search_term = st.text_input("🔍 " + txt['marker_search'], placeholder="Type to search...")
-            
-            # Filter (Horizontal Radio)
+            # Filter (Selectbox for cleaner UI)
             comp_names = ["All"] + [f"{c['id']}. {c['name']}" for c in markers_data]
-            selected_filter = st.radio(
-                "Filter by Competency", 
-                comp_names, 
-                horizontal=True, 
-                label_visibility="collapsed",
-                key="marker_filter"
+            selected_filter = st.selectbox(
+                "📂 " + ("Select Competency to Explore" if language == "English" else "اختر الجدارة لاستعراض المؤشرات"), 
+                comp_names,
             )
+            
+            # Search (Hidden by default)
+            with st.expander("🔍 " + ("Search specific marker..." if language == "English" else "البحث عن مؤشر محدد...")):
+                search_term = st.text_input("Search", label_visibility="collapsed", placeholder="Type to search...")
             
             st.markdown("---")
             
@@ -180,7 +177,10 @@ def show(api_key, language="English"):
                 
                 if matching_markers:
                     found_any = True
-                    st.subheader(f"📘 {comp['name']}")
+                    # Competency Header
+                    st.markdown(f"### 📘 {comp['name']}")
+                    if selected_filter != "All":
+                        st.caption(comp['definition'])
                     
                     # Grid Layout for Markers
                     cols = st.columns(2) # 2 cards per row
