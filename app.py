@@ -522,6 +522,8 @@ if not api_key:
 # This maps the new page keys to the old mode strings expected by the rest of the app
 if st.session_state.current_page == "Training":
     mode = t["mode_training"]
+elif st.session_state.current_page == "Learning Hub":
+    mode = t["mode_learning"]
 elif st.session_state.current_page == "Exam":
     mode = t["mode_exam"]
 elif st.session_state.current_page == "Admin":
