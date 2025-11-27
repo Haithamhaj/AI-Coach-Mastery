@@ -79,9 +79,30 @@ def show(language="English"):
             "weekly_plan": "خطتك لهذا الأسبوع",
             "read": "📖 اقرأ",
             "drill": "🎮 تمرن",
-            "challenge": "🧘 تحدي"
+            "challenge": "🧘 تحدي",
+            "edit_profile": "✏️ تعديل الملف",
+            "lbl_name": "الاسم المعروض",
+            "lbl_title": "المسمى الوظيفي",
+            "lbl_exp": "الخبرة",
+            "lbl_focus": "مجالات التركيز",
+            "btn_save": "حفظ",
+            "exp_opts": ["0-2 سنوات", "2-5 سنوات", "5-10 سنوات", "+10 سنوات"],
+            "focus_opts": ["تنفيذي", "حياة", "مهني", "أعمال", "صحة/عافية"]
         }
     }
+    
+    # Add missing English keys for consistency
+    if "edit_profile" not in t["English"]:
+        t["English"].update({
+            "edit_profile": "✏️ Edit Profile",
+            "lbl_name": "Display Name",
+            "lbl_title": "Title",
+            "lbl_exp": "Experience",
+            "lbl_focus": "Focus Areas",
+            "btn_save": "Save",
+            "exp_opts": ["0-2 Years", "2-5 Years", "5-10 Years", "10+ Years"],
+            "focus_opts": ["Executive", "Life", "Career", "Business", "Wellness"]
+        })
     
     txt = t[language]
     
@@ -105,14 +126,32 @@ def show(language="English"):
         st.caption(f"{user_title} | {txt['subtitle']}")
         
     with col_edit:
-        with st.popover("✏️ Edit Profile" if language == "English" else "✏️ تعديل الملف"):
+        with st.popover(txt['edit_profile']):
             with st.form("edit_profile_form"):
-                new_name = st.text_input("Display Name / الاسم المعروض", value=user_profile.get('display_name', ''))
-                new_title = st.text_input("Title / المسمى الوظيفي", value=user_profile.get('title', ''))
-                experience = st.selectbox("Experience / الخبرة", ["0-2 Years", "2-5 Years", "5-10 Years", "10+ Years"], index=0)
-                focus_areas = st.multiselect("Focus Areas / مجالات التركيز", ["Executive", "Life", "Career", "Business", "Wellness"], default=user_profile.get('focus_areas', []))
+                new_name = st.text_input(txt['lbl_name'], value=user_profile.get('display_name', ''))
+                new_title = st.text_input(txt['lbl_title'], value=user_profile.get('title', ''))
                 
-                if st.form_submit_button("Save / حفظ"):
+                # Handle Experience Selection (Map back to index if possible, or just save string)
+                # For simplicity, we'll save the localized string. 
+                # If we needed strict data types, we'd map keys.
+                current_exp = user_profile.get('experience', txt['exp_opts'][0])
+                exp_index = 0
+                if current_exp in txt['exp_opts']:
+                    exp_index = txt['exp_opts'].index(current_exp)
+                
+                experience = st.selectbox(txt['lbl_exp'], txt['exp_opts'], index=exp_index)
+                
+                # Handle Focus Areas
+                # If saved data is in a different language, it might not show up as selected default.
+                # Ideally we store keys (e.g. 'executive') and map to display.
+                # But for now, let's just use the localized options.
+                # We try to match existing values if they exist in the current options list.
+                saved_focus = user_profile.get('focus_areas', [])
+                valid_defaults = [f for f in saved_focus if f in txt['focus_opts']]
+                
+                focus_areas = st.multiselect(txt['lbl_focus'], txt['focus_opts'], default=valid_defaults)
+                
+                if st.form_submit_button(txt['btn_save']):
                     updates = {
                         'display_name': new_name,
                         'title': new_title,
@@ -120,20 +159,29 @@ def show(language="English"):
                         'focus_areas': focus_areas
                     }
                     if update_user_profile(st.session_state.user_email, updates):
-                        st.success("Saved!")
+                        st.success("Saved!" if language == "English" else "تم الحفظ!")
                         st.rerun()
                     else:
-                        st.error("Error saving.")
+                        st.error("Error saving." if language == "English" else "خطأ في الحفظ.")
 
     st.markdown("---")
 
     # --- Stats & Progress ---
     user_stats = get_user_stats(st.session_state.user_email)
     
+    # If no stats, create default empty stats so the UI still shows
     if not user_stats:
+        user_stats = {
+            'total_sessions': 0,
+            'total_hours': 0,
+            'avg_score': 0,
+            'arcade_games': 0,
+            'arcade_points': 0,
+            'rank_key': 'rank_novice',
+            'recent_sessions': []
+        }
+        # Optional: Show a small tip that they can start
         st.info(txt['no_data'])
-        # Even if no stats, we let them see the empty profile structure or just stop here for stats
-        return
         
     # --- Top Stats Cards ---
     st.subheader(txt['stats'])
