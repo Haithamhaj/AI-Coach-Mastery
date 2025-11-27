@@ -24,11 +24,11 @@ def show_user_dashboard(user_email, is_admin=False, language="English"):
             "exam_desc": "Full coaching session simulation with comprehensive evaluation.",
             "profile_desc": "Track your progress, history, and manage your account.",
             "admin_desc": "Manage users, view analytics, and system settings.",
-            "gym_title": "Training Mode (Practice)",
-            "exam_title": "Exam Simulation",
-            "profile_title": "My Profile",
+            "gym_title": "Session Analysis Lab",
+            "exam_title": "Training Lab",
+            "profile_title": "My Coach Profile",
             "admin_title": "Admin Dashboard",
-            "arcade_title": "The Arcade (Game)",
+            "arcade_title": "Speed Skills Challenge",
             "arcade_desc": "Play 'Spot-It Pro' to master competencies and markers in a fun way."
         },
         "العربية": {
