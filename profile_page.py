@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from firebase_config import get_user_stats
+from recommendation_engine import analyze_performance
 
 def show(language="English"):
     """
@@ -47,7 +48,38 @@ def show(language="English"):
             "rank_novice": "كوتش مبتدئ",
             "rank_acc": "كوتش مشارك (ACC)",
             "rank_pcc": "كوتش محترف (PCC)",
-            "rank_mcc": "كوتش خبير (MCC)"
+            "rank_mcc": "كوتش خبير (MCC)",
+            "smart_plan": "Smart Development Plan",
+            "focus_area": "⚠️ Focus Area",
+            "weekly_plan": "Your Plan for this Week",
+            "read": "📖 Read",
+            "drill": "🎮 Drill",
+            "challenge": "🧘 Challenge"
+        },
+        "العربية": {
+            "title": "ملفي ككوتش",
+            "subtitle": "تتبع رحلتك نحو إتقان الكوتشينج",
+            "stats": "نظرة عامة على الأداء",
+            "hours": "ساعات التدريب",
+            "sessions": "الجلسات",
+            "avg_score": "متوسط الأداء",
+            "arcade_rank": "تصنيف الأركيد",
+            "competency_radar": "رادار الجدارات",
+            "history": "النشاط الأخير",
+            "date": "التاريخ",
+            "type": "النوع",
+            "score": "النتيجة",
+            "no_data": "لا توجد بيانات تدريب بعد. ابدأ جلسة الآن!",
+            "rank_novice": "كوتش مبتدئ",
+            "rank_acc": "كوتش مشارك (ACC)",
+            "rank_pcc": "كوتش محترف (PCC)",
+            "rank_mcc": "كوتش خبير (MCC)",
+            "smart_plan": "خطة التطوير الذكية",
+            "focus_area": "⚠️ منطقة التركيز",
+            "weekly_plan": "خطتك لهذا الأسبوع",
+            "read": "📖 اقرأ",
+            "drill": "🎮 تمرن",
+            "challenge": "🧘 تحدي"
         }
     }
     
@@ -84,6 +116,37 @@ def show(language="English"):
         st.caption(txt['arcade_rank'])
         st.markdown(f"**{rank_label}**")
     
+    st.markdown("---")
+    
+    # --- Smart Development Plan ---
+    st.subheader(f"🎯 {txt['smart_plan']}")
+    
+    # Get Recommendation
+    smart_plan = analyze_performance(st.session_state.user_email)
+    
+    if smart_plan:
+        focus = smart_plan['focus_area']
+        plan = smart_plan['plan']
+        
+        # Focus Area Alert
+        st.warning(f"**{txt['focus_area']}: {focus['name']}**\n\nYour average score here is **{focus['avg_score']}%**. Let's work on this!")
+        
+        st.write(f"### {txt['weekly_plan']}")
+        
+        col_p1, col_p2, col_p3 = st.columns(3)
+        
+        with col_p1:
+            st.info(f"**{txt['read']}**\n\n{plan['read']}")
+            
+        with col_p2:
+            st.success(f"**{txt['drill']}**\n\n{plan['drill']}")
+            
+        with col_p3:
+            st.error(f"**{txt['challenge']}**\n\n{plan['challenge']}")
+            
+    else:
+        st.info("Play more sessions to unlock your Smart Plan!")
+        
     st.markdown("---")
     
     # --- Charts Section ---
