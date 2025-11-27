@@ -145,25 +145,41 @@ def show(api_key, language="English"):
         if not markers_data:
             st.error("Markers data not found.")
         else:
-            # Filter (Selectbox for cleaner UI)
-            comp_names = ["All"] + [f"{c['id']}. {c['name']}" for c in markers_data]
-            selected_filter = st.selectbox(
-                "📂 " + ("Select Competency to Explore" if language == "English" else "اختر الجدارة لاستعراض المؤشرات"), 
-                comp_names,
-            )
+            # Initialize selection state
+            if 'selected_marker_comp' not in st.session_state:
+                st.session_state.selected_marker_comp = "All"
+
+            # Competency Grid (Cards)
+            st.markdown("### " + ("Select a Competency" if language == "English" else "اختر جدارة"))
+            
+            # Create rows of 4
+            cols = st.columns(4)
+            for i, comp in enumerate(markers_data):
+                with cols[i % 4]:
+                    # Shorten name for button if needed, or use full
+                    btn_label = f"{comp['id']}"
+                    if st.button(f"📘 {comp['id']}", key=f"btn_{comp['id']}", use_container_width=True, help=comp['name']):
+                        st.session_state.selected_marker_comp = f"{comp['id']}. {comp['name']}"
+            
+            # Show selected competency name
+            if st.session_state.selected_marker_comp != "All":
+                st.info(f"**Selected:** {st.session_state.selected_marker_comp}")
+                if st.button("Show All" if language == "English" else "عرض الكل"):
+                     st.session_state.selected_marker_comp = "All"
+                     st.rerun()
+
+            st.markdown("---")
             
             # Search (Hidden by default)
             with st.expander("🔍 " + ("Search specific marker..." if language == "English" else "البحث عن مؤشر محدد...")):
                 search_term = st.text_input("Search", label_visibility="collapsed", placeholder="Type to search...")
-            
-            st.markdown("---")
             
             # Display Logic
             found_any = False
             for comp in markers_data:
                 # Filter check
                 comp_label = f"{comp['id']}. {comp['name']}"
-                if selected_filter != "All" and comp_label != selected_filter:
+                if st.session_state.selected_marker_comp != "All" and comp_label != st.session_state.selected_marker_comp:
                     continue
                 
                 # Search check (filter markers inside comp)
@@ -179,14 +195,16 @@ def show(api_key, language="English"):
                     found_any = True
                     # Competency Header
                     st.markdown(f"### 📘 {comp['name']}")
-                    if selected_filter != "All":
-                        st.caption(comp['definition'])
+                    st.caption(comp['definition'])
                     
                     # Grid Layout for Markers
                     cols = st.columns(2) # 2 cards per row
                     for i, m in enumerate(matching_markers):
                         with cols[i % 2]:
                             st.info(f"**{m['id']}**\n\n{m['text']}")
+            
+            if not found_any:
+                st.warning("No markers found matching your criteria.")
             
             if not found_any:
                 st.warning("No markers found matching your criteria.")
