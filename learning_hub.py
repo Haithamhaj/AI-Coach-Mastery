@@ -203,7 +203,7 @@ def show(api_key, language="English"):
                     found_any = True
                     # Competency Header
                     st.markdown(f"### 📘 {comp['name']}")
-                    st.caption(comp['definition'])
+                    st.caption(comp.get('definition', comp.get('description', '')))
                     
                     # Grid Layout for Markers
                     cols = st.columns(2) # 2 cards per row
