@@ -8,7 +8,14 @@ import streamlit as st
 
 class TokenTracker:
     def __init__(self):
-        self.db = firestore.client()
+        try:
+            if firebase_admin._apps:
+                self.db = firestore.client()
+            else:
+                self.db = None
+        except Exception as e:
+            print(f"TokenTracker init error: {e}")
+            self.db = None
     
     def log_api_call(self, user_id, service_type, tokens_used, model="gemini-flash", session_id=None):
         """
@@ -22,6 +29,9 @@ class TokenTracker:
             session_id: Optional session identifier
         """
         try:
+            if not self.db:
+                return False
+                
             # Calculate cost
             cost = self.calculate_cost(tokens_used.get('total', 0), model)
             
