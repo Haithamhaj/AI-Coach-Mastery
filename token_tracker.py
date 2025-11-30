@@ -79,6 +79,9 @@ class TokenTracker:
     
     def _update_user_usage(self, user_id, tokens, cost):
         """Update user's total usage statistics"""
+        if not self.db:
+            return
+            
         try:
             user_ref = self.db.collection('users').document(user_id)
             user_doc = user_ref.get()
@@ -110,6 +113,9 @@ class TokenTracker:
     
     def get_user_usage(self, user_id):
         """Get total usage for a specific user"""
+        if not self.db:
+            return {}
+            
         try:
             user_ref = self.db.collection('users').document(user_id)
             user_doc = user_ref.get()
@@ -123,6 +129,9 @@ class TokenTracker:
     
     def get_user_usage_by_service(self, user_id):
         """Get usage breakdown by service type for a user"""
+        if not self.db:
+            return {}
+            
         try:
             logs = self.db.collection('api_usage_logs')\
                          .where('user_id', '==', user_id)\
@@ -154,6 +163,9 @@ class TokenTracker:
     
     def log_session_summary(self, user_id, session_type, score, duration, competencies_observed, tokens_used):
         """Log a session summary for analytics"""
+        if not self.db:
+            return False
+            
         try:
             summary = {
                 'user_id': user_id,
